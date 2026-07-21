@@ -1,0 +1,386 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สำรวจตลาดโดรนไทย — อัปเดต 02</title>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="tick" viewBox="0 0 16 16">
+    <path d="M8 1v4M8 11v4M1 8h4M11 8h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #F6F3EC;
+    --surface:       #FCFAF4;
+    --surface-raise: #FFFFFF;
+    --ink:           #1E2530;
+    --ink-secondary: #4B5560;
+    --ink-muted:     #8A8376;
+    --line:          #DED7C5;
+    --line-strong:   #C7BEA8;
+    --accent:        #E2621F;
+    --accent-tint:   #FBE7DA;
+    --warn:          #B03030;
+    --warn-tint:     #F9E4E1;
+    --good:          #2C6E49;
+    --good-tint:     #E2EFE6;
+    --cat-1:         #5B4FC4;
+    --cat-2:         #237A43;
+    --cat-3:         #0A6FA8;
+    --cat-4:         #B8770A;
+    --cat-5:         #B23368;
+    --shadow: 0 1px 2px rgba(30,37,48,0.04), 0 6px 20px rgba(30,37,48,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg:#12181D; --surface:#1A2129; --surface-raise:#1F2831;
+      --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+      --line:#2A333C; --line-strong:#3A4550;
+      --accent:#F0824A; --accent-tint:#3A2418;
+      --warn:#E8756B; --warn-tint:#3A1E1C;
+      --good:#5FB185; --good-tint:#17301F;
+      --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#12181D; --surface:#1A2129; --surface-raise:#1F2831;
+    --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+    --line:#2A333C; --line-strong:#3A4550;
+    --accent:#F0824A; --accent-tint:#3A2418;
+    --warn:#E8756B; --warn-tint:#3A1E1C;
+    --good:#5FB185; --good-tint:#17301F;
+    --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+  }
+  @media print {
+    :root, :root[data-theme="dark"] {
+      color-scheme: light;
+      --bg:#fff; --surface:#F7F5EF; --surface-raise:#fff;
+      --ink:#1E2530; --ink-secondary:#4B5560; --ink-muted:#6B6455;
+      --line:#DED7C5; --line-strong:#C7BEA8;
+      --accent:#E2621F; --accent-tint:#FBE7DA;
+      --warn:#B03030; --warn-tint:#F9E4E1; --good:#2C6E49; --good-tint:#E2EFE6;
+      --cat-1:#5B4FC4; --cat-2:#237A43; --cat-3:#0A6FA8; --cat-4:#B8770A; --cat-5:#B23368;
+      --shadow:none;
+    }
+    @page { size: A4; margin: 14mm 12mm; }
+    section, .log-header, .verdict, .manifest-wrap { break-inside: avoid; }
+    [data-tip]::after { display: none; }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Leelawadee UI", "Segoe UI", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 900px; margin: 0 auto; padding: clamp(20px,4vw,56px) clamp(16px,4vw,28px) 64px; }
+  h1,h2,h3 { font-family:"Bahnschrift","Leelawadee UI","Segoe UI Semibold","Segoe UI",sans-serif; text-wrap:balance; margin:0; color:var(--ink); }
+  .tabnum { font-variant-numeric: tabular-nums; }
+  .mono { font-family:"Cascadia Mono","Consolas",ui-monospace,monospace; }
+  .icon { width:14px; height:14px; color:var(--ink-muted); }
+
+  /* header */
+  .log-header { position:relative; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:clamp(20px,4vw,36px); box-shadow:var(--shadow); }
+  .log-header::before,.log-header::after { content:""; position:absolute; width:14px; height:14px; border-color:var(--line-strong); border-style:solid; border-width:0; }
+  .log-header::before { top:-1px; left:-1px; border-top-width:2px; border-left-width:2px; }
+  .log-header::after { top:-1px; right:-1px; border-top-width:2px; border-right-width:2px; }
+  .corner-bl { position:absolute; left:-1px; bottom:-1px; width:14px; height:14px; border-left:2px solid var(--line-strong); border-bottom:2px solid var(--line-strong); }
+  .corner-br { position:absolute; right:-1px; bottom:-1px; width:14px; height:14px; border-right:2px solid var(--line-strong); border-bottom:2px solid var(--line-strong); }
+  .eyebrow { display:flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:.09em; font-size:.72rem; font-weight:700; color:var(--ink-muted); margin-bottom:10px; }
+  .log-header h1 { font-size:clamp(1.5rem,1.15rem + 1.6vw,2.15rem); font-weight:600; }
+  .log-header .sub { margin-top:8px; color:var(--ink-secondary); max-width:62ch; }
+  .meta-row { margin-top:18px; padding-top:16px; border-top:1px dashed var(--line); display:flex; flex-wrap:wrap; gap:6px 22px; font-size:.82rem; color:var(--ink-muted); }
+  .meta-row b { color:var(--ink-secondary); font-weight:600; }
+
+  /* stats */
+  .stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:20px; }
+  @media (max-width:700px){ .stat-strip{ grid-template-columns:repeat(2,1fr);} }
+  .stat-tile { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px; }
+  .stat-tile.hero { background:var(--accent-tint); border-color:var(--accent); }
+  .stat-tile .v { font-family:"Bahnschrift",sans-serif; font-size:1.5rem; font-weight:600; letter-spacing:-.01em; }
+  .stat-tile.hero .v { color:var(--accent); }
+  .stat-tile .l { margin-top:4px; font-size:.76rem; color:var(--ink-muted); line-height:1.35; }
+
+  section { margin-top:46px; }
+  .section-head { display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+  .section-head h2 { font-size:1.15rem; font-weight:600; }
+  .section-head .icon { color:var(--accent); }
+  .section-note { margin:-6px 0 18px; color:var(--ink-secondary); font-size:.92rem; max-width:68ch; }
+
+  /* steps */
+  .steps { display:flex; flex-direction:column; }
+  .step { display:flex; gap:14px; padding:12px 4px; border-bottom:1px solid var(--line); }
+  .step:last-child { border-bottom:none; }
+  .step .n { flex:none; width:26px; height:26px; border-radius:50%; background:var(--surface-raise); border:1px solid var(--line-strong); display:flex; align-items:center; justify-content:center; font-family:"Bahnschrift",sans-serif; font-size:.82rem; font-weight:600; color:var(--ink-secondary); }
+  .step .t { font-weight:600; }
+  .step .d { color:var(--ink-secondary); font-size:.92rem; margin-top:2px; }
+
+  /* vertical chart */
+  .vchart { display:flex; align-items:flex-end; gap:clamp(6px,2vw,18px); height:180px; border-bottom:1px solid var(--line-strong); }
+  .vcol { flex:1; display:flex; align-items:flex-end; justify-content:center; gap:5px; height:100%; }
+  .vbar { flex:1; max-width:64px; background:var(--cat-3); border-radius:4px 4px 0 0; min-height:3px; cursor:default; }
+  .vbar.b2 { background:var(--cat-4); }
+  .vbar:hover,.vbar:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .vlabels { display:flex; gap:clamp(6px,2vw,18px); margin-top:8px; }
+  .vlabels div { flex:1; text-align:center; font-size:.8rem; color:var(--ink-secondary); font-weight:600; }
+  .vlabels .note { display:block; font-size:.68rem; font-weight:400; color:var(--ink-muted); }
+
+  [data-tip]{position:relative;}
+  [data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:.74rem;font-family:"Cascadia Mono","Consolas",ui-monospace,monospace;padding:5px 9px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5;box-shadow:var(--shadow);}
+  [data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;}
+  .hbar-row[data-tip]::after{bottom:auto;top:50%;left:auto;right:4px;transform:translateY(-50%);}
+
+  .legend { display:flex; flex-wrap:wrap; gap:12px 16px; margin-bottom:14px; font-size:.8rem; color:var(--ink-secondary); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .chart-caption { margin-top:12px; font-size:.84rem; color:var(--ink-muted); }
+
+  /* horizontal bars */
+  .hchart { display:flex; flex-direction:column; gap:9px; }
+  .hbar-row { display:grid; grid-template-columns:minmax(90px,150px) 1fr auto; align-items:center; gap:10px; }
+  .hbar-label { font-size:.86rem; color:var(--ink-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hbar-label b { color:var(--ink); font-weight:600; }
+  .hbar-track { background:var(--surface); border:1px solid var(--line); border-radius:5px; height:20px; overflow:hidden; }
+  .hbar-fill { height:100%; border-radius:4px; cursor:default; }
+  .hbar-fill:hover,.hbar-fill:focus-visible { filter:brightness(1.08); outline:2px solid var(--accent); outline-offset:-2px; }
+  .hbar-fill.other { background:repeating-linear-gradient(135deg,var(--ink-muted),var(--ink-muted) 5px,transparent 5px,transparent 9px); opacity:.6; }
+  .hbar-value { font-size:.82rem; font-weight:600; min-width:52px; text-align:right; }
+
+  /* verdict boxes */
+  .verdict { border-radius:10px; padding:18px 20px; margin-bottom:16px; border:1px solid; }
+  .verdict.ok { background:var(--good-tint); border-color:var(--good); }
+  .verdict.bad { background:var(--warn-tint); border-color:var(--warn); }
+  .verdict .vh { font-family:"Bahnschrift",sans-serif; font-weight:700; font-size:1rem; display:flex; align-items:center; gap:8px; }
+  .verdict.ok .vh { color:var(--good); }
+  .verdict.bad .vh { color:var(--warn); }
+  .verdict p { margin:8px 0 0; font-size:.92rem; color:var(--ink-secondary); }
+
+  /* tables */
+  .manifest-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; min-width:520px; font-size:.86rem; }
+  th,td { text-align:left; padding:9px 14px; border-bottom:1px solid var(--line); }
+  th { color:var(--ink-muted); font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
+  tr:last-child td { border-bottom:none; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  td.path { font-family:"Cascadia Mono","Consolas",ui-monospace,monospace; white-space:nowrap; }
+  .zero { color:var(--warn); font-weight:700; }
+  .indent1 { padding-left:26px !important; }
+
+  .callout { background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--ink-muted); border-radius:6px; padding:14px 18px; }
+  .callout ul { margin:4px 0 0; padding-left:20px; }
+  .callout li { margin:6px 0; color:var(--ink-secondary); font-size:.92rem; }
+
+  .checklist { display:flex; flex-direction:column; gap:10px; }
+  .check-row { display:flex; gap:12px; align-items:flex-start; padding:12px 14px; background:var(--surface); border:1px solid var(--line); border-radius:8px; }
+  .check-row .box { flex:none; width:17px; height:17px; margin-top:2px; border:1.6px solid var(--line-strong); border-radius:4px; }
+  .check-row .t { font-weight:600; font-size:.94rem; }
+  .check-row .d { color:var(--ink-muted); font-size:.82rem; margin-top:2px; }
+
+  footer { margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--ink-muted); display:flex; flex-direction:column; gap:4px; }
+</style>
+
+<div class="page">
+
+  <header class="log-header">
+    <span class="corner-bl"></span><span class="corner-br"></span>
+    <div class="eyebrow"><svg class="icon"><use href="#tick"/></svg> PROJECT LOG · สำรวจตลาดโดรนประเทศไทย</div>
+    <h1>อัปเดต 02 — เพิ่มมุมมูลค่า จาก UN Comtrade</h1>
+    <p class="sub">ต่อยอดจากอัปเดต 01 ที่ได้ "จำนวนเครื่อง" จาก กสทช. รอบนี้เพิ่มข้อมูลการค้า HS 8806 เพื่อตอบว่าตลาดใหญ่แค่ไหน<b>เป็นเงิน</b> — และเอาสองแหล่งมาชนกันเพื่อตรวจสอบซึ่งกันและกัน</p>
+    <div class="meta-row">
+      <span><b>วันที่:</b> 22 กรกฎาคม 2569 (2026-07-22)</span>
+      <span><b>แหล่งใหม่:</b> UN Comtrade HS 8806</span>
+      <span><b>ช่วงข้อมูล:</b> 2022–2024</span>
+      <span><b>ต่อจาก:</b> update-01</span>
+    </div>
+  </header>
+
+  <div class="stat-strip">
+    <div class="stat-tile hero"><div class="v tabnum">$88.3M</div><div class="l">มูลค่านำเข้าโดรน ปี 2024</div></div>
+    <div class="stat-tile"><div class="v tabnum">2.3 เท่า</div><div class="l">โตจากปี 2022 ($37.9M)</div></div>
+    <div class="stat-tile"><div class="v tabnum">97.5%</div><div class="l">นำเข้ามาจากจีน</div></div>
+    <div class="stat-tile"><div class="v tabnum">~$1,000</div><div class="l">ราคาเฉลี่ยต่อลำ (CIF จากจีน)</div></div>
+  </div>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>สิ่งที่ทำรอบนี้</h2></div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><div class="t">เชื่อมต่อ UN Comtrade API (HS 8806)</div><div class="d">ใส่ API key, ดึงข้อมูลการค้าโดรนของไทยปี 2022–2024 ทั้งยอดรวมและแยกรายประเทศคู่ค้า</div></div></div>
+      <div class="step"><div class="n">2</div><div><div class="t">ตรวจสอบว่าไม่มีการนับซ้ำ</div><div class="d">ยืนยันว่า ยอดรวมทั้งโลก = ผลรวมรายประเทศ ครบทุกปี — พิสูจน์ว่า <span class="mono">breakdownMode=classic</span> ทำงานถูกต้อง</div></div></div>
+      <div class="step"><div class="n">3</div><div><div class="t">คำนวณราคาต่อลำและช่องว่างการจดทะเบียน</div><div class="d">เอาจำนวนลำที่นำเข้า มาเทียบกับจำนวนที่จดทะเบียนกับ กสทช. จากอัปเดต 01</div></div></div>
+      <div class="step"><div class="n">4</div><div><div class="t">ทำ mirror check กับประเทศคู่ค้า</div><div class="d">ตรวจตัวเลขส่งออกจากฝั่งปลายทาง — และพบว่าใช้ไม่ได้ (ดูหัวข้อสุดท้าย)</div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ในที่สุดก็ได้ขนาดตลาดเป็นเงิน</h2></div>
+    <p class="section-note">มูลค่านำเข้าโดรน (HS 8806) ของไทยรายปี — ข้อมูลนี้คือสิ่งที่ทะเบียน กสทช. ให้ไม่ได้ เพราะทะเบียนบอกได้แค่ "กี่ลำ" ไม่ได้บอก "กี่บาท"</p>
+    <div class="vchart">
+      <div class="vcol"><div class="vbar" tabindex="0" data-tip="2022: $37,932,343" style="height:43%"></div></div>
+      <div class="vcol"><div class="vbar" tabindex="0" data-tip="2023: $73,466,922 (+93.7%)" style="height:83.2%"></div></div>
+      <div class="vcol"><div class="vbar" tabindex="0" data-tip="2024: $88,260,306 (+20.1%)" style="height:100%"></div></div>
+    </div>
+    <div class="vlabels">
+      <div>2022<span class="note">$37.9M</span></div>
+      <div>2023<span class="note">$73.5M · +94%</span></div>
+      <div>2024<span class="note">$88.3M · +20%</span></div>
+    </div>
+    <p class="chart-caption">มูลค่านำเข้า CIF หน่วย USD · HS 8806 "Unmanned aircraft" เริ่มมีข้อมูลปี 2022 (ก่อนหน้านั้นโดรนปนอยู่ใน 8802/8525) · ปี 2025 ไทยยังไม่รายงานต่อ UN</p>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>สองแหล่งอิสระ ยืนยันตรงกัน</h2></div>
+    <div class="verdict ok">
+      <div class="vh">✓ ข้อสรุป "พึ่งพาจีน" แน่นหนาขึ้นมาก</div>
+      <p>กสทช. บอกว่า <b>DJI ครองส่วนแบ่ง 88.2%</b> ของโดรนที่จดทะเบียน — Comtrade บอกว่า <b>97.5% ของมูลค่านำเข้ามาจากจีน</b> สองตัวเลขนี้มาจากคนละหน่วยงาน คนละวิธีเก็บ คนละหน่วยวัด แต่ชี้ไปทางเดียวกัน นี่คือการยืนยันแบบ cross-validation ที่แหล่งข้อมูลเดียวให้ไม่ได้</p>
+    </div>
+    <p class="section-note">สัดส่วนแหล่งนำเข้าเปลี่ยนไปอย่างไร — ปี 2022 ยังมียุโรปเป็นสัดส่วนใหญ่ แต่หลังจากนั้นเหลือจีนแทบทั้งหมด</p>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="$23,327,701 จาก $37.9M"><span class="hbar-label"><b>2022</b> จีน</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:61.5%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">61.5%</span></div>
+      <div class="hbar-row" data-tip="$10,909,179 — น่าจะเป็นโดรนอุตสาหกรรม/ความมั่นคงก้อนใหญ่"><span class="hbar-label">&nbsp;&nbsp;&nbsp;&nbsp;ออสเตรีย</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:28.8%;background:var(--cat-1)"></div></div><span class="hbar-value tabnum">28.8%</span></div>
+      <div class="hbar-row" data-tip="$2,983,881"><span class="hbar-label">&nbsp;&nbsp;&nbsp;&nbsp;สเปน</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:7.9%;background:var(--cat-1)"></div></div><span class="hbar-value tabnum">7.9%</span></div>
+      <div class="hbar-row" data-tip="$71,304,414 จาก $73.5M"><span class="hbar-label"><b>2023</b> จีน</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:97.1%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">97.1%</span></div>
+      <div class="hbar-row" data-tip="$86,083,776 จาก $88.3M"><span class="hbar-label"><b>2024</b> จีน</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:97.5%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">97.5%</span></div>
+    </div>
+    <p class="chart-caption"><b>ข้อสังเกตปี 2022:</b> ออสเตรีย + สเปน รวมกัน 36.6% ($13.9M) แล้ว<b>หายไปเลย</b>ในปีถัดมา — ลักษณะของการจัดซื้อโดรนอุตสาหกรรม/ความมั่นคงแบบก้อนใหญ่ครั้งเดียว ซึ่งเป็นคนละตลาดกับโดรนผู้บริโภค ควรแยกวิเคราะห์</p>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ข้อค้นพบใหม่: ช่องว่างการจดทะเบียนกำลังถ่างออก</h2></div>
+    <p class="section-note">เอาจำนวนลำที่นำเข้า (Comtrade) มาเทียบกับจำนวนที่จดทะเบียน (กสทช.) — นี่คือ insight ที่ต้องมีสองแหล่งถึงจะเห็น</p>
+    <div class="legend">
+      <span><i style="background:var(--cat-3)"></i>นำเข้า (ลำ)</span>
+      <span><i style="background:var(--cat-4)"></i>จดทะเบียนกับ กสทช. (ลำ)</span>
+    </div>
+    <div class="vchart">
+      <div class="vcol">
+        <div class="vbar" tabindex="0" data-tip="นำเข้า 2022: 23,502 ลำ" style="height:25.8%"></div>
+        <div class="vbar b2" tabindex="0" data-tip="จดทะเบียน 2022: 22,476 ลำ" style="height:24.7%"></div>
+      </div>
+      <div class="vcol">
+        <div class="vbar" tabindex="0" data-tip="นำเข้า 2023: 45,765 ลำ" style="height:50.3%"></div>
+        <div class="vbar b2" tabindex="0" data-tip="จดทะเบียน 2023: 25,537 ลำ" style="height:28.1%"></div>
+      </div>
+      <div class="vcol">
+        <div class="vbar" tabindex="0" data-tip="นำเข้า 2024: 90,949 ลำ" style="height:100%"></div>
+        <div class="vbar b2" tabindex="0" data-tip="จดทะเบียน 2024: 37,546 ลำ" style="height:41.3%"></div>
+      </div>
+    </div>
+    <div class="vlabels">
+      <div>2022<span class="note">จดทะเบียน 96%</span></div>
+      <div>2023<span class="note">จดทะเบียน 56%</span></div>
+      <div>2024<span class="note">จดทะเบียน 41%</span></div>
+    </div>
+    <p class="chart-caption">ทั้งสองชุดใช้หน่วยเดียวกัน (จำนวนลำ) จึงวางบนแกนเดียวกันได้ · ยืนยันแล้วว่าหน่วย <span class="mono">qty</span> ของ Comtrade คือ "จำนวนชิ้น" (unit code 5)</p>
+
+    <div class="callout" style="margin-top:18px">
+      <ul>
+        <li><b>อ่านเป็นทิศทางเท่านั้น ไม่ใช่อัตราที่แม่นยำ</b> — โดรนที่นำเข้าปีหนึ่งอาจไปจดทะเบียนปีถัดไป (มี lag ของสต๊อกและช่องทางขาย) และ 1 หน่วยศุลกากรไม่จำเป็นต้องเท่ากับ 1 ทะเบียน กสทช.</li>
+        <li>แต่<b>ทิศทางชัดเจนมาก</b>: การนำเข้าโตเร็วกว่าการจดทะเบียนอย่างมีนัยสำคัญ และช่องว่างถ่างขึ้นทุกปี</li>
+        <li><b>สอดคล้องกับที่ CAAT เคยประเมิน</b>ว่ามีโดรนไม่จดทะเบียนราว 20,000 ลำ — ตัวเลขจากคนละทางแต่ชี้ปัญหาเดียวกัน</li>
+        <li><b>นัยสำคัญ:</b> ตัวเลขจาก กสทช. ในอัปเดต 01 น่าจะ<b>ประเมินขนาดตลาดจริงต่ำกว่าความเป็นจริง</b></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ราคาเฉลี่ยต่อลำ</h2></div>
+    <p class="section-note">คำนวณจากมูลค่า ÷ จำนวนลำ ของสินค้านำเข้าจากจีน</p>
+    <div class="manifest-wrap">
+      <table>
+        <thead><tr><th>ปี</th><th class="num">มูลค่า (USD)</th><th class="num">จำนวน (ลำ)</th><th class="num">USD/ลำ</th><th class="num">กก./ลำ</th></tr></thead>
+        <tbody>
+          <tr><td>2022</td><td class="num">23,327,701</td><td class="num">23,411</td><td class="num">996</td><td class="num">6.94</td></tr>
+          <tr><td>2023</td><td class="num">71,304,414</td><td class="num">44,980</td><td class="num">1,585</td><td class="num">7.37</td></tr>
+          <tr><td>2024</td><td class="num">86,083,776</td><td class="num">88,042</td><td class="num">978</td><td class="num">5.12</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="chart-caption">เป็นราคานำเข้า (CIF) ไม่ใช่ราคาขายปลีก — ยังไม่รวมภาษี อากร และกำไรผู้จัดจำหน่าย · <b>ข้อสังเกต:</b> ปี 2024 ทั้งราคาและน้ำหนักเฉลี่ยลดลงพร้อมกัน ขณะที่ปริมาณเกือบเท่าตัว = ตลาดกำลังเลื่อนไปทางโดรนขนาดเล็กลงและถูกลง</p>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>⚠️ ข้อมูลส่งออกใช้ไม่ได้ — และเราเกือบเขียนลงรายงาน</h2></div>
+    <div class="verdict bad">
+      <div class="vh">✗ ตัวเลขส่งออกของไทยใน HS 8806 ไม่ผ่านการตรวจสอบ</div>
+      <p>ข้อมูลดิบระบุว่าไทยส่งออกโดรนมูลค่า <b>$38.1M ในปี 2024</b> ซึ่งดูเป็นเรื่องใหญ่ แต่เมื่อทำ <b>mirror check</b> — ตรวจว่าประเทศปลายทางรายงานว่านำเข้าจากไทยตรงกันหรือไม่ (การค้า 1 รายการต้องถูกบันทึกทั้ง 2 ฝั่ง) — พบว่าแทบไม่มีใครยืนยันเลย</p>
+    </div>
+    <div class="manifest-wrap">
+      <table>
+        <thead><tr><th>ปลายทาง</th><th class="num">ไทยรายงานว่าส่งออก (2024)</th><th class="num">ปลายทางรายงานว่านำเข้าจากไทย</th><th class="num">ปลายทางนำเข้า 8806 จากทั้งโลก</th></tr></thead>
+        <tbody>
+          <tr><td>โปแลนด์</td><td class="num">5,592,750</td><td class="num zero">0</td><td class="num">291,338,349</td></tr>
+          <tr><td>ลิทัวเนีย</td><td class="num">2,254,017</td><td class="num zero">0</td><td class="num">11,779,982</td></tr>
+          <tr><td>กัมพูชา</td><td class="num">722,396</td><td class="num zero">0</td><td class="num">312,667</td></tr>
+          <tr><td>สหรัฐฯ</td><td class="num">3,281,956</td><td class="num">92,586</td><td class="num">480,504,491</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="chart-caption">คอลัมน์ขวาสุดสำคัญมาก: มันพิสูจน์ว่าประเทศเหล่านี้<b>รายงาน HS 8806 ตามปกติครบถ้วน</b> จึงไม่ใช่กรณี "ไม่ได้ส่งข้อมูล" — เขารายงานละเอียด แต่ไม่มีของจากไทย</p>
+
+    <div class="callout" style="margin-top:18px">
+      <ul>
+        <li><b>ข้อสรุป:</b> ตัวเลข export มีแนวโน้มสูงว่าเป็น artifact จากการจัดประเภทสินค้า — HS 8806 เป็นรหัสใหม่ (สร้างปี 2022) การจัดประเภทผิดในช่วงแรกเป็นเรื่องที่พบได้ทั่วไป</li>
+        <li><b>ผลต่อการวิเคราะห์:</b> ห้ามเอาตัวเลข export ไปหักออกจาก import เพื่อหา "ยอดคงเหลือในประเทศ" — ตัวเลขช่องว่างการจดทะเบียนด้านบนจึงคิดจากฝั่งนำเข้าอย่างเดียว</li>
+        <li><b>บทเรียนสำหรับโปรเจกต์นี้:</b> ข้อมูลจากแหล่งทางการก็ผิดได้ ตัวเลขที่ "น่าตื่นเต้นผิดปกติ" ควร mirror check ก่อนเสมอ ต้นทุนแค่ไม่กี่ API call</li>
+        <li>บันทึกไว้ใน <span class="mono">SOURCES.md</span> เป็น "กับดักข้อที่ 4" แล้ว เพื่อไม่ให้พลาดซ้ำ</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ภาพรวมที่ได้ตอนนี้</h2></div>
+    <div class="manifest-wrap">
+      <table>
+        <thead><tr><th>คำถาม</th><th>คำตอบ</th><th>จากแหล่ง</th></tr></thead>
+        <tbody>
+          <tr><td>ตลาดใหญ่แค่ไหน (เงิน)</td><td>นำเข้า $88.3M ในปี 2024, โต 2.3 เท่าใน 2 ปี</td><td>Comtrade</td></tr>
+          <tr><td>ตลาดใหญ่แค่ไหน (จำนวน)</td><td>นำเข้า 90,949 ลำ (2024) · จดทะเบียนสะสม 205,287</td><td>Comtrade + กสทช.</td></tr>
+          <tr><td>ใครครองตลาด</td><td>จีน 97.5% ของมูลค่า · DJI 88.2% ของทะเบียน</td><td>ทั้งสองแหล่งตรงกัน</td></tr>
+          <tr><td>ราคาต่อลำ</td><td>~$978–1,585 (ราคานำเข้า)</td><td>Comtrade</td></tr>
+          <tr><td>ใช้ทำอะไร / อยู่ที่ไหน</td><td>งานอดิเรก 76% · เกษตร 15% · กทม. 25.8%</td><td>กสทช.</td></tr>
+          <tr><td>มีโดรนไม่จดทะเบียนเยอะไหม</td><td>เยอะ และเพิ่มขึ้น — ปี 2024 จดทะเบียนเพียง ~41% ของที่นำเข้า</td><td>สองแหล่งชนกัน</td></tr>
+          <tr><td>ไทยส่งออกโดรนไหม</td><td><b>ยังตอบไม่ได้</b> — ข้อมูล Comtrade ไม่ผ่าน mirror check</td><td>ต้องหาแหล่งอื่น</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ไฟล์ที่เพิ่มรอบนี้</h2></div>
+    <div class="manifest-wrap">
+      <table>
+        <thead><tr><th>Path</th><th>รายละเอียด</th></tr></thead>
+        <tbody>
+          <tr><td class="path">scripts/comtrade_fetch.py</td><td>ดึงข้อมูล Comtrade (มีอยู่แล้ว — รันรอบนี้)</td></tr>
+          <tr><td class="path">scripts/comtrade_analyze.py</td><td>วิเคราะห์ภาพรวม + เชื่อมกับ กสทช.</td></tr>
+          <tr><td class="path">scripts/comtrade_deepdive.py</td><td>unit economics + ช่องว่างการจดทะเบียน</td></tr>
+          <tr><td class="path">scripts/comtrade_mirror_check.py</td><td><b>ตรวจสอบข้ามฝั่ง — ตัวที่จับ artifact ได้</b></td></tr>
+          <tr><td class="path">data/raw/comtrade_hs8806_*.json</td><td>ข้อมูลดิบจาก API</td></tr>
+          <tr><td class="path">data/processed/comtrade_hs8806_*.csv</td><td>ข้อมูลจัดระเบียบแล้ว</td></tr>
+          <tr><td class="path">SOURCES.md</td><td>อัปเดต: เพิ่ม "กับดักข้อที่ 4" เรื่องข้อมูล export</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ต่อไปคืออะไร</h2></div>
+    <div class="checklist">
+      <div class="check-row"><span class="box"></span><div><div class="t">ตามหาความจริงเรื่องการส่งออกที่กระทรวงพาณิชย์</div><div class="d">tradereport.moc.go.th มี API รายชื่อผู้นำเข้า-ส่งออก — ตรวจว่ามีผู้ส่งออกโดรนจริงหรือไม่</div></div></div>
+      <div class="check-row"><span class="box"></span><div><div class="t">เจาะ segment ตามราคา/น้ำหนัก</div><div class="d">ยืนยันสมมติฐานว่าตลาดกำลังเลื่อนไปทางโดรนเล็กลงถูกลง (ปี 2024 ราคาและน้ำหนักลดพร้อมกัน)</div></div></div>
+      <div class="check-row"><span class="box"></span><div><div class="t">แยกตลาดโดรนอุตสาหกรรม/ความมั่นคงออกมา</div><div class="d">ก้อนออสเตรีย/สเปน ปี 2022 บอกว่ามีตลาดนี้อยู่ แต่ปนอยู่ในตัวเลขรวม</div></div></div>
+      <div class="check-row"><span class="box"></span><div><div class="t">อัปเดตรายงานฉบับสาธารณะ</div><div class="d">เพิ่มมุมมูลค่า ($88.3M) เข้าไป — แต่ไม่รวมเรื่องข้อมูล export ที่ยังไม่ยืนยัน</div></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>แหล่งข้อมูล: UN Comtrade (HS 8806, reporter 764 Thailand) · สำนักงาน กสทช. — ทะเบียนเครื่องวิทยุคมนาคมสำหรับอากาศยานซึ่งไม่มีนักบิน</span>
+    <span>รายงานนี้คือ Update 02 ของบันทึกโปรเจกต์ — ดูดัชนีทั้งหมดที่ reports/UPDATES.md · เป็นฉบับภายในสำหรับทีม (มีเรื่องคุณภาพข้อมูลที่ยังไม่ควรเผยแพร่)</span>
+  </footer>
+
+</div>
