@@ -1,0 +1,119 @@
+﻿year,flow,partner,partner_code,value_usd,qty,net_weight_kg
+2022,export,Singapore,702,519969.562,144.0,4498.0
+2022,export,Cambodia,116,352216.598,64.0,12262.0
+2022,export,USA,842,71272.247,12.0,61.0
+2022,export,Lao People's Dem. Rep.,418,54787.321,9.0,255.0
+2022,export,Israel,376,34999.986,3.0,159.0
+2022,export,India,699,17499.993,2.0,110.0
+2022,export,Indonesia,360,3581.352,1.0,147.0
+2022,export,Japan,392,436.27,4.0,28.0
+2022,export,France,251,99.991,1.0,1.0
+2022,import,China,156,23327701.027,23411.0,162569.0
+2022,import,Austria,40,10909179.409,2.0,8551.0
+2022,import,Spain,724,2983881.263,4.0,967.0
+2022,import,USA,842,180319.583,29.0,219.0
+2022,import,Canada,124,175165.635,2.0,79.0
+2022,import,Switzerland,757,127282.247,7.0,122.0
+2022,import,Norway,579,95503.039,1.0,12.0
+2022,import,Germany,276,43551.341,9.0,42.0
+2022,import,Rep. of Korea,410,26355.056,12.0,163.0
+2022,import,Israel,376,18186.306,2.0,70.0
+2022,import,India,699,17500.014,2.0,110.0
+2022,import,South Africa,710,15891.033,1.0,89.0
+2022,import,"Other Asia, nes",490,4107.371,3.0,8.0
+2022,import,Thailand,764,1517.287,1.0,16.0
+2022,import,Türkiye,792,1513.329,1.0,2.0
+2022,import,Japan,392,1432.419,4.0,46.0
+2022,import,Australia,36,901.048,2.0,2.0
+2022,import,Czechia,203,793.032,2.0,2.0
+2022,import,Singapore,702,738.558,3.0,34.0
+2022,import,Indonesia,360,327.671,1.0,3.0
+2022,import,France,251,224.813,1.0,3.0
+2022,import,United Kingdom,826,143.275,1.0,1.0
+2022,import,"China, Hong Kong SAR",344,128.542,1.0,2.0
+2023,export,Russian Federation,643,37050911.032,14594.0,106657.0
+2023,export,Lithuania,440,1189084.94,279.0,1395.0
+2023,export,USA,842,778836.562,54.0,
+2023,export,Poland,616,511469.981,167.0,835.0
+2023,export,Cambodia,116,483862.821,75.0,2195.0
+2023,export,Lao People's Dem. Rep.,418,349273.023,13.0,455.0
+2023,export,"China, Hong Kong SAR",344,309059.995,71.0,358.0
+2023,export,Czechia,203,242873.02,66.0,330.0
+2023,export,Ukraine,804,192500.015,50.0,250.0
+2023,export,Japan,392,148271.992,5.0,414.0
+2023,export,Iran,364,90023.01,931.0,497.0
+2023,export,Switzerland,757,87732.125,20.0,100.0
+2023,export,Philippines,608,82489.998,25.0,634.0
+2023,export,India,699,33100.029,5.0,153.0
+2023,export,Myanmar,104,22479.377,5.0,22.0
+2023,export,Viet Nam,704,14717.602,6.0,71.0
+2023,export,Singapore,702,12074.764,3.0,296.0
+2023,export,United Arab Emirates,784,8899.857,1.0,80.0
+2023,export,Türkiye,792,5478.108,3.0,95.0
+2023,export,Canada,124,5000.015,1.0,2.0
+2023,export,Rep. of Korea,410,3896.894,4.0,15.0
+2023,export,South Africa,710,2000.0,1.0,50.0
+2023,export,France,251,500.009,1.0,6.0
+2023,export,Qatar,634,70.011,1.0,3.0
+2023,import,China,156,71304413.522,44980.194,331401.067
+2023,import,USA,842,1009425.371,22.0,137.0
+2023,import,Israel,376,515119.615,3.0,78.0
+2023,import,Japan,392,164862.547,4.0,412.0
+2023,import,Switzerland,757,113411.315,7.0,105.879
+2023,import,Rep. of Korea,410,112132.928,660.0,303.0
+2023,import,Singapore,702,95751.159,6.0,189.15
+2023,import,Greece,300,43597.19,2.0,44.0
+2023,import,Thailand,764,20456.018,8.0,90.0
+2023,import,Canada,124,20226.775,2.0,6.0
+2023,import,Viet Nam,704,14717.58,6.0,71.0
+2023,import,Germany,276,13922.171,4.0,18.0
+2023,import,Australia,36,13194.111,3.0,300.0
+2023,import,Norway,579,8248.977,1.0,7.0
+2023,import,Malaysia,458,6145.529,42.0,49.0
+2023,import,Türkiye,792,5478.124,3.0,95.0
+2023,import,South Africa,710,1999.989,1.0,50.0
+2023,import,"China, Hong Kong SAR",344,1920.852,7.0,23.0
+2023,import,Netherlands,528,893.162,1.0,1.0
+2023,import,United Kingdom,826,782.182,1.0,3.619
+2023,import,Mexico,484,215.867,1.0,10.0
+2023,import,Denmark,208,7.331,1.0,3.0
+2024,export,Russian Federation,643,24722099.93,18750.0,52485.0
+2024,export,Poland,616,5592749.98,1685.0,8425.0
+2024,export,USA,842,3281955.69,157.0,4856.0
+2024,export,Lithuania,440,2254016.92,602.0,2960.0
+2024,export,Cambodia,116,722396.07,482.0,832.0
+2024,export,China,156,560935.0,3250.0,2013.0
+2024,export,"China, Hong Kong SAR",344,499630.39,515.0,980.377
+2024,export,Japan,392,126121.83,2.0,712.0
+2024,export,Singapore,702,110561.42,503.0,521.0
+2024,export,Indonesia,360,60432.73,1.0,424.0
+2024,export,Germany,276,56578.86,4.0,96.0
+2024,export,Austria,40,30496.13,2.0,392.0
+2024,export,Lao People's Dem. Rep.,418,29936.56,3.0,254.0
+2024,export,Philippines,608,29044.88,22.0,90.0
+2024,export,Rep. of Korea,410,6800.01,1.0,42.0
+2024,export,United Kingdom,826,1673.99,1.0,1.961
+2024,export,France,251,1589.02,1.0,1.0
+2024,export,India,699,1500.0,5.0,5.0
+2024,export,Norway,579,1150.67,24.0,12.0
+2024,export,Myanmar,104,579.73,4.0,27.0
+2024,export,Malaysia,458,555.5,1.0,13.0
+2024,export,Maldives,462,40.0,1.0,0.205
+2024,import,China,156,86083776.03,88042.002,450559.775
+2024,import,Thailand,764,614211.45,462.0,263.0
+2024,import,Singapore,702,582012.17,504.0,747.0
+2024,import,USA,842,259472.03,31.0,260.069
+2024,import,Malaysia,458,239918.52,380.0,273.0
+2024,import,Switzerland,757,188188.74,6.0,212.0
+2024,import,Viet Nam,704,102784.84,11.0,123.0
+2024,import,Rep. of Korea,410,65034.73,289.0,270.0
+2024,import,Japan,392,49958.18,4.0,85.0
+2024,import,Spain,724,39810.37,5.0,64.0
+2024,import,Germany,276,14328.46,1.0,23.0
+2024,import,"China, Hong Kong SAR",344,10092.71,1207.0,186.0
+2024,import,Austria,40,5450.94,1.0,360.0
+2024,import,Netherlands,528,2204.79,2.0,3.626
+2024,import,United Kingdom,826,1584.37,1.0,3.726
+2024,import,Latvia,428,995.16,1.0,2.0
+2024,import,United Arab Emirates,784,335.04,1.0,1.0
+2024,import,South Africa,710,147.37,1.0,1.0
