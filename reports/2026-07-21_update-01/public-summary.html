@@ -1,0 +1,268 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตลาดโดรนไทย โตแค่ไหนในรอบ 9 ปี — สรุปจากข้อมูล กสทช.</title>
+
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #F6F3EC;
+    --surface:       #FCFAF4;
+    --surface-raise: #FFFFFF;
+    --ink:           #1E2530;
+    --ink-secondary: #4B5560;
+    --ink-muted:     #8A8376;
+    --line:          #DED7C5;
+    --line-strong:   #C7BEA8;
+    --accent:        #E2621F;
+    --accent-tint:   #FBE7DA;
+    --cat-1:         #5B4FC4;
+    --cat-2:         #237A43;
+    --cat-3:         #0A6FA8;
+    --cat-4:         #B8770A;
+    --cat-5:         #B23368;
+    --shadow: 0 1px 2px rgba(30,37,48,0.04), 0 6px 20px rgba(30,37,48,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg:            #12181D;
+      --surface:       #1A2129;
+      --surface-raise: #1F2831;
+      --ink:           #EDEAE1;
+      --ink-secondary: #ABB2B8;
+      --ink-muted:     #7C838A;
+      --line:          #2A333C;
+      --line-strong:   #3A4550;
+      --accent:        #F0824A;
+      --accent-tint:   #3A2418;
+      --cat-1: #8B7EE0; --cat-2: #3F9B5D; --cat-3: #4B9BCE; --cat-4: #B87A22; --cat-5: #D9628A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #12181D; --surface:#1A2129; --surface-raise:#1F2831;
+    --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+    --line:#2A333C; --line-strong:#3A4550;
+    --accent:#F0824A; --accent-tint:#3A2418;
+    --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+  }
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"] {
+      color-scheme: light;
+      --bg:#ffffff; --surface:#F7F5EF; --surface-raise:#ffffff;
+      --ink:#1E2530; --ink-secondary:#4B5560; --ink-muted:#6B6455;
+      --line:#DED7C5; --line-strong:#C7BEA8;
+      --accent:#E2621F; --accent-tint:#FBE7DA;
+      --cat-1:#5B4FC4; --cat-2:#237A43; --cat-3:#0A6FA8; --cat-4:#B8770A; --cat-5:#B23368;
+      --shadow: none;
+    }
+    @page { size: A4; margin: 15mm 13mm; }
+    body { background: #fff; }
+    .masthead, section, .takeaways, .cta { break-inside: avoid; page-break-inside: avoid; }
+    [data-tip]::after { display: none; }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Leelawadee UI", "Segoe UI", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: clamp(20px, 4vw, 48px) clamp(16px, 4vw, 24px) 56px; }
+  h1, h2, h3 { font-family: "Bahnschrift", "Leelawadee UI", "Segoe UI Semibold", "Segoe UI", sans-serif; text-wrap: balance; margin: 0; color: var(--ink); }
+  .tabnum { font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); }
+
+  /* masthead */
+  .masthead { display: flex; align-items: center; gap: 7px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 22px; }
+  .masthead .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  .hero h1 { font-size: clamp(1.7rem, 1.25rem + 2.2vw, 2.6rem); font-weight: 700; line-height: 1.2; }
+  .hero .sub { margin-top: 12px; font-size: 1.05rem; color: var(--ink-secondary); max-width: 58ch; }
+  .hero .byline { margin-top: 16px; font-size: .82rem; color: var(--ink-muted); }
+
+  .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 30px; }
+  @media (max-width: 640px) { .stat-strip { grid-template-columns: repeat(2, 1fr); } }
+  .stat-tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 14px 13px; }
+  .stat-tile.hero-tile { background: var(--accent-tint); border-color: var(--accent); }
+  .stat-tile .v { font-family: "Bahnschrift", sans-serif; font-size: 1.65rem; font-weight: 700; letter-spacing: -.01em; }
+  .stat-tile.hero-tile .v { color: var(--accent); }
+  .stat-tile .l { margin-top: 4px; font-size: .78rem; color: var(--ink-muted); line-height: 1.35; }
+
+  section { margin-top: 50px; }
+  .section-head { margin-bottom: 6px; }
+  .section-head h2 { font-size: 1.3rem; font-weight: 700; }
+  .section-note { margin: 8px 0 20px; color: var(--ink-secondary); font-size: .94rem; max-width: 65ch; }
+
+  /* year chart */
+  .vchart { display: flex; align-items: flex-end; gap: clamp(4px,1.4vw,10px); height: 190px; padding: 0 2px; border-bottom: 1px solid var(--line-strong); position: relative; }
+  .vbar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .vbar-track { width: 100%; height: 100%; display: flex; align-items: flex-end; }
+  .vbar-fill { width: 100%; background: var(--cat-3); border-radius: 5px 5px 0 0; min-height: 3px; cursor: default; }
+  .vbar-fill.partial { background: repeating-linear-gradient(135deg, var(--cat-3), var(--cat-3) 5px, transparent 5px, transparent 9px); opacity: .85; }
+  .vbar-fill:hover, .vbar-fill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .vchart-labels { display: flex; gap: clamp(4px,1.4vw,10px); padding: 0 2px; margin-top: 8px; }
+  .vbar-lbl { flex: 1; text-align: center; font-size: .78rem; color: var(--ink-secondary); font-weight: 600; }
+  .callout-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .callout-tag { font-size: .78rem; background: var(--surface); border: 1px dashed var(--line-strong); color: var(--ink-secondary); padding: 5px 10px; border-radius: 999px; }
+  .callout-tag b { color: var(--ink); }
+
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg); font-size: .74rem; font-family: "Cascadia Mono","Consolas",ui-monospace,monospace;
+    padding: 5px 9px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .12s ease;
+    z-index: 5; box-shadow: var(--shadow);
+  }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; }
+  .hbar-row[data-tip]::after { bottom: auto; top: 50%; left: auto; right: 4px; transform: translateY(-50%); }
+
+  .hero-stat { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; background: var(--accent-tint); border: 1px solid var(--accent); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
+  .hero-stat .big { font-family: "Bahnschrift", sans-serif; font-size: 2.3rem; font-weight: 700; color: var(--accent); }
+  .hero-stat .cap { color: var(--ink-secondary); font-size: .92rem; }
+
+  .hchart { display: flex; flex-direction: column; gap: 9px; }
+  .hbar-row { display: grid; grid-template-columns: minmax(100px,170px) 1fr auto; align-items: center; gap: 10px; }
+  .hbar-label { font-size: .88rem; color: var(--ink-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar-label b { color: var(--ink); font-weight: 600; }
+  .hbar-track { background: var(--surface); border: 1px solid var(--line); border-radius: 5px; height: 21px; overflow: hidden; }
+  .hbar-fill { height: 100%; border-radius: 4px; cursor: default; }
+  .hbar-fill:hover, .hbar-fill:focus-visible { filter: brightness(1.08); outline: 2px solid var(--accent); outline-offset: -2px; }
+  .hbar-fill.other { background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 5px, transparent 5px, transparent 9px); opacity: .6; }
+  .hbar-value { font-size: .84rem; font-weight: 700; min-width: 56px; text-align: right; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-bottom: 14px; font-size: .8rem; color: var(--ink-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+  .chart-caption { margin-top: 12px; font-size: .84rem; color: var(--ink-muted); }
+
+  .takeaways { margin-top: 50px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; }
+  .takeaways h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; }
+  .takeaways ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+  .takeaways li { color: var(--ink-secondary); font-size: .95rem; }
+  .takeaways li b { color: var(--ink); }
+
+  .caveat { margin-top: 22px; font-size: .82rem; color: var(--ink-muted); border-top: 1px dashed var(--line); padding-top: 14px; }
+
+  footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line); font-size: .78rem; color: var(--ink-muted); }
+</style>
+
+<div class="page">
+
+  <div class="masthead"><span class="dot"></span> DRONE MARKET TH · สรุปข้อมูลสาธารณะ</div>
+
+  <div class="hero">
+    <h1>ตลาดโดรนไทย โตแค่ไหนในรอบ 9 ปี?</h1>
+    <p class="sub">ส่องภาพรวมตลาดโดรนไทย จากข้อมูลทะเบียนคลื่นความถี่วิทยุกว่า 205,000 รายการ — ใครครองตลาด คนไทยใช้โดรนทำอะไร และที่ไหนบ้าง</p>
+    <p class="byline">ข้อมูล: สำนักงาน กสทช. (ข้อมูลเปิด) · ต.ค. 2560 – มิ.ย. 2569 · เผยแพร่ 21 กรกฎาคม 2569</p>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-tile"><div class="v tabnum">205,287</div><div class="l">รายการโดรนจดทะเบียนสะสม</div></div>
+    <div class="stat-tile"><div class="v tabnum">6.7 เท่า</div><div class="l">การเติบโตจากปี 2560 ถึง 2568</div></div>
+    <div class="stat-tile"><div class="v tabnum">482</div><div class="l">แบรนด์โดรนที่พบในตลาดไทย</div></div>
+    <div class="stat-tile hero-tile"><div class="v tabnum">88%</div><div class="l">ของโดรนทั้งหมดคือ DJI</div></div>
+  </div>
+
+  <section>
+    <div class="section-head"><h2>ตลาดโตต่อเนื่อง โดยเฉพาะหลังโควิด</h2></div>
+    <p class="section-note">จำนวนรายการจดทะเบียนโดรนต่อปี — จาก 6,389 ลำในปี 2560 พุ่งเป็น 43,129 ลำในปี 2568</p>
+    <div class="vchart">
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2560: 6,389 รายการ" style="height:14.8%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2561: 5,792 รายการ" style="height:13.4%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2562: 7,131 รายการ" style="height:16.5%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2563: 17,091 รายการ — โควิดดันยอดพุ่ง" style="height:39.6%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2564: 19,366 รายการ" style="height:44.9%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2565: 22,476 รายการ" style="height:52.1%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2566: 25,537 รายการ" style="height:59.2%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2567: 37,546 รายการ" style="height:87.1%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2568: 43,129 รายการ — สูงสุดเป็นประวัติการณ์" style="height:100%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill partial" tabindex="0" data-tip="2569 (ครึ่งปีแรก): 20,830 รายการ" style="height:48.3%"></div></div></div>
+    </div>
+    <div class="vchart-labels">
+      <div class="vbar-lbl">60</div><div class="vbar-lbl">61</div><div class="vbar-lbl">62</div><div class="vbar-lbl">63</div><div class="vbar-lbl">64</div>
+      <div class="vbar-lbl">65</div><div class="vbar-lbl">66</div><div class="vbar-lbl">67</div><div class="vbar-lbl">68</div><div class="vbar-lbl">69*</div>
+    </div>
+    <div class="callout-tags">
+      <span class="callout-tag"><b>2563</b> — ช่วงโควิด ยอดพุ่งเกือบเท่าตัว</span>
+      <span class="callout-tag"><b>2568</b> — จุดสูงสุดเป็นประวัติการณ์</span>
+      <span class="callout-tag"><b>2569*</b> — นับถึง มิ.ย. เท่านั้น (ครึ่งปีแรก)</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>แบรนด์เดียวครองตลาดเกือบทั้งหมด</h2></div>
+    <p class="section-note">DJI กินส่วนแบ่งตลาดโดรนไทยไปเกือบ 9 ใน 10 ลำ ทิ้งห่างคู่แข่งทุกราย</p>
+    <div class="hero-stat">
+      <span class="big tabnum">88.2%</span>
+      <span class="cap">DJI — 181,058 ลำ จาก 205,287 รายการ</span>
+    </div>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="2,417 ลำ"><span class="hbar-label"><b>EHANG</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:16%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">1.18%</span></div>
+      <div class="hbar-row" data-tip="1,989 ลำ"><span class="hbar-label"><b>NAC DRONE</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:13.2%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">0.97%</span></div>
+      <div class="hbar-row" data-tip="1,982 ลำ"><span class="hbar-label"><b>DAMODA</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:13.1%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">0.97%</span></div>
+      <div class="hbar-row" data-tip="1,478 ลำ"><span class="hbar-label"><b>AG</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:9.8%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">0.72%</span></div>
+      <div class="hbar-row" data-tip="1,271 ลำ"><span class="hbar-label"><b>HUBSAN</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:8.4%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">0.62%</span></div>
+      <div class="hbar-row" data-tip="15,092 ลำ — มากกว่าอันดับ 2 ราว 6 เท่า"><span class="hbar-label">+ อีก 476 แบรนด์</span><div class="hbar-track"><div class="hbar-fill other" tabindex="0" style="width:100%"></div></div><span class="hbar-value tabnum">7.35%</span></div>
+    </div>
+    <p class="chart-caption">% คือสัดส่วนของทั้งตลาด (205,287 รายการ) · แถบลาย = ผลรวมของ 476 แบรนด์เล็กที่เหลือ ซึ่งรวมกันแล้วยังมากกว่า EHANG (อันดับ 2) ถึง 6 เท่า</p>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>ใช้ทำอะไรกันบ้าง</h2></div>
+    <p class="section-note">ส่วนใหญ่ยังเป็นงานอดิเรกและถ่ายภาพ แต่เกษตรกรรมกำลังเป็นเซกเมนต์ที่มาแรง</p>
+    <div class="legend">
+      <span><i style="background:var(--cat-1)"></i>งานอดิเรก/ถ่ายภาพ/กีฬา</span>
+      <span><i style="background:var(--cat-2)"></i>ถ่ายภาพ/ถ่ายทำภาพยนตร์</span>
+      <span><i style="background:var(--cat-3)"></i>เกษตรกรรม</span>
+      <span><i style="background:var(--cat-4)"></i>อื่นๆ/ไม่ระบุ</span>
+      <span><i style="background:var(--cat-5)"></i>องค์กร/บริษัท</span>
+    </div>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="156,443 รายการ"><span class="hbar-label">งานอดิเรก/กีฬา</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:76.21%;background:var(--cat-1)"></div></div><span class="hbar-value tabnum">76%</span></div>
+      <div class="hbar-row" data-tip="85,426 รายการ"><span class="hbar-label">ถ่ายภาพ/ถ่ายทำ</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:41.61%;background:var(--cat-2)"></div></div><span class="hbar-value tabnum">42%</span></div>
+      <div class="hbar-row" data-tip="31,380 รายการ"><span class="hbar-label">เกษตรกรรม</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:15.29%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">15%</span></div>
+      <div class="hbar-row" data-tip="9,955 รายการ"><span class="hbar-label">อื่นๆ/ไม่ระบุ</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:4.85%;background:var(--cat-4)"></div></div><span class="hbar-value tabnum">5%</span></div>
+      <div class="hbar-row" data-tip="3,594 รายการ"><span class="hbar-label">องค์กร/บริษัท</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:1.75%;background:var(--cat-5)"></div></div><span class="hbar-value tabnum">2%</span></div>
+    </div>
+    <p class="chart-caption">โดรน 1 ลำระบุวัตถุประสงค์ได้มากกว่า 1 อย่าง ตัวเลขจึงรวมกันเกิน 100%</p>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>อยู่ที่ไหนบ้างในไทย</h2></div>
+    <p class="section-note">กรุงเทพฯ เพียงจังหวัดเดียวมีโดรนจดทะเบียนมากกว่า 1 ใน 4 ของทั้งประเทศ ตามด้วยหัวเมืองท่องเที่ยว</p>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="52,939 ลำ"><span class="hbar-label"><b>กรุงเทพมหานคร</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:100%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">25.8%</span></div>
+      <div class="hbar-row" data-tip="15,518 ลำ"><span class="hbar-label">จ.ภูเก็ต</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:29.3%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">7.6%</span></div>
+      <div class="hbar-row" data-tip="11,736 ลำ"><span class="hbar-label">จ.ปทุมธานี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:22.2%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">5.7%</span></div>
+      <div class="hbar-row" data-tip="8,681 ลำ"><span class="hbar-label">จ.ชลบุรี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:16.4%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">4.2%</span></div>
+      <div class="hbar-row" data-tip="7,879 ลำ"><span class="hbar-label">จ.เชียงใหม่</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:14.9%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">3.8%</span></div>
+      <div class="hbar-row" data-tip="7,596 ลำ"><span class="hbar-label">จ.นนทบุรี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:14.3%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">3.7%</span></div>
+      <div class="hbar-row" data-tip="5,196 ลำ"><span class="hbar-label">จ.สมุทรปราการ</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:9.8%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">2.5%</span></div>
+      <div class="hbar-row" data-tip="4,708 ลำ"><span class="hbar-label">จ.สุราษฎร์ธานี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:8.9%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">2.3%</span></div>
+    </div>
+  </section>
+
+  <div class="takeaways">
+    <h2>สรุปสั้นๆ</h2>
+    <ul>
+      <li><b>ตลาดโตต่อเนื่องแทบทุกปี</b> และเร่งตัวชัดเจนหลังปี 2563 — ปี 2568 ทำสถิติสูงสุด</li>
+      <li><b>DJI ครองตลาดแบบทิ้งห่าง</b> ไม่มีคู่แข่งรายใดใกล้เคียง แม้จะมีแบรนด์อื่นกว่า 480 ยี่ห้อในระบบ</li>
+      <li><b>งานอดิเรก/ถ่ายภาพยังเป็นการใช้งานหลัก</b> รองลงมาคือเกษตรกรรมซึ่งเป็นเซกเมนต์ที่โตต่อเนื่อง</li>
+      <li><b>โดรนกระจุกตัวในกรุงเทพฯ</b> และหัวเมืองท่องเที่ยว/ปริมณฑล มากกว่าภูมิภาคอื่น</li>
+    </ul>
+    <p class="caveat">ข้อมูลนี้มาจากการขึ้นทะเบียนคลื่นวิทยุของโดรนกับ กสทช. ซึ่งเป็นข้อบังคับตามกฎหมาย จึงสะท้อนจำนวนโดรนที่ใช้งานจริงในไทยได้ดี แต่ไม่ใช่มูลค่าตลาดเป็นตัวเงิน และโดรนบางรุ่นที่ไม่มีกล้องอาจไม่ได้จดทะเบียนครบทั้งหมด</p>
+  </div>
+
+  <footer>
+    แหล่งข้อมูล: สำนักงาน กสทช. — ทะเบียนเครื่องวิทยุคมนาคมสำหรับอากาศยานซึ่งไม่มีนักบิน (Open Data Common License) · ข้อมูล ณ 30 มิ.ย. 2569
+  </footer>
+
+</div>

@@ -1,0 +1,513 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สำรวจตลาดโดรนไทย — อัปเดต 01</title>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="tick" viewBox="0 0 16 16">
+    <path d="M8 1v4M8 11v4M1 8h4M11 8h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #F6F3EC;
+    --surface:       #FCFAF4;
+    --surface-raise: #FFFFFF;
+    --ink:           #1E2530;
+    --ink-secondary: #4B5560;
+    --ink-muted:     #8A8376;
+    --line:          #DED7C5;
+    --line-strong:   #C7BEA8;
+    --accent:        #E2621F;
+    --accent-ink:    #FFFFFF;
+    --accent-tint:   #FBE7DA;
+    --cat-1:         #5B4FC4; /* งานอดิเรก/ถ่ายภาพ/กีฬา */
+    --cat-2:         #237A43; /* ถ่ายภาพ/ถ่ายทำภาพยนตร์ */
+    --cat-3:         #0A6FA8; /* เกษตรกรรม */
+    --cat-4:         #B8770A; /* อื่นๆ/ไม่ระบุ */
+    --cat-5:         #B23368; /* กิจกรรมองค์กร/บริษัท */
+    --shadow: 0 1px 2px rgba(30,37,48,0.04), 0 6px 20px rgba(30,37,48,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg:            #12181D;
+      --surface:       #1A2129;
+      --surface-raise: #1F2831;
+      --ink:           #EDEAE1;
+      --ink-secondary: #ABB2B8;
+      --ink-muted:     #7C838A;
+      --line:          #2A333C;
+      --line-strong:   #3A4550;
+      --accent:        #F0824A;
+      --accent-ink:    #1A0F08;
+      --accent-tint:   #3A2418;
+      --cat-1: #8B7EE0; --cat-2: #3F9B5D; --cat-3: #4B9BCE; --cat-4: #B87A22; --cat-5: #D9628A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:            #12181D;
+    --surface:       #1A2129;
+    --surface-raise: #1F2831;
+    --ink:           #EDEAE1;
+    --ink-secondary: #ABB2B8;
+    --ink-muted:     #7C838A;
+    --line:          #2A333C;
+    --line-strong:   #3A4550;
+    --accent:        #F0824A;
+    --accent-ink:    #1A0F08;
+    --accent-tint:   #3A2418;
+    --cat-1: #8B7EE0; --cat-2: #3F9B5D; --cat-3: #4B9BCE; --cat-4: #B87A22; --cat-5: #D9628A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Leelawadee UI", "Segoe UI", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 28px) 64px;
+  }
+  h1, h2, h3 {
+    font-family: "Bahnschrift", "Leelawadee UI", "Segoe UI Semibold", "Segoe UI", sans-serif;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--ink);
+  }
+  .mono, .tabnum { font-variant-numeric: tabular-nums; }
+  .mono { font-family: "Cascadia Mono", "Consolas", ui-monospace, monospace; }
+
+  a { color: var(--accent); }
+
+  .icon { width: 14px; height: 14px; color: var(--ink-muted); }
+
+  /* ---------- header / log stamp ---------- */
+  .log-header {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: clamp(20px, 4vw, 36px);
+    box-shadow: var(--shadow);
+    animation: rise .5s ease both;
+  }
+  @media (prefers-reduced-motion: reduce) { .log-header { animation: none; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .log-header::before, .log-header::after,
+  .log-header .corner-br::before, .log-header .corner-bl::before {
+    content: ""; position: absolute; width: 14px; height: 14px;
+    border-color: var(--line-strong); border-style: solid; border-width: 0;
+  }
+  .log-header::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+  .log-header::after  { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
+  .corner-bl { position: absolute; left: -1px; bottom: -1px; width: 14px; height: 14px; border-left: 2px solid var(--line-strong); border-bottom: 2px solid var(--line-strong); }
+  .corner-br { position: absolute; right: -1px; bottom: -1px; width: 14px; height: 14px; border-right: 2px solid var(--line-strong); border-bottom: 2px solid var(--line-strong); }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: 6px;
+    text-transform: uppercase; letter-spacing: .09em;
+    font-size: .72rem; font-weight: 700; color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+  .log-header h1 { font-size: clamp(1.5rem, 1.15rem + 1.6vw, 2.15rem); font-weight: 600; }
+  .log-header .sub { margin-top: 8px; color: var(--ink-secondary); max-width: 62ch; }
+  .meta-row {
+    margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line);
+    display: flex; flex-wrap: wrap; gap: 6px 22px;
+    font-size: .82rem; color: var(--ink-muted);
+  }
+  .meta-row b { color: var(--ink-secondary); font-weight: 600; }
+
+  /* ---------- stat strip ---------- */
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    margin-top: 20px;
+  }
+  @media (max-width: 720px) { .stat-strip { grid-template-columns: repeat(2, 1fr); } }
+  .stat-tile {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 14px 12px;
+  }
+  .stat-tile.hero { background: var(--accent-tint); border-color: var(--accent); }
+  .stat-tile .v { font-family: "Bahnschrift", sans-serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -.01em; }
+  .stat-tile.hero .v { color: var(--accent); }
+  .stat-tile .l { margin-top: 4px; font-size: .76rem; color: var(--ink-muted); line-height: 1.35; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 46px; }
+  .section-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .section-head h2 { font-size: 1.15rem; font-weight: 600; }
+  .section-head .icon { color: var(--accent); }
+  .section-note { margin: -8px 0 18px; color: var(--ink-secondary); font-size: .92rem; max-width: 68ch; }
+
+  /* ---------- numbered steps ---------- */
+  .steps { display: flex; flex-direction: column; gap: 2px; }
+  .step { display: flex; gap: 14px; padding: 12px 4px; border-bottom: 1px solid var(--line); }
+  .step:last-child { border-bottom: none; }
+  .step .n {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--surface-raise); border: 1px solid var(--line-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Bahnschrift", sans-serif; font-size: .82rem; font-weight: 600; color: var(--ink-secondary);
+  }
+  .step .t { font-weight: 600; }
+  .step .d { color: var(--ink-secondary); font-size: .92rem; margin-top: 2px; }
+
+  /* ---------- source status chips ---------- */
+  .src-list { display: flex; flex-direction: column; gap: 8px; }
+  .src-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+  }
+  .src-row .name { font-weight: 600; min-width: 190px; }
+  .src-row .fmt { font-size: .82rem; color: var(--ink-muted); flex: 1; min-width: 160px; }
+  .chip {
+    font-size: .74rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  }
+  .chip.done { border: 1px solid var(--line-strong); background: var(--surface-raise); color: var(--ink); }
+  .chip.pending { border: 1px dashed var(--line-strong); color: var(--ink-muted); }
+
+  /* ---------- charts: vertical (year) ---------- */
+  .vchart { display: flex; align-items: flex-end; gap: clamp(4px,1.4vw,10px); height: 200px; padding: 0 2px 0; border-bottom: 1px solid var(--line-strong); }
+  .vbar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
+  .vbar-track { width: 100%; height: 100%; display: flex; align-items: flex-end; }
+  .vbar-fill {
+    width: 100%; background: var(--cat-3); border-radius: 4px 4px 0 0;
+    min-height: 3px; position: relative; cursor: default;
+  }
+  .vbar-fill.partial { background: repeating-linear-gradient(135deg, var(--cat-3), var(--cat-3) 5px, transparent 5px, transparent 9px); opacity: .85; }
+  .vbar-fill:hover, .vbar-fill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .vchart-labels { display: flex; gap: clamp(4px,1.4vw,10px); padding: 0 2px; margin-top: 8px; }
+  .vbar-lbl { flex: 1; text-align: center; }
+  .vbar-lbl .y { font-size: .74rem; color: var(--ink-secondary); font-weight: 600; }
+  .vbar-lbl .p { font-size: .66rem; color: var(--ink-muted); }
+  .vbar-lbl .p.flag { color: var(--accent); }
+
+  /* tooltip (shared) */
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg);
+    font-size: .74rem; font-family: "Cascadia Mono","Consolas",ui-monospace,monospace;
+    padding: 5px 9px; border-radius: 6px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity .12s ease;
+    z-index: 5; box-shadow: var(--shadow);
+  }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; }
+  .hbar-row[data-tip]::after { bottom: auto; top: 50%; left: auto; right: 4px; transform: translateY(-50%); }
+
+  /* ---------- charts: horizontal ---------- */
+  .hchart { display: flex; flex-direction: column; gap: 9px; }
+  .hbar-row { display: grid; grid-template-columns: minmax(110px,180px) 1fr auto; align-items: center; gap: 10px; }
+  .hbar-label { font-size: .86rem; color: var(--ink-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar-label b { color: var(--ink); font-weight: 600; }
+  .hbar-track { background: var(--surface); border: 1px solid var(--line); border-radius: 5px; height: 20px; overflow: hidden; }
+  .hbar-fill { height: 100%; border-radius: 4px; cursor: default; }
+  .hbar-fill:hover, .hbar-fill:focus-visible { filter: brightness(1.08); outline: 2px solid var(--accent); outline-offset: -2px; }
+  .hbar-fill.other { background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 5px, transparent 5px, transparent 9px); opacity: .6; }
+  .hbar-value { font-size: .82rem; font-weight: 600; min-width: 58px; text-align: right; }
+
+  .hero-stat {
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    background: var(--accent-tint); border: 1px solid var(--accent); border-radius: 8px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .hero-stat .big { font-family: "Bahnschrift", sans-serif; font-size: 2rem; font-weight: 700; color: var(--accent); }
+  .hero-stat .cap { color: var(--ink-secondary); font-size: .88rem; }
+
+  .chart-caption { margin-top: 12px; font-size: .84rem; color: var(--ink-muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-bottom: 14px; font-size: .78rem; color: var(--ink-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+  /* ---------- callout ---------- */
+  .callout {
+    background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--ink-muted);
+    border-radius: 6px; padding: 14px 18px;
+  }
+  .callout ul { margin: 4px 0 0; padding-left: 20px; }
+  .callout li { margin: 6px 0; color: var(--ink-secondary); font-size: .92rem; }
+
+  /* ---------- manifest ---------- */
+  .manifest-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table.manifest { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .86rem; }
+  table.manifest th, table.manifest td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+  table.manifest th { color: var(--ink-muted); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+  table.manifest tr:last-child td { border-bottom: none; }
+  table.manifest td.path { font-family: "Cascadia Mono","Consolas",ui-monospace,monospace; white-space: nowrap; }
+  table.manifest td.desc { color: var(--ink-secondary); }
+  .indent1 { padding-left: 26px !important; }
+  .indent2 { padding-left: 42px !important; }
+
+  /* ---------- checklist ---------- */
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .check-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+  .check-row .box { flex: none; width: 17px; height: 17px; margin-top: 2px; border: 1.6px solid var(--line-strong); border-radius: 4px; }
+  .check-row .t { font-weight: 600; font-size: .94rem; }
+  .check-row .d { color: var(--ink-muted); font-size: .82rem; margin-top: 2px; }
+
+  footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: .78rem; color: var(--ink-muted); display: flex; flex-direction: column; gap: 4px;
+  }
+</style>
+
+<div class="page">
+
+  <header class="log-header">
+    <span class="corner-bl"></span><span class="corner-br"></span>
+    <div class="eyebrow"><svg class="icon"><use href="#tick"/></svg> PROJECT LOG · สำรวจตลาดโดรนประเทศไทย</div>
+    <h1>อัปเดต 01 — ภาพรวมตลาดจากทะเบียน กสทช.</h1>
+    <p class="sub">ดึงข้อมูลทะเบียนคลื่นความถี่โดรนของ กสทช. มาสำรวจภาพรวมตลาดครั้งแรก ก่อนต่อยอดไปแหล่งอื่นในอัปเดตถัดไป</p>
+    <div class="meta-row">
+      <span><b>วันที่:</b> 21 กรกฎาคม 2569 (2026-07-21)</span>
+      <span><b>แหล่งข้อมูล:</b> NBTC Data Catalog</span>
+      <span><b>ช่วงข้อมูล:</b> ต.ค. 2560 – มิ.ย. 2569</span>
+      <span><b>ไฟล์นี้:</b> reports/2026-07-21_update-01/</span>
+    </div>
+  </header>
+
+  <div class="stat-strip">
+    <div class="stat-tile"><div class="v tabnum">205,287</div><div class="l">รายการจดทะเบียนโดรน</div></div>
+    <div class="stat-tile"><div class="v tabnum">2560–69</div><div class="l">ต.ค. 60 – มิ.ย. 69 (2017–2026)</div></div>
+    <div class="stat-tile"><div class="v tabnum">482</div><div class="l">แบรนด์ที่พบในระบบ</div></div>
+    <div class="stat-tile"><div class="v tabnum">77</div><div class="l">จังหวัด (ครบทุกจังหวัด)</div></div>
+    <div class="stat-tile hero"><div class="v tabnum">88.2%</div><div class="l">ส่วนแบ่ง DJI ทั้งตลาด</div></div>
+  </div>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>สิ่งที่ทำไปแล้ว</h2></div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><div class="t">สำรวจแหล่งข้อมูลตลาดโดรนในไทย</div><div class="d">เทียบ CAAT, กสทช., data.go.th, UN Comtrade — ดูว่าตัวไหนดึงเป็นไฟล์ได้จริง ไม่ใช่แค่รายงานสรุป</div></div></div>
+      <div class="step"><div class="n">2</div><div><div class="t">เจอไฟล์ทะเบียนเปิดของ กสทช.</div><div class="d">ข้อมูลขึ้นทะเบียนคลื่นความถี่โดรน แยกยี่ห้อ/รุ่น/จังหวัด/วัตถุประสงค์ — เป็น Open Data อัปเดตรายเดือน</div></div></div>
+      <div class="step"><div class="n">3</div><div><div class="t">ดึงและทำความสะอาดข้อมูล</div><div class="d">205,287 แถว — แปลงวันที่ พ.ศ.→ค.ศ., normalize ชื่อแบรนด์, จัดหมวดวัตถุประสงค์การใช้งานใหม่</div></div></div>
+      <div class="step"><div class="n">4</div><div><div class="t">วิเคราะห์ภาพรวม 4 มุม</div><div class="d">แนวโน้มรายปี · ส่วนแบ่งแบรนด์ · วัตถุประสงค์การใช้ · การกระจายตามจังหวัด</div></div></div>
+      <div class="step"><div class="n">5</div><div><div class="t">จัดเก็บไฟล์ + สรุปเป็นรายงานนี้</div><div class="d">เก็บ raw/processed data และสคริปต์ไว้ในโปรเจกต์ ใช้ซ้ำได้เมื่อ กสทช. อัปเดตไฟล์ใหม่</div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>แหล่งข้อมูลที่สำรวจ</h2></div>
+    <div class="src-list">
+      <div class="src-row"><span class="name">กสทช. — ทะเบียนคลื่นความถี่โดรน</span><span class="fmt">XLSX เปิด · รายเดือน · 205,287 แถว</span><span class="chip done">✅ ใช้ในรายงานนี้</span></div>
+      <div class="src-row"><span class="name">UN Comtrade (HS 8806)</span><span class="fmt">มูลค่านำเข้า-ส่งออกโดรน เป็น USD</span><span class="chip pending">🔜 ยังไม่ได้ดึง</span></div>
+      <div class="src-row"><span class="name">CAAT — การบินพลเรือน</span><span class="fmt">จำนวนโดรน + นักบินที่ขึ้นทะเบียน (ตัวเลขทางการ)</span><span class="chip pending">🔜 ยังไม่ได้ดึง</span></div>
+      <div class="src-row"><span class="name">data.go.th / DBD</span><span class="fmt">catalog กลาง + บริษัทจดทะเบียนสายโดรน</span><span class="chip pending">🔜 ยังไม่ได้ดึง</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>แนวโน้มการจดทะเบียนรายปี</h2></div>
+    <p class="section-note">จำนวนรายการจดทะเบียนต่อปี พร้อมส่วนแบ่ง DJI ของปีนั้นกำกับไว้ด้านล่าง — ปี 2569 มีแค่ครึ่งปีแรก (ถึง มิ.ย.) จึงยังเทียบกับปีเต็มไม่ได้ตรงๆ</p>
+    <div class="vchart">
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2560: 6,389 รายการ" style="height:14.8%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2561: 5,792 รายการ" style="height:13.4%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2562: 7,131 รายการ" style="height:16.5%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2563: 17,091 รายการ" style="height:39.6%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2564: 19,366 รายการ" style="height:44.9%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2565: 22,476 รายการ" style="height:52.1%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2566: 25,537 รายการ" style="height:59.2%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2567: 37,546 รายการ" style="height:87.1%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill" tabindex="0" data-tip="2568: 43,129 รายการ (สูงสุด)" style="height:100%"></div></div></div>
+      <div class="vbar-col"><div class="vbar-track"><div class="vbar-fill partial" tabindex="0" data-tip="2569 (H1): 20,830 รายการ — ครึ่งปีแรกเท่านั้น" style="height:48.3%"></div></div></div>
+    </div>
+    <div class="vchart-labels">
+      <div class="vbar-lbl"><div class="y">60</div><div class="p">90%</div></div>
+      <div class="vbar-lbl"><div class="y">61</div><div class="p">93%</div></div>
+      <div class="vbar-lbl"><div class="y">62</div><div class="p">90%</div></div>
+      <div class="vbar-lbl"><div class="y">63</div><div class="p">89%</div></div>
+      <div class="vbar-lbl"><div class="y">64</div><div class="p">84%</div></div>
+      <div class="vbar-lbl"><div class="y">65</div><div class="p">87%</div></div>
+      <div class="vbar-lbl"><div class="y">66</div><div class="p">90%</div></div>
+      <div class="vbar-lbl"><div class="y">67</div><div class="p">91%</div></div>
+      <div class="vbar-lbl"><div class="y">68</div><div class="p">84%</div></div>
+      <div class="vbar-lbl"><div class="y">69*</div><div class="p flag">93%</div></div>
+    </div>
+    <p class="chart-caption">แกนตั้ง = จำนวนรายการจดทะเบียน (พ.ศ.) · ตัวเลข % ด้านล่าง = ส่วนแบ่ง DJI ของปีนั้น · แถบลาย = 2569 ครึ่งปีแรก (H1) · ชี้ที่แท่งเพื่อดูจำนวนเต็ม</p>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ส่วนแบ่งตลาดตามแบรนด์</h2></div>
+    <p class="section-note">DJI ครองตลาดแบบทิ้งห่างทุกคู่แข่ง — แผนภูมิด้านล่างคือการ "ซูม" เข้าไปดูเฉพาะ 11.8% ที่เหลือ เทียบกับ DJI ตรงๆ จะเห็นแค่เส้นบางๆ</p>
+    <div class="hero-stat">
+      <span class="big tabnum">88.2%</span>
+      <span class="cap">DJI — 181,058 เครื่อง จาก 205,287 รายการ · ทุกปีอยู่ในช่วง 84–93% ไม่เคยหลุด</span>
+    </div>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="2,417 เครื่อง">
+        <span class="hbar-label"><b>EHANG</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:22.5%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">1.18%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,989 เครื่อง">
+        <span class="hbar-label"><b>NAC DRONE</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:18.5%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.97%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,982 เครื่อง">
+        <span class="hbar-label"><b>DAMODA</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:18.5%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.97%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,478 เครื่อง">
+        <span class="hbar-label"><b>AG</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:13.8%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.72%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,271 เครื่อง">
+        <span class="hbar-label"><b>HUBSAN</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:11.8%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.62%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,269 เครื่อง">
+        <span class="hbar-label"><b>STD</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:11.8%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.62%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,200 เครื่อง">
+        <span class="hbar-label"><b>CROSS STARS</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:11.2%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.58%</span>
+      </div>
+      <div class="hbar-row" data-tip="1,101 เครื่อง">
+        <span class="hbar-label"><b>FIMI</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:10.3%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.54%</span>
+      </div>
+      <div class="hbar-row" data-tip="789 เครื่อง">
+        <span class="hbar-label"><b>AUTEL ROBOTICS</b></span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:7.4%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">0.38%</span>
+      </div>
+      <div class="hbar-row" data-tip="10,733 เครื่อง — มากกว่าอันดับ 2 ถึง 4 เท่า">
+        <span class="hbar-label">+ อีก 472 แบรนด์</span>
+        <div class="hbar-track"><div class="hbar-fill other" tabindex="0" style="width:100%"></div></div>
+        <span class="hbar-value tabnum">5.23%</span>
+      </div>
+    </div>
+    <p class="chart-caption">% คือสัดส่วนของทั้งตลาด (205,287 รายการ) แถบลาย = ผลรวมของ 472 แบรนด์ที่เหลือ ซึ่งรวมกันแล้วมากกว่า EHANG (อันดับ 2) ถึง 4 เท่า</p>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>วัตถุประสงค์การใช้งาน</h2></div>
+    <p class="section-note">โดรน 1 ลำระบุวัตถุประสงค์ได้มากกว่า 1 อย่าง (39% ของรายการระบุ 2 อย่างขึ้นไป) แท่งด้านล่างจึงรวมกันเกิน 100% — เทียบสัดส่วนแต่ละหมวดกับทั้งหมดได้ตรงๆ</p>
+    <div class="legend">
+      <span><i style="background:var(--cat-1)"></i>งานอดิเรก/ถ่ายภาพ/กีฬา</span>
+      <span><i style="background:var(--cat-2)"></i>ถ่ายภาพ/ถ่ายทำภาพยนตร์</span>
+      <span><i style="background:var(--cat-3)"></i>เกษตรกรรม</span>
+      <span><i style="background:var(--cat-4)"></i>อื่นๆ/ไม่ระบุ</span>
+      <span><i style="background:var(--cat-5)"></i>กิจกรรมองค์กร/บริษัท</span>
+    </div>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="156,443 รายการ">
+        <span class="hbar-label">งานอดิเรก/กีฬา</span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:76.21%;background:var(--cat-1)"></div></div>
+        <span class="hbar-value tabnum">76.2%</span>
+      </div>
+      <div class="hbar-row" data-tip="85,426 รายการ">
+        <span class="hbar-label">ถ่ายภาพ/ถ่ายทำ</span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:41.61%;background:var(--cat-2)"></div></div>
+        <span class="hbar-value tabnum">41.6%</span>
+      </div>
+      <div class="hbar-row" data-tip="31,380 รายการ">
+        <span class="hbar-label">เกษตรกรรม</span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:15.29%;background:var(--cat-3)"></div></div>
+        <span class="hbar-value tabnum">15.3%</span>
+      </div>
+      <div class="hbar-row" data-tip="9,955 รายการ">
+        <span class="hbar-label">อื่นๆ/ไม่ระบุ</span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:4.85%;background:var(--cat-4)"></div></div>
+        <span class="hbar-value tabnum">4.9%</span>
+      </div>
+      <div class="hbar-row" data-tip="3,594 รายการ">
+        <span class="hbar-label">องค์กร/บริษัท</span>
+        <div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:1.75%;background:var(--cat-5)"></div></div>
+        <span class="hbar-value tabnum">1.8%</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>10 อันดับจังหวัด</h2></div>
+    <p class="section-note">กรุงเทพฯ กินสัดส่วนไปเกินหนึ่งในสี่ของทั้งประเทศ ตามด้วยจังหวัดท่องเที่ยว/ปริมณฑล</p>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="52,939 เครื่อง"><span class="hbar-label"><b>กรุงเทพมหานคร</b></span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:100%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">25.8%</span></div>
+      <div class="hbar-row" data-tip="15,518 เครื่อง"><span class="hbar-label">จ.ภูเก็ต</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:29.3%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">7.6%</span></div>
+      <div class="hbar-row" data-tip="11,736 เครื่อง"><span class="hbar-label">จ.ปทุมธานี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:22.2%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">5.7%</span></div>
+      <div class="hbar-row" data-tip="8,681 เครื่อง"><span class="hbar-label">จ.ชลบุรี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:16.4%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">4.2%</span></div>
+      <div class="hbar-row" data-tip="7,879 เครื่อง"><span class="hbar-label">จ.เชียงใหม่</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:14.9%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">3.8%</span></div>
+      <div class="hbar-row" data-tip="7,596 เครื่อง"><span class="hbar-label">จ.นนทบุรี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:14.3%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">3.7%</span></div>
+      <div class="hbar-row" data-tip="5,196 เครื่อง"><span class="hbar-label">จ.สมุทรปราการ</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:9.8%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">2.5%</span></div>
+      <div class="hbar-row" data-tip="4,708 เครื่อง"><span class="hbar-label">จ.สุราษฎร์ธานี</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:8.9%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">2.3%</span></div>
+      <div class="hbar-row" data-tip="4,228 เครื่อง"><span class="hbar-label">จ.นครราชสีมา</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:8.0%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">2.1%</span></div>
+      <div class="hbar-row" data-tip="3,372 เครื่อง"><span class="hbar-label">จ.กระบี่</span><div class="hbar-track"><div class="hbar-fill" tabindex="0" style="width:6.4%;background:var(--cat-3)"></div></div><span class="hbar-value tabnum">1.6%</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ข้อควรระวังในการตีความ</h2></div>
+    <div class="callout">
+      <ul>
+        <li>ตัวเลขนี้คือ <b>การขึ้นทะเบียนคลื่นความถี่วิทยุ</b> ของโดรน ไม่ใช่มูลค่าตลาดเป็นเงินบาท — ต้องต่อกับข้อมูลการค้า (Comtrade) ถึงจะได้มุมมูลค่า</li>
+        <li>โดรนราคาถูก/ไม่มีกล้องบางรุ่นอาจไม่จดทะเบียน ส่วนแบ่ง DJI ในความเป็นจริงจึงอาจต่ำกว่า 88.2% เล็กน้อย</li>
+        <li>วัตถุประสงค์การใช้งานนับซ้ำได้ (โดรน 1 ลำระบุได้หลายวัตถุประสงค์) ผลรวมของหมวดจึงเกิน 100% โดยตั้งใจ</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ไฟล์ในโปรเจกต์</h2></div>
+    <div class="manifest-wrap">
+      <table class="manifest">
+        <thead><tr><th>Path</th><th>รายละเอียด</th></tr></thead>
+        <tbody>
+          <tr><td class="path">data/raw/</td><td class="desc">โฟลเดอร์ข้อมูลดิบ</td></tr>
+          <tr><td class="path indent1">drone_data.xlsx</td><td class="desc">ข้อมูลทะเบียนโดรน กสทช. ดิบ (205,287 แถว)</td></tr>
+          <tr><td class="path indent1">data-dictionary.xlsx</td><td class="desc">คำอธิบายคอลัมน์จาก กสทช.</td></tr>
+          <tr><td class="path">data/processed/</td><td class="desc">สรุปข้อมูลพร้อมใช้ (CSV/JSON)</td></tr>
+          <tr><td class="path indent1">summary_by_year.csv</td><td class="desc">จำนวนจดทะเบียนรายปี</td></tr>
+          <tr><td class="path indent1">summary_by_brand.csv</td><td class="desc">ส่วนแบ่งตามแบรนด์ (top 50)</td></tr>
+          <tr><td class="path indent1">summary_by_province.csv</td><td class="desc">การกระจายตามจังหวัด (77 จังหวัด)</td></tr>
+          <tr><td class="path indent1">summary_by_purpose.csv</td><td class="desc">วัตถุประสงค์การใช้งาน (ดิบ ยังไม่รวมหมวด)</td></tr>
+          <tr><td class="path indent1">purpose_buckets.json</td><td class="desc">วัตถุประสงค์ที่จัดหมวดแล้ว (ใช้ในรายงานนี้)</td></tr>
+          <tr><td class="path">scripts/</td><td class="desc">สคริปต์วิเคราะห์ — รันซ้ำได้เมื่อ กสทช. อัปเดตไฟล์ใหม่</td></tr>
+          <tr><td class="path indent1">explore.py, overview.py, purpose_buckets.py</td><td class="desc">โหลด → ทำความสะอาด → สรุปผล</td></tr>
+          <tr><td class="path">reports/</td><td class="desc">บันทึกอัปเดตโปรเจกต์ (โฟลเดอร์นี้)</td></tr>
+          <tr><td class="path indent1">UPDATES.md</td><td class="desc">ดัชนีอัปเดตทั้งหมด — จะโตขึ้นทุกครั้งที่มีอัปเดตใหม่</td></tr>
+          <tr><td class="path indent1">2026-07-21_update-01/</td><td class="desc">อัปเดตนี้ — market-overview.html</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><svg class="icon"><use href="#tick"/></svg><h2>ต่อไปคืออะไร</h2></div>
+    <div class="checklist">
+      <div class="check-row"><span class="box"></span><div><div class="t">ดึงมูลค่าการค้า UN Comtrade (HS 8806)</div><div class="d">แปลง "จำนวนเครื่อง" ให้เป็น "มูลค่าตลาด USD" — นำเข้า/ส่งออก</div></div></div>
+      <div class="check-row"><span class="box"></span><div><div class="t">เจาะเซกเมนต์เกษตร (โดรนพ่นยา)</div><div class="d">15.3% ของตลาดและโตเร็ว มีผู้เล่นไทยชัดเจน (NAC Drone, XAG, HG Robotics)</div></div></div>
+      <div class="check-row"><span class="box"></span><div><div class="t">วาง pipeline ดึงไฟล์ กสทช. อัตโนมัติทุกเดือน</div><div class="d">ไฟล์อัปเดตรายเดือน — แทนที่จะโหลดมือทุกครั้ง</div></div></div>
+      <div class="check-row"><span class="box"></span><div><div class="t">ดึงสถิติ CAAT / DBD เพิ่ม</div><div class="d">ได้มุมผู้เล่น/บริษัทในตลาด ไม่ใช่แค่จำนวนเครื่อง</div></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>แหล่งข้อมูล: กสทช. — ทะเบียนเครื่องวิทยุคมนาคมสำหรับอากาศยานซึ่งไม่มีนักบิน (Open Data Common License) · ข้อมูลล่าสุดในไฟล์ 30 มิ.ย. 2569</span>
+    <span>รายงานนี้คือ Update 01 ของบันทึกโปรเจกต์ — ดูดัชนีทั้งหมดที่ reports/UPDATES.md · อัปเดตครั้งถัดไปจะต่อจากตรงนี้</span>
+  </footer>
+
+</div>
