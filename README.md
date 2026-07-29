@@ -64,6 +64,22 @@ python scripts/moc_hs_trade.py --years 2022,2023,2024,2025
 python scripts/moc_hs_trade.py --hs 880610 --years 2025      # เจาะรหัสย่อย
 ```
 
+### e-GP — จัดซื้อจัดจ้างภาครัฐ (ไม่ต้องใช้ key)
+
+| สคริปต์ | ทำอะไร | ผลลัพธ์ |
+|---|---|---|
+| `egp_drone_procurement.py` | โครงการจัดซื้อโดรนของหน่วยงานรัฐ — **ราคาจริง + ชื่อผู้ขาย + จังหวัด** | `data/processed/egp_drone_projects.csv` |
+
+```bash
+python scripts/egp_drone_procurement.py                        # ปีงบ 2565-2568
+python scripts/egp_drone_procurement.py --from-cache           # วิเคราะห์ซ้ำจาก CSV เดิม
+python scripts/egp_drone_procurement.py --years 2568 --max-mb 60   # ทดสอบเร็ว
+```
+
+> สตรีมไฟล์ CSV ~19.6 GB จาก data.go.th แล้วกรองทิ้งเลย ไม่เก็บลงดิสก์ (ใช้เวลา ~30-40 นาที)
+> **ถ้าจะแก้แค่ส่วนวิเคราะห์ ให้ใช้ `--from-cache`** จะได้ไม่ต้องโหลดใหม่
+> โหมด `--max-mb` เขียนลงไฟล์ `_partial.csv` คนละไฟล์ จะได้ไม่ทับผลจริงโดยไม่ตั้งใจ
+
 ### UN Comtrade — มูลค่าการค้ารายปี (ต้องมี API key)
 
 | สคริปต์ | ทำอะไร | ผลลัพธ์ |
@@ -75,6 +91,14 @@ python scripts/moc_hs_trade.py --hs 880610 --years 2025      # เจาะร�
 
 > `comtrade_mirror_check.py` import ฟังก์ชันจาก `comtrade_fetch.py`
 > **อย่าย้ายหรือเปลี่ยนชื่อสองไฟล์นี้** โดยไม่แก้ import
+
+### วิเคราะห์เจาะบริษัท
+
+| สคริปต์ | ทำอะไร | ผลลัพธ์ |
+|---|---|---|
+| `ics_market_position.py` | ตำแหน่งของ iCreativeSystems (ICS) — ทะเบียน กสทช. · สัญญาภาครัฐ · คู่แข่ง · ตลาดอีสาน | `scripts/ics_market_position_out.txt` |
+
+> ต้องรัน `egp_drone_procurement.py` ให้มี CSV ก่อน และต้องมี `data/raw/drone_data.xlsx`
 
 ### สร้างรายงาน
 
@@ -129,5 +153,7 @@ python scripts/moc_hs_trade.py --hs 880610 --years 2025      # เจาะร�
 |---|---|---|
 | กสทช. Data Catalog | ทะเบียนโดรน 205,287 รายการ แยกแบรนด์/รุ่น/จังหวัด/วัตถุประสงค์ | ไม่ต้อง |
 | กระทรวงพาณิชย์ | มูลค่าการค้ารายเดือน + ทะเบียนผู้นำเข้า-ส่งออก | ไม่ต้อง |
+| e-GP (data.go.th) | โครงการจัดซื้อโดรนภาครัฐ — ราคาจริง ผู้ขาย เลขนิติบุคคล | ไม่ต้อง |
 | UN Comtrade | มูลค่าการค้ารายปี (ต้นทางเดียวกับกระทรวงพาณิชย์) | ต้องมี |
 | CAAT | จำนวนโดรนและนักบินที่ขึ้นทะเบียน | ไม่มี API |
+| DBD DataWarehouse | งบการเงินรายบริษัท — ติด WAF ทำ pipeline ไม่ได้ ต้องเปิดดูเอง | — |
