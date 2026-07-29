@@ -1,0 +1,697 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สำรวจตลาดโดรนไทย — อัปเดต 03</title>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="tick" viewBox="0 0 16 16">
+    <path d="M8 1v4M8 11v4M1 8h4M11 8h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #F6F3EC;
+    --surface:       #FCFAF4;
+    --surface-raise: #FFFFFF;
+    --ink:           #1E2530;
+    --ink-secondary: #4B5560;
+    --ink-muted:     #8A8376;
+    --line:          #DED7C5;
+    --line-strong:   #C7BEA8;
+    --accent:        #E2621F;
+    --accent-tint:   #FBE7DA;
+    --warn:          #B03030;
+    --warn-tint:     #F9E4E1;
+    --good:          #2C6E49;
+    --good-tint:     #E2EFE6;
+    --cat-1:         #5B4FC4;
+    --cat-2:         #237A43;
+    --cat-3:         #0A6FA8;
+    --cat-4:         #B8770A;
+    --cat-5:         #B23368;
+    --shadow: 0 1px 2px rgba(30,37,48,0.04), 0 6px 20px rgba(30,37,48,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg:#12181D; --surface:#1A2129; --surface-raise:#1F2831;
+      --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+      --line:#2A333C; --line-strong:#3A4550;
+      --accent:#F0824A; --accent-tint:#3A2418;
+      --warn:#E8756B; --warn-tint:#3A1E1C;
+      --good:#5FB185; --good-tint:#17301F;
+      --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#12181D; --surface:#1A2129; --surface-raise:#1F2831;
+    --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+    --line:#2A333C; --line-strong:#3A4550;
+    --accent:#F0824A; --accent-tint:#3A2418;
+    --warn:#E8756B; --warn-tint:#3A1E1C;
+    --good:#5FB185; --good-tint:#17301F;
+    --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+  }
+  @media print {
+    :root, :root[data-theme="dark"] {
+      color-scheme: light;
+      --bg:#fff; --surface:#F7F5EF; --surface-raise:#fff;
+      --ink:#1E2530; --ink-secondary:#4B5560; --ink-muted:#6B6455;
+      --line:#DED7C5; --line-strong:#C7BEA8;
+      --accent:#E2621F; --accent-tint:#FBE7DA;
+      --warn:#B03030; --warn-tint:#F9E4E1; --good:#2C6E49; --good-tint:#E2EFE6;
+      --cat-1:#5B4FC4; --cat-2:#237A43; --cat-3:#0A6FA8; --cat-4:#B8770A; --cat-5:#B23368;
+      --shadow:none;
+    }
+    @page { size: A4; margin: 14mm 12mm; }
+    section, .log-header, .verdict, .manifest-wrap, .chart-block { break-inside: avoid; }
+    [data-tip]::after { display: none; }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Leelawadee UI", "Segoe UI", "Noto Sans Thai", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 900px; margin: 0 auto; padding: clamp(20px,4vw,56px) clamp(16px,4vw,28px) 64px; }
+  h1,h2,h3 { font-family:"Bahnschrift","Leelawadee UI","Segoe UI Semibold","Segoe UI",sans-serif; text-wrap:balance; margin:0; color:var(--ink); }
+  .tabnum { font-variant-numeric: tabular-nums; }
+  .mono { font-family:"Cascadia Mono","Consolas",ui-monospace,monospace; }
+  .icon { width:14px; height:14px; color:var(--ink-muted); }
+
+  .log-header { position:relative; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:clamp(20px,4vw,36px); box-shadow:var(--shadow); }
+  .log-header::before,.log-header::after { content:""; position:absolute; width:14px; height:14px; border-color:var(--line-strong); border-style:solid; border-width:0; }
+  .log-header::before { top:-1px; left:-1px; border-top-width:2px; border-left-width:2px; }
+  .log-header::after { top:-1px; right:-1px; border-top-width:2px; border-right-width:2px; }
+  .corner-bl { position:absolute; left:-1px; bottom:-1px; width:14px; height:14px; border-left:2px solid var(--line-strong); border-bottom:2px solid var(--line-strong); }
+  .corner-br { position:absolute; right:-1px; bottom:-1px; width:14px; height:14px; border-right:2px solid var(--line-strong); border-bottom:2px solid var(--line-strong); }
+  .eyebrow { display:flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:.09em; font-size:.72rem; font-weight:700; color:var(--ink-muted); margin-bottom:10px; }
+  .log-header h1 { font-size:clamp(1.5rem,1.15rem + 1.6vw,2.15rem); font-weight:600; }
+  .log-header .sub { margin-top:8px; color:var(--ink-secondary); max-width:62ch; }
+  .meta-row { margin-top:18px; padding-top:16px; border-top:1px dashed var(--line); display:flex; flex-wrap:wrap; gap:6px 22px; font-size:.82rem; color:var(--ink-muted); }
+  .meta-row b { color:var(--ink-secondary); font-weight:600; }
+
+  .stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:20px; }
+  @media (max-width:700px){ .stat-strip{ grid-template-columns:repeat(2,1fr);} }
+  .stat-tile { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px; }
+  .stat-tile.hero { background:var(--accent-tint); border-color:var(--accent); }
+  .stat-tile .v { font-family:"Bahnschrift",sans-serif; font-size:1.5rem; font-weight:600; letter-spacing:-.01em; }
+  .stat-tile.hero .v { color:var(--accent); }
+  .stat-tile .l { margin-top:4px; font-size:.76rem; color:var(--ink-muted); line-height:1.35; }
+
+  section { margin-top:46px; }
+  .section-head { display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+  .section-head h2 { font-size:1.15rem; font-weight:600; }
+  .section-head .icon { color:var(--accent); }
+  .section-note { margin:-6px 0 18px; color:var(--ink-secondary); font-size:.92rem; max-width:68ch; }
+
+  .vchart { display:flex; align-items:flex-end; gap:clamp(6px,2vw,18px); height:200px; border-bottom:1px solid var(--line-strong); }
+  .vcol { flex:1; display:flex; align-items:flex-end; justify-content:center; gap:5px; height:100%; }
+  .vlabels { display:flex; gap:clamp(6px,2vw,18px); margin-top:8px; }
+  .vlabels div { flex:1; text-align:center; font-size:.8rem; color:var(--ink-secondary); font-weight:600; }
+  .vlabels .note { display:block; font-size:.68rem; font-weight:400; color:var(--ink-muted); }
+
+  /* แท่งซ้อน: ส่งออกต่ออยู่บน คงเหลืออยู่ล่าง */
+  .sbar { flex:1; max-width:86px; display:flex; flex-direction:column; justify-content:flex-end;
+          border-radius:4px 4px 0 0; overflow:hidden; min-height:3px; cursor:default; }
+  .sbar:hover,.sbar:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .sseg { width:100%; }
+  .sseg.exp { background:var(--cat-4); }
+  .sseg.ret { background:var(--cat-2); }
+
+  /* กราฟรายเดือน 48 เดือน */
+  .mchart { display:flex; align-items:flex-end; gap:2px; height:150px; border-bottom:1px solid var(--line-strong); }
+  .mcol { flex:1; display:flex; align-items:flex-end; justify-content:center; gap:1px; height:100%; cursor:default; position:relative; }
+  .mcol:hover,.mcol:focus-visible { background:var(--accent-tint); }
+  .mcol.switch::before { content:""; position:absolute; inset:0 auto 0 -1px; width:2px; background:var(--accent); }
+  .mbar { flex:1; min-height:2px; border-radius:2px 2px 0 0; }
+  .mbar.in { background:var(--cat-3); }
+  .mbar.out { background:var(--cat-5); }
+  .mlabels { display:flex; margin-top:6px; }
+  .mlabels div { flex:1; text-align:center; font-size:.76rem; color:var(--ink-secondary); font-weight:600; }
+
+  /* กราฟอัตราส่วน */
+  .rchart { display:flex; align-items:flex-end; gap:2px; height:110px; border-bottom:1px solid var(--line-strong); position:relative; }
+  .rbar { flex:1; background:var(--cat-1); min-height:2px; border-radius:2px 2px 0 0; cursor:default; }
+  .rbar.pre { background:var(--ink-muted); opacity:.45; }
+  .rbar:hover,.rbar:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .rline { position:absolute; left:0; right:0; border-top:1px dashed var(--line-strong); pointer-events:none; }
+  .rline span { position:absolute; right:0; top:-9px; font-size:.68rem; color:var(--ink-muted); background:var(--bg); padding:0 4px; }
+
+  [data-tip]{position:relative;}
+  [data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:.74rem;font-family:"Cascadia Mono","Consolas",ui-monospace,monospace;padding:5px 9px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5;box-shadow:var(--shadow);}
+  [data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;}
+  .hbar-row[data-tip]::after{bottom:auto;top:50%;left:auto;right:4px;transform:translateY(-50%);}
+
+  .legend { display:flex; flex-wrap:wrap; gap:12px 16px; margin-bottom:14px; font-size:.8rem; color:var(--ink-secondary); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .chart-caption { margin-top:12px; font-size:.84rem; color:var(--ink-muted); }
+  .chart-block { margin-bottom:38px; }
+
+  .hchart { display:flex; flex-direction:column; gap:9px; }
+  .hbar-row { display:grid; grid-template-columns:minmax(90px,150px) 1fr auto; align-items:center; gap:10px; }
+  .hbar-label { font-size:.86rem; color:var(--ink-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hbar-label b { color:var(--ink); font-weight:600; }
+  .hbar-track { background:var(--surface); border:1px solid var(--line); border-radius:5px; height:20px; overflow:hidden; }
+  .hbar-fill { height:100%; border-radius:4px; cursor:default; }
+  .hbar-fill:hover,.hbar-fill:focus-visible { filter:brightness(1.08); outline:2px solid var(--accent); outline-offset:-2px; }
+  .hbar-value { font-size:.82rem; font-weight:600; min-width:52px; text-align:right; }
+
+  .verdict { border-radius:10px; padding:18px 20px; margin-bottom:16px; border:1px solid; }
+  .verdict.ok { background:var(--good-tint); border-color:var(--good); }
+  .verdict.bad { background:var(--warn-tint); border-color:var(--warn); }
+  .verdict .vh { font-family:"Bahnschrift",sans-serif; font-weight:700; font-size:1rem; display:flex; align-items:center; gap:8px; }
+  .verdict.ok .vh { color:var(--good); }
+  .verdict.bad .vh { color:var(--warn); }
+  .verdict p { margin:8px 0 0; font-size:.92rem; color:var(--ink-secondary); }
+
+  .manifest-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; min-width:520px; font-size:.86rem; }
+  th,td { text-align:left; padding:9px 14px; border-bottom:1px solid var(--line); }
+  th { color:var(--ink-muted); font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
+  tr:last-child td { border-bottom:none; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  td.path { font-family:"Cascadia Mono","Consolas",ui-monospace,monospace; white-space:nowrap; }
+  .good-text { color:var(--good); font-weight:700; }
+  .warn-text { color:var(--warn); font-weight:700; }
+
+  .callout { background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--ink-muted); border-radius:6px; padding:14px 18px; }
+  .callout.warn { border-left-color:var(--warn); }
+  .callout ul { margin:4px 0 0; padding-left:20px; }
+  .callout li { margin:6px 0; color:var(--ink-secondary); font-size:.92rem; }
+
+  .steps { display:flex; flex-direction:column; }
+  .step { display:flex; gap:14px; padding:12px 4px; border-bottom:1px solid var(--line); }
+  .step:last-child { border-bottom:none; }
+  .step .n { flex:none; width:26px; height:26px; border-radius:50%; background:var(--surface-raise); border:1px solid var(--line-strong); display:flex; align-items:center; justify-content:center; font-family:"Bahnschrift",sans-serif; font-size:.82rem; font-weight:600; color:var(--ink-secondary); }
+  .step .t { font-weight:600; }
+  .step .d { color:var(--ink-secondary); font-size:.92rem; margin-top:2px; }
+
+  footer { margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--ink-muted); display:flex; flex-direction:column; gap:4px; }
+</style>
+
+<div class="page">
+
+  <header class="log-header">
+    <span class="corner-bl"></span><span class="corner-br"></span>
+    <div class="eyebrow"><svg class="icon"><use href="#tick"/></svg> อัปเดต 03 · ฉบับภายใน</div>
+    <h1>ยอดนำเข้าโดรนที่โตพุ่ง ส่วนใหญ่ไม่ได้อยู่ในไทย</h1>
+    <p class="sub">
+      ข้อมูลศุลกากรรายเดือนจากกระทรวงพาณิชย์ชี้ว่า ตั้งแต่ เมษายน 2023 เป็นต้นมา
+      โดรนที่นำเข้าจากจีนส่วนใหญ่ถูกส่งออกต่อไปรัสเซีย ทำให้ตัวเลข "มูลค่านำเข้า"
+      ไม่ใช่ตัวแทนขนาดตลาดในประเทศอีกต่อไป
+    </p>
+    <div class="meta-row">
+      <span><b>ข้อมูล:</b> กระทรวงพาณิชย์ (ศุลกากร) · HS 8806</span>
+      <span><b>ช่วง:</b> ม.ค. 2022 – ธ.ค. 2025 (48 เดือน)</span>
+      <span><b>จัดทำ:</b> 29 กรกฎาคม 2569</span>
+    </div>
+  </header>
+
+  <div class="stat-strip">
+    <div class="stat-tile hero">
+      <div class="v tabnum">$52.8M</div>
+      <div class="l">มูลค่าที่คงเหลือในไทยจริง ปี 2025</div>
+    </div>
+    <div class="stat-tile">
+      <div class="v tabnum">$204.1M</div>
+      <div class="l">ยอดนำเข้ารวม ปี 2025</div>
+    </div>
+    <div class="stat-tile">
+      <div class="v tabnum">74%</div>
+      <div class="l">ของที่นำเข้าปี 2025 ถูกส่งออกต่อ</div>
+    </div>
+    <div class="stat-tile">
+      <div class="v">เม.ย. 2023</div>
+      <div class="l">เดือนที่รูปแบบนี้เริ่มขึ้น</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <svg class="icon"><use href="#tick"/></svg>
+      <h2>1 · ของเข้ามาเท่าไร อยู่ในไทยเท่าไร</h2>
+    </div>
+    <p class="section-note">
+      แท่งแต่ละปีคือยอดนำเข้าทั้งหมด แบ่งเป็นส่วนที่ส่งออกต่อ (สีเหลือง) กับส่วนที่คงเหลือในประเทศ (สีเขียว)
+      ยอดนำเข้าโตจาก 37.9 เป็น 204.1 ล้าน USD = <b>5.4 เท่า</b>
+      แต่ส่วนที่อยู่ในไทยจริงโตจาก 36.9 เป็น 52.8 ล้าน = <b>1.4 เท่า</b> เท่านั้น
+    </p>
+    <div class="chart-block">
+      <div class="legend">
+        <span><i style="background:var(--cat-2)"></i> คงเหลือในประเทศ (นำเข้า − ส่งออก)</span>
+        <span><i style="background:var(--cat-4)"></i> ส่งออกต่อ</span>
+      </div>
+<!--CHART_A-->
+<div class="vchart">
+  <div class="vcol"><div class="sbar" tabindex="0" data-tip="2022: นำเข้า $37,932,343 · คงเหลือ $36,877,480 (97%) · ส่งออกต่อ $1,054,863" style="height:18.58%"><div class="sseg exp" style="height:2.78%"></div><div class="sseg ret" style="height:97.22%"></div></div></div>
+  <div class="vcol"><div class="sbar" tabindex="0" data-tip="2023: นำเข้า $73,466,922 · คงเหลือ $31,845,304 (43%) · ส่งออกต่อ $41,621,618" style="height:35.99%"><div class="sseg exp" style="height:56.65%"></div><div class="sseg ret" style="height:43.35%"></div></div></div>
+  <div class="vcol"><div class="sbar" tabindex="0" data-tip="2024: นำเข้า $88,260,307 · คงเหลือ $50,169,461 (57%) · ส่งออกต่อ $38,090,846" style="height:43.24%"><div class="sseg exp" style="height:43.16%"></div><div class="sseg ret" style="height:56.84%"></div></div></div>
+  <div class="vcol"><div class="sbar" tabindex="0" data-tip="2025: นำเข้า $204,138,968 · คงเหลือ $52,755,317 (26%) · ส่งออกต่อ $151,383,651" style="height:100.00%"><div class="sseg exp" style="height:74.16%"></div><div class="sseg ret" style="height:25.84%"></div></div></div>
+</div>
+<div class="vlabels">
+  <div>2022<span class="note">คงเหลือ $36.9M · จาก $37.9M</span></div>
+  <div>2023<span class="note">คงเหลือ $31.8M · จาก $73.5M</span></div>
+  <div>2024<span class="note">คงเหลือ $50.2M · จาก $88.3M</span></div>
+  <div>2025<span class="note">คงเหลือ $52.8M · จาก $204.1M</span></div>
+</div>
+<!--CHART_A-->
+      <p class="chart-caption">
+        หน่วย USD · รวมจากมูลค่ารายเดือนทั้ง 12 เดือนของแต่ละปี ไม่ใช่ยอดสะสมของเดือนสุดท้าย
+        (ดูเหตุผลในหัวข้อ 5)
+      </p>
+    </div>
+
+    <div class="manifest-wrap">
+      <table>
+        <thead>
+          <tr><th>ปี</th><th class="num">นำเข้า</th><th class="num">ส่งออกต่อ</th>
+              <th class="num">คงเหลือในประเทศ</th><th class="num">สัดส่วนที่ส่งออกต่อ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2022</td><td class="num">$37,932,343</td><td class="num">$1,054,863</td>
+              <td class="num">$36,877,480</td><td class="num">2.8%</td></tr>
+          <tr><td>2023</td><td class="num">$73,466,922</td><td class="num">$41,621,618</td>
+              <td class="num">$31,845,304</td><td class="num">56.6%</td></tr>
+          <tr><td>2024</td><td class="num">$88,260,307</td><td class="num">$38,090,846</td>
+              <td class="num">$50,169,461</td><td class="num">43.2%</td></tr>
+          <tr><td>2025</td><td class="num">$204,138,968</td><td class="num">$151,383,651</td>
+              <td class="num">$52,755,317</td><td class="num">74.2%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:.95rem;margin:30px 0 8px;color:var(--ink-secondary)">
+      มองเป็นจำนวนลำ แล้วเทียบกับทะเบียน กสทช.
+    </h3>
+    <p class="section-note">
+      ถ้าเอาจำนวนลำที่คงเหลือ (นำเข้า − ส่งออก) ไปเทียบกับจำนวนที่จดทะเบียนกับ กสทช. ในปีเดียวกัน
+      จะได้ "อัตราการจดทะเบียน" ซึ่งเคยตกลงไปมากในปี 2024 แล้วดีขึ้นในปี 2025
+    </p>
+    <div class="manifest-wrap">
+      <table>
+        <thead>
+          <tr><th>ปี</th><th class="num">นำเข้า (ลำ)</th><th class="num">ส่งออก (ลำ)</th>
+              <th class="num">คงเหลือ (ลำ)</th><th class="num">จดทะเบียน กสทช.</th><th class="num">อัตราจดทะเบียน</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2022</td><td class="num">23,502</td><td class="num">240</td>
+              <td class="num">23,262</td><td class="num">22,476</td><td class="num good-text">97%</td></tr>
+          <tr><td>2023</td><td class="num">45,767</td><td class="num">16,378</td>
+              <td class="num">29,389</td><td class="num">25,537</td><td class="num">87%</td></tr>
+          <tr><td>2024</td><td class="num">90,951</td><td class="num">26,016</td>
+              <td class="num">64,935</td><td class="num">37,546</td><td class="num warn-text">58%</td></tr>
+          <tr><td>2025</td><td class="num">140,296</td><td class="num">82,606</td>
+              <td class="num">57,690</td><td class="num">43,129</td><td class="num">75%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="chart-caption">
+      <b>นี่คือหลักฐานที่ทำให้ต้องแก้ข้อสรุปเดิม</b> — อัปเดต 02 เห็นแค่ว่านำเข้าโตเร็วกว่าทะเบียน
+      แล้วสรุปว่าเป็นโดรนที่ไม่ได้จดทะเบียน แต่พอหักส่วนที่ส่งออกต่อออกไปก่อน
+      ช่องว่างก็แคบลงมาก (ปี 2024 ถ้าไม่หักส่งออก อัตราจะเหลือเพียง 41%) ·
+      ทั้งสองอย่างเกิดขึ้นพร้อมกัน คือมีทั้งของที่ส่งออกต่อ และมีโดรนที่ไม่จดทะเบียนจริง
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <svg class="icon"><use href="#tick"/></svg>
+      <h2>2 · จุดเปลี่ยนอยู่ที่เดือนเมษายน 2023</h2>
+    </div>
+    <p class="section-note">
+      รายเดือน 48 เดือน แท่งซ้ายคือนำเข้า แท่งขวาคือส่งออก เส้นสีส้มคือเดือน เม.ย. 2023
+      ก่อนหน้านั้นส่งออกแทบเป็นศูนย์ หลังจากนั้นสองเส้นขยับตามกันมาตลอด
+    </p>
+    <div class="chart-block">
+      <div class="legend">
+        <span><i style="background:var(--cat-3)"></i> นำเข้า</span>
+        <span><i style="background:var(--cat-5)"></i> ส่งออก</span>
+        <span><i style="background:var(--accent)"></i> เม.ย. 2023</span>
+      </div>
+<!--CHART_B-->
+<div class="mchart">
+  <div class="mcol" tabindex="0" data-tip="ม.ค. 2022: เข้า $0.4M · ออก $0.0M · อัตราส่วน 0.01"><div class="mbar in" style="height:0.59%"></div><div class="mbar out" style="height:0.00%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.พ. 2022: เข้า $1.8M · ออก $0.0M · อัตราส่วน 0.01"><div class="mbar in" style="height:2.59%"></div><div class="mbar out" style="height:0.01%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มี.ค. 2022: เข้า $1.0M · ออก $0.1M · อัตราส่วน 0.06"><div class="mbar in" style="height:1.41%"></div><div class="mbar out" style="height:0.09%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="เม.ย. 2022: เข้า $0.2M · ออก $0.0M · อัตราส่วน 0.00"><div class="mbar in" style="height:0.28%"></div><div class="mbar out" style="height:0.00%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ค. 2022: เข้า $2.2M · ออก $0.0M · อัตราส่วน 0.00"><div class="mbar in" style="height:3.15%"></div><div class="mbar out" style="height:0.00%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มิ.ย. 2022: เข้า $1.5M · ออก $0.2M · อัตราส่วน 0.15"><div class="mbar in" style="height:2.14%"></div><div class="mbar out" style="height:0.32%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ค. 2022: เข้า $2.7M · ออก $0.2M · อัตราส่วน 0.09"><div class="mbar in" style="height:3.91%"></div><div class="mbar out" style="height:0.36%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ส.ค. 2022: เข้า $3.2M · ออก $0.1M · อัตราส่วน 0.02"><div class="mbar in" style="height:4.69%"></div><div class="mbar out" style="height:0.10%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ย. 2022: เข้า $5.8M · ออก $0.1M · อัตราส่วน 0.01"><div class="mbar in" style="height:8.47%"></div><div class="mbar out" style="height:0.08%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ต.ค. 2022: เข้า $2.0M · ออก $0.2M · อัตราส่วน 0.09"><div class="mbar in" style="height:2.88%"></div><div class="mbar out" style="height:0.27%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ย. 2022: เข้า $14.2M · ออก $0.1M · อัตราส่วน 0.01"><div class="mbar in" style="height:20.77%"></div><div class="mbar out" style="height:0.14%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ธ.ค. 2022: เข้า $3.1M · ออก $0.1M · อัตราส่วน 0.04"><div class="mbar in" style="height:4.51%"></div><div class="mbar out" style="height:0.17%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ม.ค. 2023: เข้า $2.3M · ออก $0.1M · อัตราส่วน 0.03"><div class="mbar in" style="height:3.29%"></div><div class="mbar out" style="height:0.10%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.พ. 2023: เข้า $3.4M · ออก $0.1M · อัตราส่วน 0.02"><div class="mbar in" style="height:5.04%"></div><div class="mbar out" style="height:0.12%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มี.ค. 2023: เข้า $3.6M · ออก $0.1M · อัตราส่วน 0.02"><div class="mbar in" style="height:5.28%"></div><div class="mbar out" style="height:0.10%"></div></div>
+  <div class="mcol switch" tabindex="0" data-tip="เม.ย. 2023: เข้า $8.8M · ออก $6.0M · อัตราส่วน 0.68"><div class="mbar in" style="height:12.86%"></div><div class="mbar out" style="height:8.74%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ค. 2023: เข้า $5.1M · ออก $1.6M · อัตราส่วน 0.31"><div class="mbar in" style="height:7.38%"></div><div class="mbar out" style="height:2.28%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มิ.ย. 2023: เข้า $6.7M · ออก $3.2M · อัตราส่วน 0.48"><div class="mbar in" style="height:9.83%"></div><div class="mbar out" style="height:4.72%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ค. 2023: เข้า $3.7M · ออก $3.6M · อัตราส่วน 0.96"><div class="mbar in" style="height:5.45%"></div><div class="mbar out" style="height:5.24%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ส.ค. 2023: เข้า $6.9M · ออก $3.1M · อัตราส่วน 0.45"><div class="mbar in" style="height:10.11%"></div><div class="mbar out" style="height:4.58%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ย. 2023: เข้า $9.8M · ออก $7.7M · อัตราส่วน 0.79"><div class="mbar in" style="height:14.25%"></div><div class="mbar out" style="height:11.31%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ต.ค. 2023: เข้า $12.1M · ออก $10.7M · อัตราส่วน 0.89"><div class="mbar in" style="height:17.60%"></div><div class="mbar out" style="height:15.59%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ย. 2023: เข้า $7.9M · ออก $4.9M · อัตราส่วน 0.62"><div class="mbar in" style="height:11.55%"></div><div class="mbar out" style="height:7.18%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ธ.ค. 2023: เข้า $3.2M · ออก $0.6M · อัตราส่วน 0.18"><div class="mbar in" style="height:4.65%"></div><div class="mbar out" style="height:0.83%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ม.ค. 2024: เข้า $3.5M · ออก $0.4M · อัตราส่วน 0.11"><div class="mbar in" style="height:5.13%"></div><div class="mbar out" style="height:0.59%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.พ. 2024: เข้า $4.6M · ออก $3.2M · อัตราส่วน 0.69"><div class="mbar in" style="height:6.66%"></div><div class="mbar out" style="height:4.61%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มี.ค. 2024: เข้า $7.9M · ออก $3.8M · อัตราส่วน 0.48"><div class="mbar in" style="height:11.61%"></div><div class="mbar out" style="height:5.62%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="เม.ย. 2024: เข้า $8.2M · ออก $3.0M · อัตราส่วน 0.37"><div class="mbar in" style="height:11.97%"></div><div class="mbar out" style="height:4.41%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ค. 2024: เข้า $8.1M · ออก $4.0M · อัตราส่วน 0.49"><div class="mbar in" style="height:11.79%"></div><div class="mbar out" style="height:5.82%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มิ.ย. 2024: เข้า $6.9M · ออก $1.2M · อัตราส่วน 0.17"><div class="mbar in" style="height:10.06%"></div><div class="mbar out" style="height:1.71%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ค. 2024: เข้า $6.2M · ออก $2.5M · อัตราส่วน 0.41"><div class="mbar in" style="height:9.04%"></div><div class="mbar out" style="height:3.68%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ส.ค. 2024: เข้า $7.5M · ออก $1.7M · อัตราส่วน 0.23"><div class="mbar in" style="height:10.91%"></div><div class="mbar out" style="height:2.50%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ย. 2024: เข้า $4.3M · ออก $1.5M · อัตราส่วน 0.35"><div class="mbar in" style="height:6.34%"></div><div class="mbar out" style="height:2.20%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ต.ค. 2024: เข้า $7.8M · ออก $3.4M · อัตราส่วน 0.43"><div class="mbar in" style="height:11.39%"></div><div class="mbar out" style="height:4.91%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ย. 2024: เข้า $8.4M · ออก $3.0M · อัตราส่วน 0.36"><div class="mbar in" style="height:12.32%"></div><div class="mbar out" style="height:4.44%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ธ.ค. 2024: เข้า $14.8M · ออก $10.4M · อัตราส่วน 0.70"><div class="mbar in" style="height:21.68%"></div><div class="mbar out" style="height:15.14%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ม.ค. 2025: เข้า $12.3M · ออก $7.2M · อัตราส่วน 0.58"><div class="mbar in" style="height:18.02%"></div><div class="mbar out" style="height:10.53%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.พ. 2025: เข้า $10.5M · ออก $5.6M · อัตราส่วน 0.53"><div class="mbar in" style="height:15.33%"></div><div class="mbar out" style="height:8.14%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มี.ค. 2025: เข้า $68.5M · ออก $62.7M · อัตราส่วน 0.92"><div class="mbar in" style="height:100.00%"></div><div class="mbar out" style="height:91.60%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="เม.ย. 2025: เข้า $7.4M · ออก $1.8M · อัตราส่วน 0.24"><div class="mbar in" style="height:10.79%"></div><div class="mbar out" style="height:2.63%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ค. 2025: เข้า $5.5M · ออก $3.5M · อัตราส่วน 0.63"><div class="mbar in" style="height:8.05%"></div><div class="mbar out" style="height:5.06%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="มิ.ย. 2025: เข้า $18.6M · ออก $15.0M · อัตราส่วน 0.81"><div class="mbar in" style="height:27.19%"></div><div class="mbar out" style="height:21.94%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ค. 2025: เข้า $9.3M · ออก $5.8M · อัตราส่วน 0.62"><div class="mbar in" style="height:13.65%"></div><div class="mbar out" style="height:8.46%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ส.ค. 2025: เข้า $24.0M · ออก $16.3M · อัตราส่วน 0.68"><div class="mbar in" style="height:35.10%"></div><div class="mbar out" style="height:23.78%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ก.ย. 2025: เข้า $19.4M · ออก $12.3M · อัตราส่วน 0.63"><div class="mbar in" style="height:28.32%"></div><div class="mbar out" style="height:17.98%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ต.ค. 2025: เข้า $11.2M · ออก $10.4M · อัตราส่วน 0.92"><div class="mbar in" style="height:16.43%"></div><div class="mbar out" style="height:15.19%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="พ.ย. 2025: เข้า $5.1M · ออก $1.6M · อัตราส่วน 0.32"><div class="mbar in" style="height:7.48%"></div><div class="mbar out" style="height:2.38%"></div></div>
+  <div class="mcol" tabindex="0" data-tip="ธ.ค. 2025: เข้า $12.2M · ออก $9.2M · อัตราส่วน 0.75"><div class="mbar in" style="height:17.76%"></div><div class="mbar out" style="height:13.38%"></div></div>
+</div>
+<div class="mlabels">
+  <div>2022</div>
+  <div>2023</div>
+  <div>2024</div>
+  <div>2025</div>
+</div>
+<!--CHART_B-->
+      <p class="chart-caption">
+        หน่วย USD · เดือนสูงสุดคือ มี.ค. 2025 นำเข้า $68.5M · แท่งปี 2022 เตี้ยเพราะยอดจริงยังน้อย ไม่ใช่ข้อมูลขาด
+      </p>
+    </div>
+
+    <p class="section-note">
+      ดูเป็นอัตราส่วน (ส่งออก ÷ นำเข้า) จะเห็นการสลับชัดกว่า —
+      เดือน มี.ค. 2023 อยู่ที่ 0.02 เดือนถัดมากระโดดเป็น <b>0.68</b> แล้วไม่เคยกลับไปต่ำแบบเดิมอีก
+    </p>
+    <div class="chart-block">
+      <div class="legend">
+        <span><i style="background:var(--ink-muted);opacity:.45"></i> ก่อน เม.ย. 2023</span>
+        <span><i style="background:var(--cat-1)"></i> ตั้งแต่ เม.ย. 2023</span>
+      </div>
+<!--CHART_C-->
+<div class="rchart">
+  <div class="rline" style="bottom:50%"><span>0.50</span></div>
+  <div class="rbar pre" tabindex="0" data-tip="ม.ค. 2022: อัตราส่วน 0.01" style="height:1.20%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ก.พ. 2022: อัตราส่วน 0.01" style="height:1.20%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="มี.ค. 2022: อัตราส่วน 0.06" style="height:6.13%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="เม.ย. 2022: อัตราส่วน 0.00" style="height:1.20%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="พ.ค. 2022: อัตราส่วน 0.00" style="height:1.20%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="มิ.ย. 2022: อัตราส่วน 0.15" style="height:14.93%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ก.ค. 2022: อัตราส่วน 0.09" style="height:9.23%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ส.ค. 2022: อัตราส่วน 0.02" style="height:2.16%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ก.ย. 2022: อัตราส่วน 0.01" style="height:1.20%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ต.ค. 2022: อัตราส่วน 0.09" style="height:9.27%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="พ.ย. 2022: อัตราส่วน 0.01" style="height:1.20%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ธ.ค. 2022: อัตราส่วน 0.04" style="height:3.66%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ม.ค. 2023: อัตราส่วน 0.03" style="height:3.01%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="ก.พ. 2023: อัตราส่วน 0.02" style="height:2.28%"></div>
+  <div class="rbar pre" tabindex="0" data-tip="มี.ค. 2023: อัตราส่วน 0.02" style="height:1.99%"></div>
+  <div class="rbar" tabindex="0" data-tip="เม.ย. 2023: อัตราส่วน 0.68" style="height:67.95%"></div>
+  <div class="rbar" tabindex="0" data-tip="พ.ค. 2023: อัตราส่วน 0.31" style="height:30.93%"></div>
+  <div class="rbar" tabindex="0" data-tip="มิ.ย. 2023: อัตราส่วน 0.48" style="height:47.99%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.ค. 2023: อัตราส่วน 0.96" style="height:96.13%"></div>
+  <div class="rbar" tabindex="0" data-tip="ส.ค. 2023: อัตราส่วน 0.45" style="height:45.34%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.ย. 2023: อัตราส่วน 0.79" style="height:79.36%"></div>
+  <div class="rbar" tabindex="0" data-tip="ต.ค. 2023: อัตราส่วน 0.89" style="height:88.59%"></div>
+  <div class="rbar" tabindex="0" data-tip="พ.ย. 2023: อัตราส่วน 0.62" style="height:62.16%"></div>
+  <div class="rbar" tabindex="0" data-tip="ธ.ค. 2023: อัตราส่วน 0.18" style="height:17.83%"></div>
+  <div class="rbar" tabindex="0" data-tip="ม.ค. 2024: อัตราส่วน 0.11" style="height:11.50%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.พ. 2024: อัตราส่วน 0.69" style="height:69.22%"></div>
+  <div class="rbar" tabindex="0" data-tip="มี.ค. 2024: อัตราส่วน 0.48" style="height:48.41%"></div>
+  <div class="rbar" tabindex="0" data-tip="เม.ย. 2024: อัตราส่วน 0.37" style="height:36.79%"></div>
+  <div class="rbar" tabindex="0" data-tip="พ.ค. 2024: อัตราส่วน 0.49" style="height:49.35%"></div>
+  <div class="rbar" tabindex="0" data-tip="มิ.ย. 2024: อัตราส่วน 0.17" style="height:17.05%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.ค. 2024: อัตราส่วน 0.41" style="height:40.72%"></div>
+  <div class="rbar" tabindex="0" data-tip="ส.ค. 2024: อัตราส่วน 0.23" style="height:22.91%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.ย. 2024: อัตราส่วน 0.35" style="height:34.71%"></div>
+  <div class="rbar" tabindex="0" data-tip="ต.ค. 2024: อัตราส่วน 0.43" style="height:43.09%"></div>
+  <div class="rbar" tabindex="0" data-tip="พ.ย. 2024: อัตราส่วน 0.36" style="height:36.05%"></div>
+  <div class="rbar" tabindex="0" data-tip="ธ.ค. 2024: อัตราส่วน 0.70" style="height:69.84%"></div>
+  <div class="rbar" tabindex="0" data-tip="ม.ค. 2025: อัตราส่วน 0.58" style="height:58.42%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.พ. 2025: อัตราส่วน 0.53" style="height:53.08%"></div>
+  <div class="rbar" tabindex="0" data-tip="มี.ค. 2025: อัตราส่วน 0.92" style="height:91.60%"></div>
+  <div class="rbar" tabindex="0" data-tip="เม.ย. 2025: อัตราส่วน 0.24" style="height:24.41%"></div>
+  <div class="rbar" tabindex="0" data-tip="พ.ค. 2025: อัตราส่วน 0.63" style="height:62.79%"></div>
+  <div class="rbar" tabindex="0" data-tip="มิ.ย. 2025: อัตราส่วน 0.81" style="height:80.70%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.ค. 2025: อัตราส่วน 0.62" style="height:61.97%"></div>
+  <div class="rbar" tabindex="0" data-tip="ส.ค. 2025: อัตราส่วน 0.68" style="height:67.77%"></div>
+  <div class="rbar" tabindex="0" data-tip="ก.ย. 2025: อัตราส่วน 0.63" style="height:63.48%"></div>
+  <div class="rbar" tabindex="0" data-tip="ต.ค. 2025: อัตราส่วน 0.92" style="height:92.47%"></div>
+  <div class="rbar" tabindex="0" data-tip="พ.ย. 2025: อัตราส่วน 0.32" style="height:31.85%"></div>
+  <div class="rbar" tabindex="0" data-tip="ธ.ค. 2025: อัตราส่วน 0.75" style="height:75.35%"></div>
+</div>
+<div class="mlabels">
+  <div>2022</div>
+  <div>2023</div>
+  <div>2024</div>
+  <div>2025</div>
+</div>
+<!--CHART_C-->
+      <p class="chart-caption">
+        อัตราส่วนส่งออก ÷ นำเข้า ในเดือนเดียวกัน · ตัดยอดที่ 1.00 เพื่อให้อ่านง่าย
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <svg class="icon"><use href="#tick"/></svg>
+      <h2>3 · เข้าจากจีน ออกไปรัสเซีย</h2>
+    </div>
+    <p class="section-note">รวมทั้งช่วง 2022–2025 · สัดส่วนของมูลค่ารวมแต่ละทิศทาง</p>
+
+    <h3 style="font-size:.95rem;margin-bottom:10px;color:var(--ink-secondary)">แหล่งนำเข้า — รวม $403.8M</h3>
+    <div class="hchart" style="margin-bottom:26px">
+      <div class="hbar-row" data-tip="$375,678,935"><div class="hbar-label"><b>จีน</b></div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:93%;background:var(--cat-3)"></div></div>
+        <div class="hbar-value tabnum">93.0%</div></div>
+      <div class="hbar-row" data-tip="$10,914,630"><div class="hbar-label">ออสเตรีย</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:2.7%;background:var(--cat-3)"></div></div>
+        <div class="hbar-value tabnum">2.7%</div></div>
+      <div class="hbar-row" data-tip="$4,247,564"><div class="hbar-label">สหรัฐฯ</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:1.1%;background:var(--cat-3)"></div></div>
+        <div class="hbar-value tabnum">1.1%</div></div>
+      <div class="hbar-row" data-tip="$3,268,070"><div class="hbar-label">สิงคโปร์</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.8%;background:var(--cat-3)"></div></div>
+        <div class="hbar-value tabnum">0.8%</div></div>
+      <div class="hbar-row" data-tip="$3,023,692"><div class="hbar-label">สเปน</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.7%;background:var(--cat-3)"></div></div>
+        <div class="hbar-value tabnum">0.7%</div></div>
+      <div class="hbar-row" data-tip="$2,809,282"><div class="hbar-label">เวียดนาม</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.7%;background:var(--cat-3)"></div></div>
+        <div class="hbar-value tabnum">0.7%</div></div>
+    </div>
+
+    <h3 style="font-size:.95rem;margin-bottom:10px;color:var(--ink-secondary)">ปลายทางส่งออก — รวม $232.2M</h3>
+    <div class="hchart">
+      <div class="hbar-row" data-tip="$193,861,440"><div class="hbar-label"><b>รัสเซีย</b></div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:83.5%;background:var(--cat-5)"></div></div>
+        <div class="hbar-value tabnum">83.5%</div></div>
+      <div class="hbar-row" data-tip="$14,693,819"><div class="hbar-label">โปแลนด์</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:6.3%;background:var(--cat-5)"></div></div>
+        <div class="hbar-value tabnum">6.3%</div></div>
+      <div class="hbar-row" data-tip="$12,772,505"><div class="hbar-label">สหรัฐฯ</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:5.5%;background:var(--cat-5)"></div></div>
+        <div class="hbar-value tabnum">5.5%</div></div>
+      <div class="hbar-row" data-tip="$3,443,102"><div class="hbar-label">ลิทัวเนีย</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:1.5%;background:var(--cat-5)"></div></div>
+        <div class="hbar-value tabnum">1.5%</div></div>
+      <div class="hbar-row" data-tip="$1,577,346"><div class="hbar-label">กัมพูชา</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.7%;background:var(--cat-5)"></div></div>
+        <div class="hbar-value tabnum">0.7%</div></div>
+      <div class="hbar-row" data-tip="$883,949"><div class="hbar-label">ฮ่องกง</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.4%;background:var(--cat-5)"></div></div>
+        <div class="hbar-value tabnum">0.4%</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <svg class="icon"><use href="#tick"/></svg>
+      <h2>4 · สี่ข้อที่ทำให้ยังสรุปแรงกว่านี้ไม่ได้</h2>
+    </div>
+    <p class="section-note">
+      ข้อสรุปเรื่อง "ของผ่าน" ตั้งอยู่บนความสัมพันธ์เชิงมูลค่า ซึ่งแข็งแรง
+      แต่มีหลักฐาน 4 อย่างที่ยังค้านหรือยังไม่ยืนยัน — ต้องเขียนกำกับทุกครั้งที่ใช้ตัวเลขนี้
+    </p>
+
+    <div class="verdict bad">
+      <div class="vh">1 · ของที่ส่งออกแพงกว่าของที่นำเข้าอย่างสม่ำเสมอ</div>
+      <p>
+        ถ้าเป็นของกล่องเดียวกันผ่านออกไป ราคาต่อลำควรใกล้เคียงกัน แต่ไม่ใช่ —
+        ราคาส่งออกต่อลำสูงกว่านำเข้า <b>1.3–1.5 เท่า ทุกปี</b>
+        และสัดส่วนที่วัดด้วยจำนวนลำต่ำกว่าที่วัดด้วยมูลค่าเสมอ
+        อาจแปลว่าเป็นสินค้าคนละเกรด หรือมีการประกอบ/เพิ่มมูลค่าในไทยก่อนส่งออก
+        หรือหน่วยนับไม่เหมือนกัน (เอกสาร API ระบุเองว่า <span class="mono">quantity=0</span>
+        หมายถึงรหัสสินค้าย่อยมีหน่วยนับต่างกัน — ปัญหาหน่วยนับปนกันเป็นเรื่องที่ทางการรับรู้อยู่แล้ว)
+        <br><b>ผล:</b> "ของกล่องเดียวกันผ่านออกไป" ยังพิสูจน์ไม่ได้ ตัวเลขคงเหลือจึงเป็น<b>ค่าประมาณ</b>
+      </p>
+    </div>
+
+    <div class="manifest-wrap" style="margin-bottom:16px">
+      <table>
+        <thead>
+          <tr><th>ปี</th><th class="num">ราคานำเข้า/ลำ</th><th class="num">ราคาส่งออก/ลำ</th>
+              <th class="num">ต่างกัน</th><th class="num">ออก/เข้า (จำนวนลำ)</th><th class="num">ออก/เข้า (มูลค่า)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2022</td><td class="num">$1,614</td><td class="num">$4,395</td><td class="num">2.7×</td>
+              <td class="num">1.0%</td><td class="num">2.8%</td></tr>
+          <tr><td>2023</td><td class="num">$1,605</td><td class="num">$2,541</td><td class="num">1.6×</td>
+              <td class="num">35.8%</td><td class="num">56.7%</td></tr>
+          <tr><td>2024</td><td class="num">$970</td><td class="num">$1,464</td><td class="num">1.5×</td>
+              <td class="num">28.6%</td><td class="num">43.2%</td></tr>
+          <tr><td>2025</td><td class="num">$1,455</td><td class="num">$1,833</td><td class="num">1.3×</td>
+              <td class="num">58.9%</td><td class="num">74.2%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="chart-caption" style="margin-bottom:22px">
+      ปี 2022 ที่ต่างกัน 2.7× มาจากฐานส่งออกเล็กมาก (240 ลำ) จึงไม่ควรตีความมาก ·
+      เดือนสุดโต่งอย่าง มี.ค. 2025 ต่างกันถึง 3.4× (เข้า 7,179 ลำ ~$9,501/ลำ · ออก 1,935 ลำ ~$31,993/ลำ)
+      แต่ระดับรายปีอยู่ที่ 1.3–1.5× ซึ่งเป็นภาพที่มั่นคงกว่า
+    </p>
+
+    <div class="verdict bad">
+      <div class="vh">2 · ศุลกากรไทยไม่ได้จัดประเภทของพวกนี้เป็น re-export</div>
+      <p>
+        ถ้าเป็นของผ่านจริง น่าจะถูกบันทึกเป็น re-export (RX) แต่ในข้อมูล UN Comtrade
+        ยอดที่ติดธง RX มีเพียง <b>$42,173 (2023)</b> และ <b>$62,107 (2024)</b>
+        จากยอดส่งออกรวม $41.6M และ $38.1M — คิดเป็นเศษเสี้ยว
+        <br><b>ผล:</b> ในทางเอกสาร ของเหล่านี้ถูกบันทึกเป็น<b>การส่งออกปกติ</b> ไม่ใช่ของผ่าน
+        จึงเรียกว่า "ของผ่าน" อย่างเป็นทางการไม่ได้ ได้แค่บอกว่ารูปแบบการไหลของเงินเข้า-ออกสอดคล้องกัน
+      </p>
+    </div>
+
+    <div class="verdict bad">
+      <div class="vh">3 · correlation ถูกดึงด้วยเดือนใหญ่ไม่กี่เดือน</div>
+      <p>
+        correlation รายเดือนของปี 2025 = 0.994 ซึ่งดูเหมือนของผ่านสม่ำเสมอทุกเดือน
+        แต่ค่านี้ถูกดึงด้วยเดือน มี.ค./มิ.ย./ส.ค. ที่มูลค่าสูงมาก
+        อัตราส่วนรายเดือนจริงแกว่างระหว่าง <b>0.24–0.92</b>
+        <br><b>ผล:</b> พูดได้ว่า "มูลค่ารวมสัมพันธ์กันสูง โดยเฉพาะเดือนที่มูลค่าสูง"
+        แต่พูดไม่ได้ว่า "ทุกเดือนเป็นของผ่าน"
+      </p>
+    </div>
+
+    <div class="verdict bad">
+      <div class="vh">4 · ฝั่งส่งออกยังไม่ผ่าน mirror check</div>
+      <p>
+        ประเทศปลายทางแทบไม่รายงานว่านำเข้าจากไทย — โปแลนด์และลิทัวเนียรายงาน 0
+        ทั้งที่ไทยบันทึกว่าส่งออกไป $5.6M และ $2.3M ในปี 2024
+        และประเทศเหล่านั้นรายงาน HS 8806 จากประเทศอื่นตามปกติ
+        <br><b>ผล:</b> ยอดส่งออกที่นำมาหักออกยังมีข้อกังขาในตัวมันเอง
+      </p>
+    </div>
+
+    <div class="callout warn">
+      <b>สรุปวิธีพูดที่ปลอดภัย</b>
+      <ul>
+        <li>ใช้ได้: "ยอดนำเข้า 204 ล้าน USD ไม่ใช่ขนาดตลาดในประเทศ เพราะมีการส่งออกต่อจำนวนมาก"</li>
+        <li>ใช้ได้: "ส่วนที่คงเหลือในไทยประมาณ 50–53 ล้าน USD ต่อปี และค่อนข้างนิ่ง"</li>
+        <li>ยังใช้ไม่ได้: "โดรนที่นำเข้าถูกส่งออกต่อทั้งหมด" หรือระบุจำนวนลำที่ผ่านออกไป</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <svg class="icon"><use href="#tick"/></svg>
+      <h2>5 · แก้ข้อสรุปของอัปเดต 02</h2>
+    </div>
+
+    <div class="verdict ok">
+      <div class="vh">แก้แล้ว · ตัวเลขส่งออกไม่ใช่ artifact จากการจัดประเภท</div>
+      <p>
+        อัปเดต 02 สรุปว่ายอดส่งออกที่ผิดปกติน่าจะเป็น artifact จากการจัดประเภทสินค้าใน UN Comtrade
+        รอบนี้ตรวจที่ต้นทางแล้วพบว่า <b>ไม่ใช่</b> —
+        ข้อมูลศุลกากรของกระทรวงพาณิชย์ ซึ่งเป็นแหล่งที่ไทยส่งให้ Comtrade
+        บันทึกตัวเลขเดียวกันทุกตัว (รัสเซีย $24,722,100 · โปแลนด์ $5,592,750 · สหรัฐฯ $3,281,956 ในปี 2024)
+        <br>
+        แปลว่าตัวเลขนี้เป็นสิ่งที่<b>ศุลกากรไทยบันทึกเอง</b> ไม่ใช่ความผิดพลาดของ Comtrade
+        ส่วนความไม่ตรงกับประเทศปลายทางยังเป็นปริศนาที่ยังไม่คลี่คลาย
+      </p>
+    </div>
+
+    <div class="callout">
+      <b>สองบทเรียนเชิงวิธีการ</b>
+      <ul>
+        <li>
+          <b>Comtrade กับกระทรวงพาณิชย์ไม่ใช่แหล่งอิสระต่อกัน</b> — ยอดสะสมปี 2024 ตรงกันทุกหลัก
+          (จีน 86,083,776 · สิงคโปร์ 582,012 · สหรัฐฯ 259,472) เพราะเป็นข้อมูลชุดเดียวกัน
+          ห้ามเอามา cross-check กันเองแล้วบอกว่า "สองแหล่งยืนยันตรงกัน"
+        </li>
+        <li>
+          <b>อย่าใช้ยอดสะสมของเดือนสุดท้ายเป็นยอดทั้งปี</b> — API จำกัด <span class="mono">limit=10</span>
+          ทำให้ประเทศที่หลุด top-10 ในเดือนนั้นหายไปจากยอดสะสมด้วย
+          ปี 2024 ขาดไป $776,088 จาก 8 ประเทศ ต้องรวมจากมูลค่ารายเดือนทั้ง 12 เดือนแทน
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <svg class="icon"><use href="#tick"/></svg>
+      <h2>6 · การตรวจสอบความถูกต้อง</h2>
+    </div>
+    <div class="manifest-wrap">
+      <table>
+        <thead><tr><th>รายการตรวจ</th><th class="num">กระทรวงพาณิชย์</th><th class="num">UN Comtrade</th><th>ผล</th></tr></thead>
+        <tbody>
+          <tr><td>นำเข้า 2022</td><td class="num">$37,932,343</td><td class="num">$37,932,343</td><td class="good-text">ตรง</td></tr>
+          <tr><td>นำเข้า 2023</td><td class="num">$73,466,922</td><td class="num">$73,466,922</td><td class="good-text">ตรง</td></tr>
+          <tr><td>นำเข้า 2024</td><td class="num">$88,260,307</td><td class="num">$88,260,306</td><td class="good-text">ต่าง $1 (ปัดเศษ)</td></tr>
+          <tr><td>ส่งออก 2024</td><td class="num">$38,090,846</td><td class="num">$38,090,845</td><td class="good-text">ต่าง $1 (ปัดเศษ)</td></tr>
+          <tr><td>ส่งออก 2023</td><td class="num">$41,621,618</td><td class="num">$41,624,605</td><td>ต่าง $2,987 (0.007%)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="chart-caption">
+      ตัวเลขตรงกันเพราะเป็นข้อมูลชุดเดียวกัน — ใช้ยืนยันว่า pipeline ดึงและรวมข้อมูลถูกต้อง
+      ไม่ได้ใช้ยืนยันว่าตัวเลขต้นทางถูก
+    </p>
+
+    <h3 style="font-size:.95rem;margin:26px 0 12px;color:var(--ink-secondary)">วิธีทำซ้ำ</h3>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div>
+        <div class="t mono">python scripts/moc_hs_trade.py --years 2022,2023,2024,2025</div>
+        <div class="d">ดึงข้อมูลรายเดือนจาก API กระทรวงพาณิชย์ → <span class="mono">data/processed/moc_hs8806_monthly.csv</span></div>
+      </div></div>
+      <div class="step"><div class="n">2</div><div>
+        <div class="t mono">python scripts/build_charts_update03.py</div>
+        <div class="d">สร้าง HTML ของกราฟจาก CSV โดยตรง — ตัวเลขในกราฟจึงมาจากข้อมูลจริง ไม่ใช่พิมพ์มือ</div>
+      </div></div>
+      <div class="step"><div class="n">3</div><div>
+        <div class="t mono">python scripts/comtrade_fetch.py --years 2022,2023,2024</div>
+        <div class="d">ดึง UN Comtrade มาเทียบยืนยัน pipeline (ต้องมี API key ใน <span class="mono">.env</span>)</div>
+      </div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div><b>แหล่งข้อมูล:</b> กระทรวงพาณิชย์ — API แหล่งนำเข้า/ตลาดส่งออกตามพิกัดศุลกากร (HS 8806) ข้อมูล ม.ค. 2022 – ธ.ค. 2025</div>
+    <div>รายละเอียด API กับดักที่เจอ และแหล่งข้อมูลอื่น ดูที่ <span class="mono">SOURCES.md</span></div>
+    <div>เอกสารนี้เป็นฉบับภายใน มีเรื่องคุณภาพข้อมูลที่ยังไม่ควรเผยแพร่ · ฉบับสาธารณะดูที่ <span class="mono">public-summary.html</span></div>
+  </footer>
+
+</div>
