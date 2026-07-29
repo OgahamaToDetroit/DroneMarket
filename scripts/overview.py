@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
+"""ภาพรวมตลาดจากทะเบียน กสทช. — รายปี / แบรนด์ / จังหวัด / วัตถุประสงค์
+
+รันจาก root ของโปรเจกต์:  python scripts/overview.py
+"""
 import pandas as pd
 import io, re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+RAW = ROOT / 'data' / 'raw' / 'drone_data.xlsx'
+PROC = ROOT / 'data' / 'processed'
 
 out = io.StringIO()
 def p(*a): print(*a, file=out)
 
-df = pd.read_excel('drone_data.xlsx')
+df = pd.read_excel(RAW)
 total = len(df)
 
 # ---- Parse Thai Buddhist-era date: e.g. "16 ต.ค. 2560" ----
@@ -80,12 +89,13 @@ for y, row in piv.iterrows():
     share = dji/tot*100 if tot else 0
     p(f'  {int(y)}:  DJI {int(dji):>6,} | Others {int(oth):>6,} | DJI share {share:5.1f}%')
 
-with open('overview_out.txt','w',encoding='utf-8') as f:
+PROC.mkdir(parents=True, exist_ok=True)
+with open(ROOT / 'scripts' / 'overview_out.txt', 'w', encoding='utf-8') as f:
     f.write(out.getvalue())
 
 # also save reusable CSV summaries
-by_year.rename('registrations').to_csv('summary_by_year.csv', encoding='utf-8-sig')
-bc.head(50).rename('registrations').to_csv('summary_by_brand.csv', encoding='utf-8-sig')
-prov.rename('registrations').to_csv('summary_by_province.csv', encoding='utf-8-sig')
-pc.rename('registrations').to_csv('summary_by_purpose.csv', encoding='utf-8-sig')
-print('done')
+by_year.rename('registrations').to_csv(PROC / 'summary_by_year.csv', encoding='utf-8-sig')
+bc.head(50).rename('registrations').to_csv(PROC / 'summary_by_brand.csv', encoding='utf-8-sig')
+prov.rename('registrations').to_csv(PROC / 'summary_by_province.csv', encoding='utf-8-sig')
+pc.rename('registrations').to_csv(PROC / 'summary_by_purpose.csv', encoding='utf-8-sig')
+print('done -> data/processed/summary_by_*.csv, scripts/overview_out.txt')

@@ -1,0 +1,46 @@
+===== DATA DICTIONARY (raw) =====
+shape: (7, 5)
+                        0          1                              2         3                                                       4
+0                    Name  Data Type                    Description  Required                                                 Example
+1            ApproveDate        Text              วันที่ออกใบรับรอง       Yes                                     2021-01-11 00:00:00
+2           ProvinceName        Text                        จังหวัด       Yes                                           กรุงเทพมหานคร
+3  PurposeOfUseAircraft         Text  วัตถุประสงค์ของการใช้อากาศยาน       Yes  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือเพื่อการกีฬา
+4                  Brand        Text                         ยี่ห้อ       Yes                                                     DJI
+5                  Model        Text                           รุ่น       Yes                                                 MA2UE3W
+6  FrequencyTransmission        Text                  ความถี่ใช้งาน       Yes                         2400 – 2500 MHz,5725 – 5850 MHz
+
+===== MAIN DATA =====
+--- first 5 raw rows (no header) ---
+              0             1                                                        2      3                       4                                5
+0  ApprovedDate  ProvinceName                                     PurposeOfUseAircraft  Brand                   Model            FrequencyTransmission
+1  16 ต.ค. 2560   จ.เชียงใหม่  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา    DJI      PHANTOM 4 ADVANCED                  2400 – 2500 MHz
+2  25 ต.ค. 2560   จ.เชียงใหม่  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา    DJI      PHANTOM 3 ADVANCED                  2400 – 2500 MHz
+3  12 ต.ค. 2560   จ.กาญจนบุรี  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา    DJI  PHANTOM 4 PROFESSIONAL                  2400 – 2500 MHz
+4  12 ต.ค. 2560   จ.กาญจนบุรี  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา    DJI                   SPARK  2400 – 2500 MHz,5725 – 5850 MHz
+
+shape: (205287, 6)
+columns: ['ApprovedDate', 'ProvinceName', 'PurposeOfUseAircraft', 'Brand', 'Model', 'FrequencyTransmission']
+
+--- dtypes ---
+ApprovedDate                str
+ProvinceName                str
+PurposeOfUseAircraft        str
+Brand                       str
+Model                    object
+FrequencyTransmission       str
+
+--- head(5) ---
+   ApprovedDate ProvinceName                                     PurposeOfUseAircraft Brand                   Model            FrequencyTransmission
+0  16 ต.ค. 2560  จ.เชียงใหม่  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา   DJI      PHANTOM 4 ADVANCED                  2400 – 2500 MHz
+1  25 ต.ค. 2560  จ.เชียงใหม่  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา   DJI      PHANTOM 3 ADVANCED                  2400 – 2500 MHz
+2  12 ต.ค. 2560  จ.กาญจนบุรี  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา   DJI  PHANTOM 4 PROFESSIONAL                  2400 – 2500 MHz
+3  12 ต.ค. 2560  จ.กาญจนบุรี  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา   DJI                   SPARK  2400 – 2500 MHz,5725 – 5850 MHz
+4  12 ต.ค. 2560  จ.กาญจนบุรี  เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง หรือ เพื่อการกีฬา   DJI      PHANTOM 3 STANDARD  2400 – 2500 MHz,5725 – 5850 MHz
+
+--- nulls per column ---
+ApprovedDate                0
+ProvinceName              216
+PurposeOfUseAircraft     6087
+Brand                       0
+Model                       6
+FrequencyTransmission    4691
