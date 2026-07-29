@@ -74,7 +74,10 @@ def fetch_month(flow: str, year: int, month: int, hs_code: str) -> list[dict]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="ดึงมูลค่าการค้า HS 8806 รายเดือนจากกระทรวงพาณิชย์")
-    ap.add_argument("--years", default="2024,2025", help="ปี ค.ศ. คั่นด้วย comma")
+    # default ต้องครอบคลุมทุกปีที่รายงานใช้ ไม่งั้นรันเปล่า ๆ แล้วเขียนทับ CSV
+    # จะทำให้กราฟในรายงานเหลือน้อยปีกว่าข้อความรอบ ๆ โดยไม่มีอะไรเตือน
+    ap.add_argument("--years", default="2022,2023,2024,2025",
+                    help="ปี ค.ศ. คั่นด้วย comma (HS 8806 มีข้อมูลตั้งแต่ 2022)")
     ap.add_argument("--hs", default="8806", help="รหัส HS (2/4/6/8/11 หลัก)")
     ap.add_argument("--flows", default="import,export", help="import และ/หรือ export")
     args = ap.parse_args()

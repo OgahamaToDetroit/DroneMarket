@@ -42,6 +42,10 @@ TH_MONTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "�
 
 REPORT_DIR = PROJECT_ROOT / "reports" / "2026-07-29_update-03"
 
+# ข้อความและตารางในรายงานเขียนไว้บนฐานปีชุดนี้ ถ้าข้อมูลไม่ครบแล้วยังแทรกกราฟ
+# รายงานจะขัดแย้งกันเองแบบเงียบ ๆ (กราฟ 2 ปี แต่ตารางข้าง ๆ 4 ปี)
+EXPECTED_YEARS = [2022, 2023, 2024, 2025]
+
 
 def usd(v: float) -> str:
     return f"${v:,.0f}"
@@ -51,13 +55,22 @@ def millions(v: float) -> str:
     return f"${v/1e6:,.1f}M"
 
 
-def inject(charts: dict[str, str]) -> None:
+def inject(charts: dict[str, str], years: list[int]) -> None:
     """แทรกกราฟลงในรายงานที่มี marker
 
     ครอบด้วย marker เดิมทุกครั้ง จึงรันซ้ำได้เรื่อย ๆ โดยไม่ซ้อนทับ
+    แต่จะไม่แทรกถ้าข้อมูลไม่ครบปีที่รายงานอ้างถึง
     """
     if not REPORT_DIR.exists():
         print(f"[SKIP] ยังไม่มี {REPORT_DIR.name} — ข้ามการแทรกกราฟ")
+        return
+
+    missing = [y for y in EXPECTED_YEARS if y not in years]
+    if missing:
+        print(f"[STOP] ข้อมูลขาดปี {missing} — ไม่แทรกกราฟลงรายงาน\n"
+              f"       ถ้าแทรกตอนนี้ กราฟจะไม่ตรงกับตารางและข้อความในรายงาน\n"
+              f"       ดึงข้อมูลให้ครบก่อน: python scripts/moc_hs_trade.py "
+              f"--years {','.join(str(y) for y in EXPECTED_YEARS)}")
         return
 
     for path in sorted(REPORT_DIR.glob("*.html")):
@@ -177,18 +190,49 @@ def main() -> None:
     # แยกเป็นกราฟ A/B/C ด้วยคอมเมนต์คั่น แล้วแทรกลงรายงาน
     chunks = re.split(r"<!-- CHART ([ABC]):[^>]*-->", full)
     charts = {chunks[i]: chunks[i + 1].strip() for i in range(1, len(chunks) - 1, 2)}
-    inject(charts)
-    print()
-    print("===== ตัวเลขที่ใช้ในกราฟ =====")
+    inject(charts, [int(y) for y in years])
+    # ---------- สรุปตัวเลขที่รายงานอ้างถึง ----------
+    lines: list[str] = []
+
+    def say(s: str = "") -> None:
+        lines.append(s)
+        print(s)
+
+    say()
+    say("===== ตัวเลขที่ใช้ในกราฟ =====")
     for a in values["annual"]:
-        print(f'  {a["year"]}: นำเข้า {usd(a["import"]):>14} | ส่งออกต่อ {usd(a["export"]):>14} '
-              f'| คงเหลือ {usd(a["net"]):>13} | ส่งออก {a["exp_share"]:>5.1f}%')
-    print()
+        say(f'  {a["year"]}: นำเข้า {usd(a["import"]):>14} | ส่งออกต่อ {usd(a["export"]):>14} '
+            f'| คงเหลือ {usd(a["net"]):>13} | ส่งออก {a["exp_share"]:>5.1f}%')
+
+    say()
+    say("===== จำนวนลำ และราคาต่อลำ =====")
+    qty = monthly.groupby("year")[["import", "export"]].sum()
+    qcol = (df.groupby(["year", "flow"])["quantity"].sum().unstack(fill_value=0))
+    for y in years:
+        qi, qe = qcol.loc[y, "import"], qcol.loc[y, "export"]
+        vi, ve = qty.loc[y, "import"], qty.loc[y, "export"]
+        pi = vi / qi if qi else 0
+        pe = ve / qe if qe else 0
+        say(f'  {int(y)}: เข้า {qi:>9,.0f} ลำ (${pi:,.0f}/ลำ) | ออก {qe:>9,.0f} ลำ (${pe:,.0f}/ลำ)'
+            f' | ออก/เข้า {qe/qi*100 if qi else 0:>5.1f}% (จำนวน) เทียบ {ve/vi*100 if vi else 0:>5.1f}% (มูลค่า)')
+
+    say()
+    say("===== ความสัมพันธ์นำเข้า-ส่งออก รายปี =====")
+    for y in years:
+        s = monthly[monthly["year"] == y]
+        corr = s["import"].corr(s["export"])
+        say(f'  {int(y)}: correlation {corr:>6.3f} | ratio รายเดือน '
+            f'{s["ratio"].min():.2f}-{s["ratio"].max():.2f}')
+
+    say()
     sw = [v for v in values["monthly"] if v["year"] == 2023 and v["month"] in (3, 4)]
-    print("  จุดเปลี่ยน:", " -> ".join(f'{v["month"]}/2023 ratio {v["ratio"]:.2f}' for v in sw))
-    print(f'  เดือนสูงสุด: {max(values["monthly"], key=lambda v: v["import"])["month"]}/'
-          f'{max(values["monthly"], key=lambda v: v["import"])["year"]} '
-          f'= {millions(max(v["import"] for v in values["monthly"]))}')
+    say("  จุดเปลี่ยน: " + " -> ".join(f'{v["month"]}/2023 ratio {v["ratio"]:.2f}' for v in sw))
+    top = max(values["monthly"], key=lambda v: v["import"])
+    say(f'  เดือนสูงสุด: {top["month"]}/{top["year"]} = {millions(top["import"])}')
+
+    out_txt = PROJECT_ROOT / "scripts" / "build_charts_update03_out.txt"
+    out_txt.write_text("\n".join(lines), encoding="utf-8")
+    print(f'\n[OK] {out_txt.relative_to(PROJECT_ROOT)}')
 
 
 if __name__ == "__main__":
