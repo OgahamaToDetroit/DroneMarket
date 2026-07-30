@@ -16,3 +16,6 @@ __pycache__/
 .venv/
 venv/
 .ipynb_checkpoints/
+
+# checkpoint ระหว่างดึง e-GP (สร้างใหม่ได้ ไม่ต้องเก็บใน git)
+data/processed/egp_parts/

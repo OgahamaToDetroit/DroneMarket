@@ -64,7 +64,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import io
+import json
+import shutil
 import sys
 import tempfile
 import time
@@ -75,10 +78,13 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-try:
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-except Exception:
-    pass
+# ต้องตั้งทั้ง stdout และ stderr — ข้อความ [STOP] ออกทาง stderr
+# ถ้าตั้งแค่ stdout ข้อความเตือนที่สำคัญที่สุดจะกลายเป็น \uXXXX อ่านไม่ออก
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 csv.field_size_limit(1 << 24)
 
@@ -91,8 +97,13 @@ PKG_SHOW = "https://data.go.th/api/3/action/package_show"
 # ส่วนการสตรีมไฟล์ใหญ่ใช้ Session ใหม่ต่อไฟล์ — ดูเหตุผลใน scan_file()
 SESSION = requests.Session()
 
-# ที่พักไฟล์ระหว่างประมวลผล — โหลดทีละไฟล์แล้วลบทันที ใช้พื้นที่สูงสุด ~600 MB
+# ที่พักไฟล์ CSV ต้นทางระหว่างประมวลผล — โหลดทีละไฟล์แล้วลบทันที ใช้พื้นที่สูงสุด ~600 MB
 TMP_DIR = Path(tempfile.gettempdir()) / "egp_drone_cache"
+
+# checkpoint รายไฟล์ — งานนี้กินเวลา 2 ชั่วโมงครึ่ง ถ้าไม่บันทึกความคืบหน้าไว้
+# หยุดกลางทางแล้วต้องเริ่มใหม่จากศูนย์ทั้งหมด
+PARTS_DIR = PROC_DIR / "egp_parts"
+FINGERPRINT = PARTS_DIR / "_keywords.txt"
 
 # ชื่อชุดข้อมูลสะกดไม่คงที่ (กับดักข้อ 3) ต้องระบุตายตัว
 PACKAGES = {
@@ -135,6 +146,70 @@ NOT_DRONE = ["รถไร้คนขับ", "เรือไร้คนข�
 COUNTER_PATTERNS = ["ต่อต้าน", "ต้านอากาศยาน", "anti-drone", "antidrone",
                     "ตรวจจับและทำลาย", "รบกวนสัญญาณ"]
 
+# ─── งานสำรวจทางอากาศที่ "ไม่เอ่ยคำว่าโดรน" ───────────────────────────────
+# ตลาดบริการสำรวจส่วนใหญ่ตั้งชื่อโครงการตามผลลัพธ์ ไม่ใช่ตามเครื่องมือ เช่น
+# "จ้างจัดทำแผนที่ภาพถ่ายทางอากาศออร์โธ มาตราส่วน 1:4000" — ไม่มีคำว่าโดรนเลย
+# คีย์เวิร์ดชุด DRONE_KEYWORDS จับไม่ได้ ทั้งที่เป็นตลาดเดียวกัน
+#
+# ⚠️ ห้ามใส่คำว่า "สำรวจ" ลอย ๆ จะโดนงานรังวัดที่ดินแบบเดินเท้าเป็นหมื่นรายการ
+# ⚠️ ห้ามใส่ "ออร์โธ" ลอย ๆ จะโดนออร์โธปิดิกส์กับทันตกรรมจัดฟัน
+AERIAL_KEYWORDS = [
+    "ภาพถ่ายทางอากาศ", "แผนที่ภาพถ่าย",
+    "ออร์โธโฟโต", "orthophoto", "ortho-photo",
+    "โฟโตแกรมเมตรี", "photogramme",       # ครอบ photogrammetry / photogrammetric
+    "บินสำรวจ", "สำรวจทางอากาศ",
+    "ไลดาร์", "lidar",
+]
+
+# อุปกรณ์ทดสอบการบิน — อีกขาธุรกิจของ ICS (เป็นตัวแทนจำหน่าย ไม่ได้ผลิตเอง)
+# ลูกค้าคือมหาวิทยาลัยและสถาบันวิจัย ซึ่งซื้อผ่าน e-GP ทั้งนั้น
+TEST_EQUIP_KEYWORDS = [
+    "อุโมงค์ลม", "wind tunnel", "windtunnel",
+    "thrust stand", "flight stand",
+    "ชุดทดสอบแรงขับ", "แท่นทดสอบแรงขับ", "ทดสอบแรงขับ",
+]
+
+
+def keyword_fingerprint() -> str:
+    """ลายนิ้วมือของกติกาการคัดกรอง — ใช้กันไม่ให้ resume ทับกติกาที่เปลี่ยนไปแล้ว
+
+    ถ้าแก้คีย์เวิร์ดแล้วยัง resume ต่อ จะได้ผลลัพธ์ปนกันสองกติกาโดยไม่มีอะไรเตือน
+    """
+    blob = json.dumps([DRONE_KEYWORDS, NOT_DRONE, COUNTER_PATTERNS,
+                       AERIAL_KEYWORDS, TEST_EQUIP_KEYWORDS],
+                      ensure_ascii=False, sort_keys=True)
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
+
+
+def part_path(year_be: int, fname: str) -> Path:
+    """ตั้งชื่อ checkpoint จาก 'ชื่อไฟล์ต้นทาง' ไม่ใช่ลำดับที่
+    เพราะถ้าต้นทางสลับลำดับไฟล์วันหน้า การใช้ลำดับจะจับคู่ผิด"""
+    return PARTS_DIR / f"{year_be}_{fname}.jsonl"
+
+
+def write_part(pp: Path, rows: list[dict]) -> None:
+    """เขียนแบบ atomic — เขียนไฟล์ชั่วคราวก่อนแล้วค่อย rename
+
+    ถ้าเขียนตรง ๆ แล้วถูกฆ่ากลางทาง จะเหลือไฟล์ที่ไม่ครบแต่ 'มีอยู่'
+    รอบหน้า resume จะเชื่อว่าไฟล์นั้นอ่านจบแล้ว → ข้อมูลหายเงียบ ๆ
+    ใช้ jsonl ไม่ใช่ csv เพราะแต่ละปี schema ไม่เหมือนกัน คอลัมน์จึงไม่ตรงกัน
+    """
+    tmp = pp.with_suffix(".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    tmp.replace(pp)
+
+
+def read_part(pp: Path) -> list[dict]:
+    rows = []
+    with open(pp, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    return rows
+
 
 def resources_for(year_be: int) -> list[str]:
     """ดึง URL ของไฟล์ CSV ทุกไฟล์ในปีงบประมาณนั้น"""
@@ -174,15 +249,28 @@ def resolve_schema(header: list[str], n_data: int) -> tuple[list[str] | None, st
 
 
 def classify(name: str) -> tuple[str, str] | None:
-    """คืน (หมวด, คำที่ทำให้ match) หรือ None ถ้าไม่ใช่โดรน"""
+    """คืน (หมวด, คำที่ทำให้ match) หรือ None ถ้าไม่เกี่ยว
+
+    ลำดับการตัดสินสำคัญ: เช็คคำว่าโดรนก่อนเสมอ เพื่อให้หมวด "โดรน" มีความหมาย
+    เดิมไม่เปลี่ยน (เทียบตัวเลขกับรอบก่อนได้) ส่วนหมวด "สำรวจทางอากาศ" จึงหมายถึง
+    **งานที่เราเคยมองไม่เห็นเพราะไม่มีคำว่าโดรนอยู่ในชื่อ** ซึ่งเป็นตัวเลขที่อยากรู้
+    """
     low = name.lower()
+
     hit = next((k for k in DRONE_KEYWORDS if k in low), None)
-    if not hit:
-        return None
-    if any(p in low for p in NOT_DRONE):
-        return None
-    kind = "ต่อต้านโดรน" if any(p in low for p in COUNTER_PATTERNS) else "โดรน"
-    return kind, hit
+    if hit and not any(p in low for p in NOT_DRONE):
+        kind = "ต่อต้านโดรน" if any(p in low for p in COUNTER_PATTERNS) else "โดรน"
+        return kind, hit
+
+    hit = next((k for k in TEST_EQUIP_KEYWORDS if k in low), None)
+    if hit:
+        return "อุปกรณ์ทดสอบการบิน", hit
+
+    hit = next((k for k in AERIAL_KEYWORDS if k in low), None)
+    if hit:
+        return "สำรวจทางอากาศ", hit
+
+    return None
 
 
 PROBE_ROWS = 300        # จำนวนแถวที่ดูเพื่อหาความยาวแถวที่แท้จริงของไฟล์
@@ -299,6 +387,22 @@ BANDS = [(0, 100_000, "< 1 แสน"), (100_000, 500_000, "1-5 แสน"),
          (20_000_000, float("inf"), "> 20 ล้าน")]
 
 
+# ─── ของปนในหมวดใหม่ ที่พบตอนไล่ดูดีลใหญ่ด้วยตา ────────────────────────────
+# บทเรียน: คีย์เวิร์ดที่ดู "เฉพาะทาง" ก็ยังกวาดของผิดประเภทมาได้ ต้องเปิดดูจริง
+#
+# 1) "อุโมงค์ลม" ดีลใหญ่สุด 3 อันดับแรกเป็น **อุโมงค์ลมฝึกกระโดดร่ม** ของกองทัพ
+#    (369 + 203 + 190 ล้านบาท) ไม่ใช่อุโมงค์ลมทดสอบอากาศพลศาสตร์แบบที่ ICS ขาย
+#    ถ้าไม่ตัดออก ตัวเลขหมวดนี้จะเกินจริงราว 3 ใน 4
+# 2) "lidar" ดีลใหญ่อันดับ 2 ของหมวดสำรวจคือ **LiDAR ติดตั้งบนรถยนต์** (80 ล้าน)
+#    เป็นการสำรวจภาคพื้น ไม่ใช่ทางอากาศเลย
+EXCLUDE_RULES = [
+    ("อุโมงค์ลมฝึกกระโดดร่ม ไม่ใช่ทดสอบอากาศพลศาสตร์",
+     ["ทางดิ่ง", "แนวดิ่ง", "กระโดดร่ม"]),
+    ("สำรวจภาคพื้น ไม่ใช่ทางอากาศ",
+     ["ติดตั้งบนรถ", "บนรถยนต์", "ติดรถยนต์", "mobile mapping"]),
+]
+
+
 def prepare(df: pd.DataFrame) -> pd.DataFrame:
     """แปลงชนิดข้อมูลและเพิ่มคอลัมน์ช่วยวิเคราะห์ (ใช้ทั้งตอนดึงสดและตอนอ่านจาก cache)"""
     for c in ["งบประมาณ(บาท)", "ราคากลาง(บาท)", "ราคาตกลงซื้อ/จ้าง"]:
@@ -310,19 +414,34 @@ def prepare(df: pd.DataFrame) -> pd.DataFrame:
     df["เลขนิติบุคคล_ใช้ได้"] = (df["เลขนิติบุคคล"].astype(str)
                                   .str.match(r"^[0-9xX]{10,17}$").fillna(False))
     df["_ผู้ชนะ_ปรับชื่อ"] = df["ชื่อผู้ชนะ"].map(norm_name)
+
+    # ทำเครื่องหมายของปน แต่**ไม่ลบทิ้ง** เพื่อให้ตรวจย้อนได้ว่าตัดอะไรออกไปเพราะอะไร
+    low = df["ชื่อโครงการ"].astype(str).str.lower()
+    df["_ตัดออกเพราะ"] = ""
+    for reason, pats in EXCLUDE_RULES:
+        hit = low.str.contains("|".join(pats), na=False) & (df["_ตัดออกเพราะ"] == "")
+        df.loc[hit, "_ตัดออกเพราะ"] = reason
+
+    # แยก "ขายของ" กับ "ขายบริการ" ด้วยฟิลด์ของราชการเอง ไม่ใช่เดาจากคีย์เวิร์ด
+    # สำคัญเพราะตลาดสองอันนี้คนละอันกัน: ซื้อกล้อง/ซอฟต์แวร์ ≠ จ้างคนไปบินสำรวจ
+    df["_ชนิดงาน"] = df["ชื่อประเภทโครงการ"].map(
+        lambda s: "ขายของ" if str(s).strip() == "ซื้อ" else "ขายบริการ")
     return df
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(
         description="ดึงโครงการจัดซื้อโดรนของภาครัฐจากระบบ e-GP")
-    # default ครอบคลุมปีเดียวกับที่รายงานใช้ (2022-2025 ค.ศ. = 2565-2568 พ.ศ.)
-    ap.add_argument("--years", default="2565,2566,2567,2568",
+    # default = ทุกปีที่ต้นทางมี (2558-2568) เพื่อดูว่าตลาดเริ่มโตตอนไหน
+    # ใช้เวลา ~75 นาที · ถ้าจะเอาเร็วให้ระบุปีเอง เช่น --years 2565,2566,2567,2568
+    ap.add_argument("--years", default=",".join(str(y) for y in sorted(PACKAGES)),
                     help="ปีงบประมาณ พ.ศ. คั่นด้วย comma")
     ap.add_argument("--max-mb", type=int, default=None,
                     help="จำกัดปริมาณที่อ่านต่อไฟล์ (ใช้ทดสอบเท่านั้น)")
     ap.add_argument("--from-cache", action="store_true",
-                    help="วิเคราะห์จาก CSV ที่ดึงไว้แล้ว ไม่ต้องโหลดใหม่ 19.6 GB")
+                    help="วิเคราะห์จาก CSV ที่ดึงไว้แล้ว ไม่ต้องโหลดใหม่")
+    ap.add_argument("--fresh", action="store_true",
+                    help="ลบ checkpoint แล้วเริ่มดึงใหม่ทั้งหมด")
     args = ap.parse_args()
 
     if args.from_cache:
@@ -348,10 +467,40 @@ def main() -> None:
     t0 = time.time()
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
+    # ---------- จัดการ checkpoint ----------
+    use_ckpt = not args.max_mb          # โหมดทดสอบไม่ใช้ checkpoint (ข้อมูลไม่ครบ)
+    fp = keyword_fingerprint()
+    if args.fresh and PARTS_DIR.exists():
+        shutil.rmtree(PARTS_DIR)
+        print("[fresh] ลบ checkpoint เดิมทั้งหมดแล้ว เริ่มนับหนึ่งใหม่\n")
+    if use_ckpt:
+        PARTS_DIR.mkdir(parents=True, exist_ok=True)
+        old = FINGERPRINT.read_text(encoding="utf-8").strip() if FINGERPRINT.exists() else None
+        if old and old != fp:
+            # ยอมหยุดดีกว่าเอาผลของสองกติกามาปนกันแบบไม่มีใครรู้
+            raise SystemExit(
+                f"[STOP] คีย์เวิร์ดเปลี่ยนไปจากตอนที่สร้าง checkpoint ไว้ "
+                f"({old} → {fp})\n"
+                f"        ถ้า resume ต่อจะได้ผลปนกันสองกติกา เลือกทางใดทางหนึ่ง:\n"
+                f"          · รันใหม่ทั้งหมดด้วยกติกาใหม่  → เพิ่ม --fresh\n"
+                f"          · ย้อนคีย์เวิร์ดกลับเป็นชุดเดิม → แล้วรันซ้ำได้เลย")
+        FINGERPRINT.write_text(fp, encoding="utf-8")
+        done = len(list(PARTS_DIR.glob("*.jsonl")))
+        if done:
+            print(f"[resume] พบ checkpoint {done} ไฟล์ — จะข้ามไฟล์เหล่านั้นไป\n")
+
     for year in years:
         urls = resources_for(year)
         print(f"\n=== ปีงบประมาณ {year} — {len(urls)} ไฟล์ ===")
         for i, url in enumerate(urls, 1):
+            fname = url.rsplit("/", 1)[-1]
+            pp = part_path(year, fname)
+            if use_ckpt and pp.exists():
+                got = read_part(pp)
+                rows.extend(got)
+                print(f"  ไฟล์ {i:>2}/{len(urls)}: ข้าม — มี checkpoint แล้ว "
+                      f"({len(got)} รายการ)")
+                continue
             try:
                 got, n, status = scan_file(url, year, args.max_mb)
             except Exception as e:
@@ -365,7 +514,12 @@ def main() -> None:
                 problems.append(msg)
                 continue
             rows.extend(got)
-            print(f"  ไฟล์ {i:>2}/{len(urls)}: อ่าน {n:>8,} แถว → พบโดรน {len(got):>3} "
+            # เขียน checkpoint ทันทีที่อ่านไฟล์จบ แม้จะพบ 0 รายการ
+            # (ไฟล์เปล่าคือหลักฐานว่า "อ่านแล้ว ไม่มีอะไร" ต่างจาก "ยังไม่ได้อ่าน")
+            # โหมด --max-mb ห้ามเขียน เพราะข้อมูลไม่ครบจะไปปนกับของจริงรอบหน้า
+            if use_ckpt:
+                write_part(pp, got)
+            print(f"  ไฟล์ {i:>2}/{len(urls)}: อ่าน {n:>8,} แถว → พบ {len(got):>3} "
                   f"| {status[5:]} ({time.time()-t0:>5.0f} วิ)")
 
     if not rows:
@@ -402,10 +556,20 @@ def summarize(df: pd.DataFrame, problems: list[str]) -> None:
     # ราคาตกลง = 0/ว่าง แปลว่ายังไม่ได้ผู้ชนะ ถ้าเอามาเฉลี่ยด้วยค่าเฉลี่ยจะต่ำผิด
     awarded = drone[drone["ราคาตกลงซื้อ/จ้าง"].fillna(0) > 0]
 
-    print(f"\n===== ภาพรวม =====")
-    print(f"  โครงการโดรน          {len(drone):>5}  "
-          f"(ได้ผู้ชนะแล้ว {len(awarded)}, ยังไม่ได้ {len(drone)-len(awarded)})")
-    print(f"  โครงการต่อต้านโดรน    {len(counter):>5}  ← คนละตลาด แยกไว้ต่างหาก")
+    print(f"\n===== ภาพรวมแยกหมวด =====")
+    NOTE = {
+        "โดรน": "ชื่อโครงการเอ่ยคำว่าโดรน/UAV ตรง ๆ",
+        "สำรวจทางอากาศ": "งานสำรวจที่ไม่เอ่ยคำว่าโดรน ← เคยมองไม่เห็น",
+        "อุปกรณ์ทดสอบการบิน": "อุโมงค์ลม / แท่นทดสอบแรงขับ",
+        "ต่อต้านโดรน": "คนละตลาดกับการขายโดรน",
+    }
+    for kind, sub in df.groupby("_หมวด"):
+        v = sub[sub["ราคาตกลงซื้อ/จ้าง"].fillna(0) > 0]["ราคาตกลงซื้อ/จ้าง"]
+        print(f"  {kind:<20} {len(sub):>5} โครงการ | {v.sum():>15,.0f} บาท"
+              f"  ← {NOTE.get(kind, '')}")
+    print(f"\n  หมายเหตุ: ตัวเลขวิเคราะห์ละเอียดด้านล่างใช้เฉพาะหมวด 'โดรน' "
+          f"({len(drone)} โครงการ)\n  เพื่อให้เทียบกับรอบก่อนได้ "
+          f"ส่วนหมวดใหม่ดูที่ท้ายรายงาน")
 
     print(f"\n===== มูลค่าจัดซื้อโดรนรายปีงบประมาณ (เฉพาะที่ได้ผู้ชนะแล้ว) =====")
     g = awarded.groupby("_ปีงบ")["ราคาตกลงซื้อ/จ้าง"]
@@ -467,8 +631,49 @@ def summarize(df: pd.DataFrame, problems: list[str]) -> None:
         for p in problems:
             print(f"    · {p}")
 
+    # ---------- หมวดใหม่: ตลาดที่คีย์เวิร์ดชุดเดิมมองไม่เห็น ----------
+    for kind in ["สำรวจทางอากาศ", "อุปกรณ์ทดสอบการบิน"]:
+        raw = df[df["_หมวด"] == kind]
+        if raw.empty:
+            continue
+        cut = raw[raw["_ตัดออกเพราะ"] != ""]
+        sub = raw[raw["_ตัดออกเพราะ"] == ""]
+        aw = sub[sub["ราคาตกลงซื้อ/จ้าง"].fillna(0) > 0]
+        print(f"\n===== [หมวดใหม่] {kind} =====")
+        print(f"  ก่อนคัดของปน {len(raw)} โครงการ | "
+              f"{raw['ราคาตกลงซื้อ/จ้าง'].sum():,.0f} บาท")
+        if len(cut):
+            print(f"  ตัดของปนออก {len(cut)} โครงการ | "
+                  f"{cut['ราคาตกลงซื้อ/จ้าง'].sum():,.0f} บาท:")
+            for reason, g in cut.groupby("_ตัดออกเพราะ"):
+                print(f"    - {reason}: {len(g)} โครงการ "
+                      f"{g['ราคาตกลงซื้อ/จ้าง'].sum():,.0f} บาท")
+        print(f"  **เหลือใช้ได้ {len(sub)} โครงการ | "
+              f"{aw['ราคาตกลงซื้อ/จ้าง'].sum():,.0f} บาท** | "
+              f"มัธยฐาน {aw['ราคาตกลงซื้อ/จ้าง'].median():,.0f} | "
+              f"สูงสุด {aw['ราคาตกลงซื้อ/จ้าง'].max():,.0f}")
+        print(f"\n  แยกขายของ/ขายบริการ (ใช้ฟิลด์ประเภทโครงการของราชการเอง):")
+        for t, g in aw.groupby("_ชนิดงาน"):
+            print(f"    {t:<12} {len(g):>4} โครงการ | {g['ราคาตกลงซื้อ/จ้าง'].sum():>14,.0f} บาท"
+                  f" | มัธยฐาน {g['ราคาตกลงซื้อ/จ้าง'].median():>10,.0f}")
+        print(f"\n  รายปี (หลังคัดของปนแล้ว):")
+        for y, s in aw.groupby("_ปีงบ")["ราคาตกลงซื้อ/จ้าง"]:
+            print(f"    {y}: {len(s):>4} งาน | {s.sum():>14,.0f} บาท")
+        print(f"  ผู้ชนะรายใหญ่:")
+        for k, r in (aw.groupby("_ผู้ชนะ_ปรับชื่อ")["ราคาตกลงซื้อ/จ้าง"]
+                     .agg(["sum", "count"]).sort_values("sum", ascending=False)
+                     .head(8).iterrows()):
+            disp = aw[aw["_ผู้ชนะ_ปรับชื่อ"] == k]["ชื่อผู้ชนะ"].iloc[0]
+            print(f"    {str(disp)[:38]:<40} {int(r['count']):>3} งาน | {r['sum']:>13,.0f}")
+        print(f"  คำที่ทำให้ match:")
+        for kw, c in sub["_คำที่พบ"].value_counts().items():
+            print(f"    {kw:<22} {c:>4}")
+
     print(f"\n⚠️  ข้อจำกัด: จับคำจากชื่อโครงการเท่านั้น โครงการที่ซื้อโดรนแต่ตั้งชื่อ"
           f"\n    กว้าง ๆ (เช่น 'ครุภัณฑ์สำรวจ') จะไม่ถูกนับ → ตัวเลขเป็นค่า 'อย่างน้อย'")
+    print(f"\n⚠️  หมวด 'สำรวจทางอากาศ' อาจมีงานที่ใช้เครื่องบินมีคนขับหรือภาพดาวเทียม"
+          f"\n    ปนอยู่ (คีย์เวิร์ดบอกไม่ได้ว่าถ่ายจากอะไร) และ 'ไลดาร์' บางงาน"
+          f"\n    เป็นแบบติดรถ ไม่ใช่ทางอากาศ → ถือเป็น 'ตลาดข้างเคียง' ไม่ใช่ตลาดโดรนล้วน")
 
 
 if __name__ == "__main__":
