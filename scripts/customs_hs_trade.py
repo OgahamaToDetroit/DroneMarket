@@ -1,0 +1,303 @@
+"""ดึงสถิตินำเข้า-ส่งออกจาก Data Catalog ของกรมศุลกากร (CKAN)
+
+ทำไมต้องมีแหล่งนี้ทั้งที่มี MOC/Comtrade อยู่แล้ว
+--------------------------------------------------
+MOC กับ Comtrade ให้ HS 8806 เป็นก้อนเดียว แยกไม่ออกว่าเป็นโดรนเล่นหรือโดรนงาน
+ศุลกากรให้ถึง **พิกัด 8 หลัก** ซึ่งแยกตามน้ำหนักวิ่งขึ้นสูงสุด (MTOW) และแยก
+"บังคับด้วยรีโมตอย่างเดียว" (8806.2x) ออกจาก "อื่น ๆ" (8806.9x) ได้
+
+⚠️ ไม่ใช่แหล่งอิสระ — เป็นข้อมูลชุดเดียวกับที่ MOC/Comtrade รับไปเผยแพร่ต่อ
+   ยอดนำเข้าปี 2568 ตรงกับ MOC ทุกบาท (6,804,347,867) → ห้ามใช้ cross-check กันเอง
+   คุณค่าอยู่ที่ "ความละเอียด" ไม่ใช่ "การยืนยัน"
+
+กับดักที่เจอจริงตอนใช้งาน
+--------------------------
+1. **CIF ปะทะ FOB — กับดักที่ร้ายที่สุด**
+   ขานำเข้าบันทึกแบบ CIF (รวมค่าขนส่ง+ประกัน) ขาส่งออกบันทึกแบบ FOB (ไม่รวม)
+   เอา `นำเข้า − ส่งออก` ตรง ๆ จะได้ส่วนต่างที่จริง ๆ แล้วเป็นแค่ค่าระวาง
+   ตัวอย่างจริง: 88069300 ปี 2568 ส่วนต่างมูลค่า **+35.7 ล้านบาท** แต่ส่วนต่าง
+   จำนวน **−164 ชิ้น** (ของออกมากกว่าเข้า!) → 35.7 ล้านนั้นไม่ใช่ตลาดในประเทศ
+   → สคริปต์นี้จึงรายงานส่วนต่างทั้งมูลค่าและจำนวน แล้วตัดสินด้วย GATE ด้านล่าง
+
+2. **คอลัมน์ TRF ในไฟล์อ้างอิงพิกัด (rtc_03_03) มีช่องว่างนำหน้า**
+   `df.TRF.str.startswith("8806")` จะได้ 0 แถวถ้าไม่ .str.strip() ก่อน
+
+3. **ไฟล์อ้างอิงพิกัดให้แต่ข้อความชั้นล่าง ไม่ให้หัวข้อกลุ่ม**
+   จะเห็นแค่ "มีน้ำหนักวิ่งขึ้นสูงสุดมากกว่า 7 กก. แต่ไม่มากกว่า 25 กก." เหมือนกัน
+   ทั้ง 88062300 และ 88069300 — สิ่งที่แยกสองตัวนี้คือหัวข้อกลุ่มในโครงสร้าง HS2022
+   ("Other, for remote-controlled flight only:" กับ "Other:") ซึ่ง **ไม่มีในไฟล์**
+   ป้ายกำกับใน GROUP_LABEL จึงมาจากโครงสร้าง HS ทางการ ไม่ได้มาจากข้อมูล
+
+4. **บางปีมีทั้งไฟล์รายปีและไฟล์รายเดือน** — ถ้าเอามารวมกันหมดจะนับซ้ำ
+   กติกา: ปีไหนมีไฟล์รายปีให้ใช้รายปี ปีไหนไม่มี (เช่นปีปัจจุบัน) จึงใช้รายเดือน
+
+5. **ปีในชื่อไฟล์เป็น พ.ศ. แต่เป็นปีปฏิทิน ไม่ใช่ปีงบประมาณ**
+   ยืนยันแล้วโดยเทียบกับ MOC: ปี 2568 = ปฏิทิน 2025 ตรงกันทุกบาท
+   (ต่างจาก e-GP ที่เป็นปีงบประมาณ — อย่าเอามาเทียบปีต่อปีโดยไม่ปรับ)
+
+6. **ยอดส่งออกไม่ตรงกับ MOC −0.2% และต่างผิดทิศ** (MOC ที่ตัด top-10 กลับสูงกว่า
+   ตัวเต็มของศุลกากร) ยังอธิบายไม่ได้ ณ 30 ก.ค. 2569 — บันทึกไว้ อย่ากลบ
+"""
+
+from __future__ import annotations
+
+import argparse
+import io
+import os
+import sys
+import tempfile
+from pathlib import Path
+
+import pandas as pd
+import requests
+
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+CKAN = "https://catalog.customs.go.th/api/3/action/"
+ROOT = Path(__file__).resolve().parent.parent
+PROC_DIR = ROOT / "data" / "processed"
+TMP_DIR = Path(tempfile.gettempdir()) / "customs_cache"
+
+SESSION = requests.Session()
+SESSION.headers["User-Agent"] = "DroneMarket-research/1.0"
+
+# ชุดข้อมูลที่ใช้ — ดูรายการเต็ม 29 ชุดได้จาก CKAN action/package_list
+DATASETS = {
+    "by_code": {"import": "ctm_06_09", "export": "ctm_06_10"},      # 8 หลัก + รหัสสถิติ 11 หลัก
+    "by_country": {"import": "ctm_06_11", "export": "ctm_06_12"},   # 8 หลัก × ประเทศ (ไม่มีเพดาน)
+}
+TARIFF_REF = "rtc_03_03"        # ข้อความกำกับพิกัด 8 หลัก
+
+# หัวข้อกลุ่มตามโครงสร้าง HS2022 — ไม่มีในไฟล์ของศุลกากร ต้องกำกับเอง (ดูกับดักข้อ 3)
+#   8806.10          = ที่ออกแบบสำหรับการขนส่งผู้โดยสาร
+#   8806.21-.29      = "Other, for remote-controlled flight only"  → บังคับด้วยรีโมตอย่างเดียว
+#   8806.91-.99      = "Other"                                     → ที่เหลือ (บินตามแผนที่วางไว้ได้)
+GROUP_LABEL = {"1": "โดยสาร", "2": "รีโมตอย่างเดียว", "9": "ไม่ใช่รีโมตอย่างเดียว"}
+MTOW_LABEL = {
+    "1": "≤250g", "2": "250g-7kg", "3": "7-25kg", "4": "25-150kg", "9": "อื่นๆ", "0": "-",
+}
+
+# GATE: จะเรียกส่วนต่างว่า "อุปสงค์ในประเทศ" ได้ต่อเมื่อผ่านครบทั้ง 3 ข้อ
+#   (1) ส่วนต่างมูลค่าเป็นบวก  (2) ส่วนต่างจำนวนเป็นบวก
+#   (3) ส่วนต่างมูลค่า > MIN_RESIDUAL_SHARE ของขานำเข้า — กันไม่ให้ค่าระวาง CIF/FOB
+#       ซึ่งอยู่ราว 2-5% ของมูลค่า ถูกอ่านเป็นตลาด
+MIN_RESIDUAL_SHARE = 0.10
+
+
+def ckan(action: str, **params):
+    r = SESSION.get(CKAN + action, params=params, timeout=120)
+    r.raise_for_status()
+    js = r.json()
+    if not js.get("success"):
+        raise RuntimeError(f"CKAN {action} ไม่สำเร็จ: {js}")
+    return js["result"]
+
+
+def pick_resources(dataset: str, years: list[int]) -> list[tuple[int, str, str]]:
+    """เลือกไฟล์ CSV ของปีที่ต้องการ — คืน (ปี, ชื่อ, url)
+
+    ปีไหนมีไฟล์รายปีให้ใช้รายปีอย่างเดียว ปีไหนไม่มีจึงใช้ไฟล์รายเดือนทั้งหมด
+    (ดูกับดักข้อ 4 — ถ้าเอามารวมกันหมดจะนับซ้ำ)
+    """
+    res = [r for r in ckan("package_show", id=dataset)["resources"]
+           if (r.get("format") or "").upper() == "CSV"]
+    out: list[tuple[int, str, str]] = []
+    for y in years:
+        tag = str(y)
+        same_year = [r for r in res if tag in (r.get("name") or "")]
+        annual = [r for r in same_year if "(" not in (r.get("name") or "")]
+        chosen = annual if annual else same_year
+        if not chosen:
+            print(f"   ⚠️  {dataset}: ไม่พบไฟล์ปี {y}")
+            continue
+        if not annual:
+            print(f"   ℹ️  {dataset} ปี {y}: ไม่มีไฟล์รายปี ใช้ไฟล์รายเดือน {len(chosen)} ไฟล์")
+        out += [(y, r["name"], r["url"]) for r in chosen]
+    return out
+
+
+def fetch_csv(url: str, name: str) -> pd.DataFrame:
+    """โหลดลงไฟล์ชั่วคราวก่อนแล้วค่อยอ่าน
+
+    บทเรียนจาก e-GP: ถ้าแกะข้อมูลไปพร้อมกับที่สตรีมอยู่ แล้วแกะช้ากว่าที่เซิร์ฟเวอร์ส่ง
+    ซ็อกเก็ตจะค้างจนโดนตัดกลางคัน — ไฟล์ที่นี่เล็ก (20-120 MB) โหลดก่อนจึงคุ้มกว่า
+    """
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+    cache = TMP_DIR / (str(abs(hash(url))) + ".csv")
+    if not cache.exists() or cache.stat().st_size == 0:
+        with SESSION.get(url, timeout=600, stream=True) as r:
+            r.raise_for_status()
+            with open(cache, "wb") as f:
+                for chunk in r.iter_content(1 << 20):
+                    f.write(chunk)
+    mb = cache.stat().st_size / 1048576
+    print(f"   · {name} ({mb:,.1f} MB)")
+    return pd.read_csv(cache, dtype=str, encoding="utf-8-sig")
+
+
+def normalise(df: pd.DataFrame, flow: str, year: int) -> pd.DataFrame:
+    """ปรับชื่อคอลัมน์ให้เหมือนกันทั้งขาเข้าและขาออก
+
+    ไฟล์ขาเข้าใช้ 'รหัสประเทศกำเนิด' ขาออกใช้ 'รหัสประเทศปลายทาง'
+    และคอลัมน์มูลค่าก็ชื่อคนละอย่าง — จึงจับจากตำแหน่งสุดท้ายแทนการอ้างชื่อ
+    """
+    cols = df.columns.tolist()
+    ren = {cols[0]: "ปี", cols[1]: "เดือน", cols[2]: "พิกัด8", cols[3]: "รหัสสถิติ",
+           cols[4]: "หน่วย", cols[5]: "คำอธิบาย", cols[6]: "คำอธิบาย_en",
+           cols[7]: "ปริมาณ", cols[-1]: "มูลค่าบาท"}
+    country = [c for c in cols if "ประเทศ" in c]
+    if country:
+        ren[country[0]] = "ประเทศ"
+    df = df.rename(columns=ren)
+    keep = [c for c in ["ปี", "เดือน", "พิกัด8", "รหัสสถิติ", "หน่วย", "คำอธิบาย",
+                        "ประเทศ", "ปริมาณ", "มูลค่าบาท"] if c in df.columns]
+    df = df[keep].copy()
+    df["ทิศทาง"] = flow
+    df["ปี"] = year
+    for c in ("ปริมาณ", "มูลค่าบาท"):
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    df["เดือน"] = pd.to_numeric(df["เดือน"], errors="coerce")
+    return df
+
+
+def collect(kind: str, years: list[int], hs: str) -> pd.DataFrame:
+    frames = []
+    for flow, ds in DATASETS[kind].items():
+        print(f"  {kind} / {flow} ({ds})")
+        for year, name, url in pick_resources(ds, years):
+            raw = fetch_csv(url, name)
+            hs_col = raw.columns[2]
+            sub = raw[raw[hs_col].astype(str).str.strip().str.startswith(hs, na=False)]
+            if len(sub):
+                frames.append(normalise(sub, flow, year))
+    if not frames:
+        return pd.DataFrame()
+    return pd.concat(frames, ignore_index=True)
+
+
+def tariff_labels(hs: str) -> pd.DataFrame:
+    res = [r for r in ckan("package_show", id=TARIFF_REF)["resources"]
+           if (r.get("format") or "").upper() == "CSV"][0]
+    txt = SESSION.get(res["url"], timeout=180).content.decode("utf-8-sig", "replace")
+    ref = pd.read_csv(io.StringIO(txt), dtype=str)
+    ref["TRF"] = ref["TRF"].str.strip()          # ⚠️ กับดักข้อ 2 — มีช่องว่างนำหน้า
+    ref = ref[ref.TRF.str.startswith(hs, na=False)][["TRF", "TRFDSC"]]
+    ref.columns = ["พิกัด8", "คำอธิบายทางการ"]
+    ref["กลุ่ม"] = [GROUP_LABEL.get(c[4], "?") for c in ref["พิกัด8"]]
+    ref["ชั้นน้ำหนัก"] = [MTOW_LABEL.get(c[5], "?") for c in ref["พิกัด8"]]
+    ref["ชนิด"] = ref["กลุ่ม"] + " " + ref["ชั้นน้ำหนัก"]
+    return ref
+
+
+def build_balance(by_code: pd.DataFrame, ref: pd.DataFrame) -> pd.DataFrame:
+    """ตารางเทียบเข้า-ออกรายพิกัด พร้อมผล GATE"""
+    g = (by_code.groupby(["ปี", "พิกัด8", "ทิศทาง"], as_index=False)
+                .agg(มูลค่าบาท=("มูลค่าบาท", "sum"), ปริมาณ=("ปริมาณ", "sum")))
+    piv = g.pivot_table(index=["ปี", "พิกัด8"], columns="ทิศทาง",
+                        values=["มูลค่าบาท", "ปริมาณ"], fill_value=0)
+    piv.columns = [f"{a}_{b}" for a, b in piv.columns]
+    piv = piv.reset_index()
+    for c in ["มูลค่าบาท_import", "มูลค่าบาท_export", "ปริมาณ_import", "ปริมาณ_export"]:
+        if c not in piv:
+            piv[c] = 0.0
+    piv = piv.merge(ref[["พิกัด8", "ชนิด", "คำอธิบายทางการ"]], on="พิกัด8", how="left")
+
+    piv["ส่วนต่างมูลค่า"] = piv["มูลค่าบาท_import"] - piv["มูลค่าบาท_export"]
+    piv["ส่วนต่างปริมาณ"] = piv["ปริมาณ_import"] - piv["ปริมาณ_export"]
+    piv["ratio_ส่งออกต่อนำเข้า"] = (piv["มูลค่าบาท_export"] /
+                                    piv["มูลค่าบาท_import"].replace(0, pd.NA))
+    share = piv["ส่วนต่างมูลค่า"] / piv["มูลค่าบาท_import"].replace(0, pd.NA)
+    piv["ผ่าน_GATE"] = ((piv["ส่วนต่างมูลค่า"] > 0) & (piv["ส่วนต่างปริมาณ"] > 0)
+                        & (share > MIN_RESIDUAL_SHARE))
+    # อย่าเขียนคำว่า "อุปสงค์ในประเทศ" ลงในแถวที่ไม่ผ่าน GATE — ดูกับดักข้อ 1
+    piv["อุปสงค์ในประเทศ_บาท"] = piv["ส่วนต่างมูลค่า"].where(piv["ผ่าน_GATE"])
+    return piv.sort_values(["ปี", "มูลค่าบาท_import"], ascending=[True, False])
+
+
+def report(bal: pd.DataFrame, years: list[int]) -> None:
+    for y in years:
+        d = bal[bal["ปี"] == y]
+        if d.empty:
+            continue
+        print(f"\n{'='*104}\nปี {y} (ปฏิทิน {y - 543}) — หน่วยล้านบาท\n{'='*104}")
+        show = pd.DataFrame({
+            "พิกัด": d["พิกัด8"],
+            "ชนิด": d["ชนิด"].fillna("?"),
+            "นำเข้า": (d["มูลค่าบาท_import"] / 1e6).round(0),
+            "ส่งออก": (d["มูลค่าบาท_export"] / 1e6).round(0),
+            "ส่ง/นำ": d["ratio_ส่งออกต่อนำเข้า"].round(2),
+            "ชิ้นเข้า": d["ปริมาณ_import"].astype("int64"),
+            "ชิ้นออก": d["ปริมาณ_export"].astype("int64"),
+            "GATE": d["ผ่าน_GATE"].map({True: "ผ่าน", False: "— ของผ่าน"}),
+        })
+        print(show.to_string(index=False))
+        ok = d[d["ผ่าน_GATE"]]
+        print(f"\n  นำเข้ารวม {d['มูลค่าบาท_import'].sum():>18,.0f} บาท")
+        print(f"  ส่งออกรวม {d['มูลค่าบาท_export'].sum():>18,.0f} บาท")
+        print(f"  อุปสงค์ในประเทศ (เฉพาะพิกัดที่ผ่าน GATE) {ok['อุปสงค์ในประเทศ_บาท'].sum():>14,.0f} บาท"
+              f"  [{len(ok)}/{len(d)} พิกัด]")
+        bad = d[~d["ผ่าน_GATE"]]["พิกัด8"].tolist()
+        if bad:
+            print(f"  ⚠️ พิกัดที่วัดอุปสงค์ไม่ได้ (ของผ่าน/ติดค่าระวาง CIF-FOB): {', '.join(bad)}")
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="ดึงสถิติการค้าจาก Data Catalog กรมศุลกากร")
+    ap.add_argument("--years", default="2565,2566,2567,2568,2569",
+                    help="ปี พ.ศ. คั่นด้วยคอมมา (ข้อมูลมีตั้งแต่ 2560) — เป็นปีปฏิทิน ไม่ใช่ปีงบ")
+    ap.add_argument("--hs", default="8806", help="พิกัดที่ต้องการ (ค่าตั้งต้น 8806 = อากาศยานไร้คนขับ)")
+    ap.add_argument("--skip-country", action="store_true",
+                    help="ข้ามไฟล์รายประเทศ (ไฟล์ใหญ่ ~120 MB/ปี) เอาแค่รายพิกัด")
+    args = ap.parse_args()
+
+    years = [int(y) for y in args.years.split(",")]
+    PROC_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"กรมศุลกากร · พิกัด {args.hs} · ปี {years}\n")
+
+    print("[1/3] รายพิกัด 8 หลัก + รหัสสถิติ")
+    by_code = collect("by_code", years, args.hs)
+    if by_code.empty:
+        raise SystemExit(f"[STOP] ไม่พบข้อมูลพิกัด {args.hs} เลย — ตรวจว่าพิกัดถูกต้องไหม")
+    p1 = PROC_DIR / f"customs_hs{args.hs}_by_code.csv"
+    by_code.to_csv(p1, index=False, encoding="utf-8-sig")
+    print(f"  → {p1.relative_to(ROOT)} ({len(by_code):,} แถว)")
+
+    print("\n[2/3] ข้อความกำกับพิกัด")
+    ref = tariff_labels(args.hs)
+    print(f"  → พบ {len(ref)} พิกัด")
+
+    if not args.skip_country:
+        print("\n[3/3] รายพิกัด × ประเทศ")
+        by_country = collect("by_country", years, args.hs)
+        if not by_country.empty:
+            p2 = PROC_DIR / f"customs_hs{args.hs}_by_country.csv"
+            by_country.to_csv(p2, index=False, encoding="utf-8-sig")
+            print(f"  → {p2.relative_to(ROOT)} ({len(by_country):,} แถว)")
+    else:
+        print("\n[3/3] ข้ามไฟล์รายประเทศ (--skip-country)")
+
+    bal = build_balance(by_code, ref)
+    p3 = PROC_DIR / f"customs_hs{args.hs}_balance.csv"
+    bal.to_csv(p3, index=False, encoding="utf-8-sig")
+    print(f"\n  → {p3.relative_to(ROOT)} (ตารางเทียบเข้า-ออก + ผล GATE)")
+
+    report(bal, years)
+
+    print(f"""
+{'='*104}
+⚠️  อ่านตัวเลขข้างบนอย่างไรไม่ให้ผิด
+{'='*104}
+  · นำเข้าเป็น CIF (รวมค่าขนส่ง+ประกัน) ส่งออกเป็น FOB (ไม่รวม)
+    "นำเข้า − ส่งออก" จึงมีค่าระวางปนอยู่เสมอ ~2-5% ของมูลค่า
+  · พิกัดที่ไม่ผ่าน GATE = แยกไม่ออกว่าเป็นอุปสงค์จริงหรือค่าระวางของสินค้าผ่าน
+    ให้เขียนว่า "วัดไม่ได้" ห้ามเขียนเป็นตัวเลข
+  · แหล่งนี้เป็นข้อมูลชุดเดียวกับ MOC/Comtrade — ห้ามใช้ยืนยันซึ่งกันและกัน
+""")
+
+
+if __name__ == "__main__":
+    main()
