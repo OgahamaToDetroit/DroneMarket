@@ -128,17 +128,29 @@ seen_tables = 0
 for doc in DOCS:
     txt = (ROOT / doc).read_text(encoding="utf-8")
     for lineno, head, rows in md_tables(txt):
-        cols = {}
+        cols, other_unit = {}, []
         for idx, h in enumerate(head):
+            hc = clean_head(h)
             for name, key in COLUMNS.items():
-                if clean_head(h).startswith(name):
+                if not hc.startswith(name):
+                    continue
+                # ⚠️ ค่าที่คำนวณไว้เป็น "ล้านบาท" ทั้งหมด แต่ SOURCES.md §7 มีตาราง
+                #    "นำเข้า (USD)" ที่หัวคอลัมน์ขึ้นต้นเหมือนกันเป๊ะ ถ้าไม่กันไว้
+                #    วันไหนตารางนั้นมีแถวเป็น พ.ศ. ตัวตรวจจะฟ้องทั้งที่เอกสารถูก
+                #    แล้วคนอ่านจะไป "แก้" เอกสารที่ถูกอยู่แล้วให้ผิดตาม
+                if "USD" in hc.upper():
+                    other_unit.append(hc)
+                else:
                     cols[idx] = key
-                    break
+                break
         # ต้องเป็นตารางที่คอลัมน์แรกเป็นปี และมีคอลัมน์ที่เรารู้จักอย่างน้อย 2 ช่อง
         if len(cols) < 2 or not clean_head(head[0]).startswith("ปี"):
+            if other_unit:
+                print(f"\n{doc}:{lineno}  ข้าม — คอลัมน์เป็นหน่วยอื่น: {', '.join(other_unit)}")
             continue
-        seen_tables += 1
         print(f"\n{doc}:{lineno}  [{' · '.join(clean_head(h) for h in head)}]")
+        if other_unit:
+            print(f"    ข้ามคอลัมน์หน่วยอื่น: {', '.join(other_unit)}")
         n_rows = 0
         for row in rows:
             m = re.match(r"(\d{4})", row[0].replace("*", ""))
@@ -165,8 +177,12 @@ for doc in DOCS:
         print(f"    ตรวจ {n_rows} แถว × {len(cols)} คอลัมน์")
         if n_rows == 0:
             print("      (ไม่มีแถวไหนเป็นปี พ.ศ. ที่มีข้อมูล — ข้ามตารางนี้)")
+        else:
+            seen_tables += 1
 
-check(seen_tables >= 4, f"  ✗ หาตารางเจอแค่ {seen_tables} ตาราง — คาดว่าอย่างน้อย 4 "
+# นับเฉพาะตารางที่**ตรวจจริง** ไม่ใช่ตารางที่เจอ — ไม่งั้นวันที่ตารางถูกย้าย/เปลี่ยนหัว
+# จนไม่มีแถวไหนถูกตรวจเลย ตัวตรวจจะยังขึ้นเขียวทั้งที่ไม่ได้ตรวจอะไร
+check(seen_tables >= 4, f"  ✗ ตรวจจริงแค่ {seen_tables} ตาราง — คาดว่าอย่างน้อย 4 "
                         f"(DATA.md · SOURCES.md ×2 · UPDATES.md) เอกสารอาจถูกแก้โครงสร้าง")
 
 # ---------- สัดส่วนประเทศ ----------
