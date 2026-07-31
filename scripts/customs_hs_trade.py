@@ -42,6 +42,7 @@ MOC กับ Comtrade ให้ HS 8806 เป็นก้อนเดียว
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import io
 import os
 import sys
@@ -218,12 +219,53 @@ def build_balance(by_code: pd.DataFrame, ref: pd.DataFrame) -> pd.DataFrame:
     return piv.sort_values(["ปี", "มูลค่าบาท_import"], ascending=[True, False])
 
 
-def report(bal: pd.DataFrame, years: list[int]) -> None:
+def month_coverage(by_code: pd.DataFrame) -> dict[int, int]:
+    """ปีไหนมีข้อมูลกี่เดือน — ปีที่ยังไม่ครบ 12 เดือนห้ามเอาไปเทียบกับปีเต็ม"""
+    return by_code.groupby("ปี")["เดือน"].nunique().to_dict()
+
+
+def floor_estimate(bal: pd.DataFrame, year: int) -> dict:
+    """ขอบล่างของอุปสงค์ในประเทศ — **ประมาณการ ไม่ใช่การวัด** ต้องเขียนกำกับเสมอ
+
+    ปัญหาที่ฟังก์ชันนี้แก้: บรรทัด "วัดได้" นับพิกัดที่ไม่ผ่าน GATE เป็นศูนย์
+    ทั้งที่อุปสงค์ของคลาสนั้นไม่ได้หายไปไหน พอชุดพิกัดที่ผ่าน GATE เปลี่ยนทุกปี
+    ตัวเลข "วัดได้" จึงเทียบข้ามปีไม่ได้ ตัวนี้ให้พื้นที่อุดรูบางส่วนคืน
+
+    กติกา — ต้องสม่ำเสมอทุกพิกัด ห้ามหยิบปีมาใช้ตามใจ:
+      1. พิกัดที่ไม่ผ่าน GATE ให้ยกค่าที่เคยวัดได้จาก **ปีล่าสุดที่ ≤ ปีเป้าหมาย**
+         ⚠️ ห้ามยกจากปีที่ใหม่กว่าปีเป้าหมาย ปีท้าย ๆ ของชุดข้อมูลมักยังไม่ครบ 12 เดือน
+         กติกาข้อนี้เคยพลาดมาแล้ว — SOURCES.md เคยเขียน 88062200 = 76.4 ล้าน
+         ซึ่งเป็นค่าปี 2569 (มีแค่ ม.ค.-พ.ค.) เอามาเป็นพื้นของปี 2568
+      2. ครอบด้วยยอดนำเข้าจริงของพิกัดนั้นในปีเป้าหมาย — ขอบล่างจะโตเกินของที่
+         เข้ามาจริงไม่ได้ (88069200 ปี 2568 เคยวัดได้ 7.8 ล้าน แต่ปีนั้นนำเข้าแค่ 7.4)
+      3. พิกัดที่ยังไม่เคยผ่าน GATE เลยจนถึงปีนั้น ยกมาไม่ได้ = นับ 0 แล้วรายงานไว้
+         ว่าเหลือพิกัดไหน เพื่อให้เห็นว่าขอบล่างนี้ยังอุดรูได้ไม่หมด
+    """
+    d = bal[bal["ปี"] == year]
+    measured = d.loc[d["ผ่าน_GATE"], "อุปสงค์ในประเทศ_บาท"].sum()
+    carried, sources, no_basis = 0.0, [], []
+    for _, r in d[~d["ผ่าน_GATE"]].iterrows():
+        past = bal[(bal["พิกัด8"] == r["พิกัด8"]) & (bal["ปี"] <= year) & bal["ผ่าน_GATE"]]
+        if past.empty:
+            no_basis.append(str(r["พิกัด8"]))
+            continue
+        src = past.loc[past["ปี"].idxmax()]
+        v = min(src["อุปสงค์ในประเทศ_บาท"], r["มูลค่าบาท_import"])   # กติกาข้อ 2
+        carried += v
+        sources.append((str(r["พิกัด8"]), int(src["ปี"]), v))
+    return {"วัดได้": measured, "ยกมา": carried, "ขอบล่าง": measured + carried,
+            "ที่มา": sources, "ยกไม่ได้": no_basis}
+
+
+def report(bal: pd.DataFrame, years: list[int], months: dict[int, int] | None = None) -> None:
+    months = months or {}
     for y in years:
         d = bal[bal["ปี"] == y]
         if d.empty:
             continue
-        print(f"\n{'='*104}\nปี {y} (ปฏิทิน {y - 543}) — หน่วยล้านบาท\n{'='*104}")
+        nm = months.get(y)
+        partial = f"  ⚠️ มีข้อมูลแค่ {nm}/12 เดือน" if nm and nm < 12 else ""
+        print(f"\n{'='*104}\nปี {y} (ปฏิทิน {y - 543}) — หน่วยล้านบาท{partial}\n{'='*104}")
         show = pd.DataFrame({
             "พิกัด": d["พิกัด8"],
             "ชนิด": d["ชนิด"].fillna("?"),
@@ -235,14 +277,29 @@ def report(bal: pd.DataFrame, years: list[int]) -> None:
             "GATE": d["ผ่าน_GATE"].map({True: "ผ่าน", False: "— ของผ่าน"}),
         })
         print(show.to_string(index=False))
-        ok = d[d["ผ่าน_GATE"]]
-        print(f"\n  นำเข้ารวม {d['มูลค่าบาท_import'].sum():>18,.0f} บาท")
+        ok, bad = d[d["ผ่าน_GATE"]], d[~d["ผ่าน_GATE"]]
+        total_imp = d["มูลค่าบาท_import"].sum()
+        hole = bad["มูลค่าบาท_import"].sum()
+        print(f"\n  นำเข้ารวม {total_imp:>18,.0f} บาท")
         print(f"  ส่งออกรวม {d['มูลค่าบาท_export'].sum():>18,.0f} บาท")
-        print(f"  อุปสงค์ในประเทศ (เฉพาะพิกัดที่ผ่าน GATE) {ok['อุปสงค์ในประเทศ_บาท'].sum():>14,.0f} บาท"
+        print(f"  อุปสงค์ในประเทศที่ **วัดได้** {ok['อุปสงค์ในประเทศ_บาท'].sum():>15,.0f} บาท"
               f"  [{len(ok)}/{len(d)} พิกัด]")
-        bad = d[~d["ผ่าน_GATE"]]["พิกัด8"].tolist()
-        if bad:
-            print(f"  ⚠️ พิกัดที่วัดอุปสงค์ไม่ได้ (ของผ่าน/ติดค่าระวาง CIF-FOB): {', '.join(bad)}")
+        print(f"  ยอดนำเข้าที่อยู่ในพิกัด **วัดไม่ได้** {hole:>13,.0f} บาท"
+              f"  ({hole / total_imp * 100:.1f}% ของขานำเข้า)")
+        if len(bad):
+            print(f"  ⚠️ พิกัดที่วัดไม่ได้ (ของผ่าน/ติดค่าระวาง CIF-FOB): "
+                  f"{', '.join(str(x) for x in bad['พิกัด8'])}")
+
+        fe = floor_estimate(bal, y)
+        if fe["ที่มา"] or fe["ยกไม่ได้"]:
+            print(f"\n  ~ ขอบล่าง (ประมาณการ ไม่ใช่การวัด) {fe['ขอบล่าง']:>12,.0f} บาท"
+                  f"  = วัดได้ + ยกของเก่ามา {fe['ยกมา']:,.0f}")
+            for code, sy, v in fe["ที่มา"]:
+                print(f"      · {code} ยกจากปี {sy} = {v:>15,.0f}")
+            if fe["ยกไม่ได้"]:
+                print(f"      · ยกมาไม่ได้ ไม่เคยผ่าน GATE เลย: {', '.join(fe['ยกไม่ได้'])}")
+            if nm and nm < 12:
+                print(f"      ⚠️ ปีนี้มีแค่ {nm} เดือน แต่ค่าที่ยกมาเป็นของปีเต็ม → ขอบล่างสูงเกินจริง")
 
 
 def main() -> None:
@@ -252,11 +309,42 @@ def main() -> None:
     ap.add_argument("--hs", default="8806", help="พิกัดที่ต้องการ (ค่าตั้งต้น 8806 = อากาศยานไร้คนขับ)")
     ap.add_argument("--skip-country", action="store_true",
                     help="ข้ามไฟล์รายประเทศ (ไฟล์ใหญ่ ~120 MB/ปี) เอาแค่รายพิกัด")
+    ap.add_argument("--from-cache", action="store_true",
+                    help="วิเคราะห์ซ้ำจาก CSV เดิมใน data/processed ไม่โหลดใหม่ "
+                         "(ใช้ตอนแก้ส่วนวิเคราะห์/รายงาน — โหลดใหม่กินแบนด์วิดท์ ~2.5 GB)")
     args = ap.parse_args()
 
     years = [int(y) for y in args.years.split(",")]
     PROC_DIR.mkdir(parents=True, exist_ok=True)
     print(f"กรมศุลกากร · พิกัด {args.hs} · ปี {years}\n")
+
+    if args.from_cache:
+        p1 = PROC_DIR / f"customs_hs{args.hs}_by_code.csv"
+        p3 = PROC_DIR / f"customs_hs{args.hs}_balance.csv"
+        missing = [p for p in (p1, p3) if not p.exists()]
+        if missing:
+            raise SystemExit("[STOP] --from-cache ต้องมีไฟล์เดิมก่อน ขาด: "
+                             + ", ".join(str(p.relative_to(ROOT)) for p in missing))
+        by_code = pd.read_csv(p1, encoding="utf-8-sig")
+        bal = pd.read_csv(p3, encoding="utf-8-sig")
+        # CSV เก็บ GATE เป็นข้อความ "True"/"False" — ถ้าไม่บังคับชนิด ทุกแถวจะกลายเป็นจริง
+        bal["ผ่าน_GATE"] = bal["ผ่าน_GATE"].astype(str).str.lower().eq("true")
+
+        # โหมดนี้ไม่ได้แตะกรมศุลกากรเลย จึงไม่มีรายชื่อไฟล์ต้นทางให้พิมพ์เหมือนรันเต็ม
+        # ต้องบอกให้ชัดว่าอ่านจากอะไร ลงวันที่ไหน ไม่งั้น _out.txt จะดูเหมือนรันสด
+        cov = month_coverage(by_code)
+        print("[cache] วิเคราะห์ซ้ำจาก CSV เดิม ไม่ได้โหลดใหม่ "
+              "— ตัวเลขเป็นชุดเดียวกับรอบที่ดึงข้อมูลจริงครั้งล่าสุด")
+        for p, df in ((p1, by_code), (p3, bal)):
+            ts = dt.datetime.fromtimestamp(p.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+            print(f"   · {p.name:<32} {len(df):>4,} แถว · แก้ล่าสุด {ts}")
+        print("   · ปีที่มีข้อมูล: "
+              + "  ".join(f"{y}({cov.get(y, 0)} ด.)" for y in sorted(cov)))
+        print("   ⚠️ รายชื่อไฟล์ต้นทางของกรมศุลกากรอยู่ในผลรันเต็มรอบก่อน (ดู git log ของไฟล์นี้)")
+        print("      ถ้าต้องการข้อมูลใหม่จากต้นทาง ให้รันโดยไม่ใส่ --from-cache")
+        report(bal, years, cov)
+        epilogue()
+        return
 
     print("[1/3] รายพิกัด 8 หลัก + รหัสสถิติ")
     by_code = collect("by_code", years, args.hs)
@@ -285,8 +373,11 @@ def main() -> None:
     bal.to_csv(p3, index=False, encoding="utf-8-sig")
     print(f"\n  → {p3.relative_to(ROOT)} (ตารางเทียบเข้า-ออก + ผล GATE)")
 
-    report(bal, years)
+    report(bal, years, month_coverage(by_code))
+    epilogue()
 
+
+def epilogue() -> None:
     print(f"""
 {'='*104}
 ⚠️  อ่านตัวเลขข้างบนอย่างไรไม่ให้ผิด
@@ -295,6 +386,19 @@ def main() -> None:
     "นำเข้า − ส่งออก" จึงมีค่าระวางปนอยู่เสมอ ~2-5% ของมูลค่า
   · พิกัดที่ไม่ผ่าน GATE = แยกไม่ออกว่าเป็นอุปสงค์จริงหรือค่าระวางของสินค้าผ่าน
     ให้เขียนว่า "วัดไม่ได้" ห้ามเขียนเป็นตัวเลข
+
+  🚨 ห้ามเอาบรรทัด "วัดได้" มาเทียบข้ามปีแล้วสรุปว่าตลาดโตหรือนิ่ง
+     เพราะแต่ละปีมีพิกัดหลุด GATE ไม่เท่ากัน = ฐานที่เอามารวมคนละชุด
+     ถ้าปีไหนของผ่านลามเข้าไปในพิกัดเพิ่ม ตัวเลข "วัดได้" จะลดลงเองโดยที่
+     อุปสงค์จริงไม่ได้ลด ให้ดูบรรทัด "วัดไม่ได้" ควบคู่เสมอ
+     ตัวอย่าง: 88062200 (โดรน 250g-7kg ซึ่งเป็นเซกเมนต์ผู้บริโภคที่ใหญ่ที่สุด)
+     ผ่าน GATE ปี 2565 แต่หลุดปี 2566-2568 — ไม่ได้แปลว่าอุปสงค์หายไป
+
+  · บรรทัด "ขอบล่าง" เป็น**ประมาณการ ไม่ใช่การวัด** — เอาค่าที่พิกัดนั้นเคยวัดได้
+    ครั้งล่าสุด (ในปีที่ไม่ใหม่กว่าปีเป้าหมาย) มาอุดรู แล้วครอบด้วยยอดนำเข้าจริงของปีนั้น
+    ถ้าจะอ้างตัวเลขนี้ **ต้องเขียนกำกับว่าเป็นการประมาณทุกครั้ง** และยังเทียบข้ามปีไม่ได้
+    เพราะจำนวนพิกัดที่ต้องอุดไม่เท่ากันในแต่ละปี
+
   · แหล่งนี้เป็นข้อมูลชุดเดียวกับ MOC/Comtrade — ห้ามใช้ยืนยันซึ่งกันและกัน
 """)
 
