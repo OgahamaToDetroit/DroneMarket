@@ -1,0 +1,568 @@
+<!doctype html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตลาดโดรนไทย — ข้อมูลเปิดของรัฐบอกอะไรได้ และบอกอะไรไม่ได้</title>
+
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #F6F3EC;
+    --surface:       #FCFAF4;
+    --surface-raise: #FFFFFF;
+    --ink:           #1E2530;
+    --ink-secondary: #4B5560;
+    --ink-muted:     #8A8376;
+    --line:          #DED7C5;
+    --line-strong:   #C7BEA8;
+    --accent:        #E2621F;
+    --accent-tint:   #FBE7DA;
+    --cat-1:         #5B4FC4;
+    --cat-2:         #237A43;
+    --cat-3:         #0A6FA8;
+    --cat-4:         #B8770A;
+    --cat-5:         #B23368;
+    --shadow: 0 1px 2px rgba(30,37,48,0.04), 0 6px 20px rgba(30,37,48,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg:#12181D; --surface:#1A2129; --surface-raise:#1F2831;
+      --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+      --line:#2A333C; --line-strong:#3A4550;
+      --accent:#F0824A; --accent-tint:#3A2418;
+      --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#12181D; --surface:#1A2129; --surface-raise:#1F2831;
+    --ink:#EDEAE1; --ink-secondary:#ABB2B8; --ink-muted:#7C838A;
+    --line:#2A333C; --line-strong:#3A4550;
+    --accent:#F0824A; --accent-tint:#3A2418;
+    --cat-1:#8B7EE0; --cat-2:#3F9B5D; --cat-3:#4B9BCE; --cat-4:#B87A22; --cat-5:#D9628A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+  }
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"] {
+      color-scheme: light;
+      --bg:#ffffff; --surface:#F7F5EF; --surface-raise:#ffffff;
+      --ink:#1E2530; --ink-secondary:#4B5560; --ink-muted:#6B6455;
+      --line:#DED7C5; --line-strong:#C7BEA8;
+      --accent:#E2621F; --accent-tint:#FBE7DA;
+      --cat-1:#5B4FC4; --cat-2:#237A43; --cat-3:#0A6FA8; --cat-4:#B8770A; --cat-5:#B23368;
+      --shadow: none;
+    }
+    @page { size: A4; margin: 15mm 13mm; }
+    body { background:#fff; }
+    section, .takeaways, .callout, .sample, .srccard, .dt-wrap { break-inside: avoid; page-break-inside: avoid; }
+    .dt tr { break-inside: avoid; }
+  }
+
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background:var(--bg); color:var(--ink);
+    font-family:"Leelawadee UI","Segoe UI","Noto Sans Thai",system-ui,sans-serif;
+    font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  .page { max-width:880px; margin:0 auto; padding:clamp(20px,4vw,48px) clamp(16px,4vw,24px) 56px; }
+  h1,h2,h3 { font-family:"Bahnschrift","Leelawadee UI","Segoe UI Semibold","Segoe UI",sans-serif; text-wrap:balance; margin:0; color:var(--ink); }
+  .tabnum { font-variant-numeric:tabular-nums; }
+  p { margin:0 0 12px; }
+
+  .hero h1 { font-size:clamp(1.65rem,1.2rem + 2.2vw,2.4rem); font-weight:700; line-height:1.22; }
+  .hero .sub { margin-top:14px; font-size:1.05rem; color:var(--ink-secondary); max-width:64ch; }
+  .hero .byline { margin-top:16px; font-size:.82rem; color:var(--ink-muted); }
+
+  .stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:30px; }
+  @media (max-width:640px){ .stat-strip{ grid-template-columns:repeat(2,1fr);} }
+  .stat-tile { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 14px 13px; }
+  .stat-tile.hero-tile { background:var(--accent-tint); border-color:var(--accent); }
+  .stat-tile .v { font-family:"Bahnschrift",sans-serif; font-size:1.55rem; font-weight:700; letter-spacing:-.01em; }
+  .stat-tile.hero-tile .v { color:var(--accent); }
+  .stat-tile .l { margin-top:4px; font-size:.78rem; color:var(--ink-muted); line-height:1.35; }
+
+  section { margin-top:46px; }
+  .section-head { display:flex; align-items:baseline; gap:10px; }
+  .section-head .num { font-family:"Bahnschrift",sans-serif; font-size:.85rem; font-weight:700; color:var(--accent); letter-spacing:.06em; }
+  .section-head h2 { font-size:1.3rem; font-weight:700; }
+  .section-note { margin:10px 0 18px; color:var(--ink-secondary); font-size:.94rem; max-width:68ch; }
+  h3.sub-h { font-size:1rem; font-weight:700; margin-top:24px; margin-bottom:6px; }
+
+  .dt-wrap { overflow-x:auto; margin-top:14px; }
+  .dt { width:100%; border-collapse:collapse; font-size:.87rem; }
+  .dt th { text-align:left; font-weight:700; font-size:.76rem; color:var(--ink-muted); padding:8px 10px;
+           border-bottom:2px solid var(--line-strong); vertical-align:bottom; line-height:1.3; }
+  .dt td { padding:9px 10px; border-bottom:1px solid var(--line); color:var(--ink-secondary); }
+  .dt td.n, .dt th.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .dt td b, .dt td strong { color:var(--ink); font-weight:700; }
+  .dt tr.clean td { background:var(--surface); }
+  .dt tr.clean td:first-child { border-left:3px solid var(--cat-2); }
+  .dt tr.broken td:first-child { border-left:3px solid var(--accent); }
+  .dt .neg { color:var(--accent); font-weight:700; }
+  .dt .ok  { color:var(--cat-2); font-weight:700; }
+  .tag { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 7px; border-radius:20px; white-space:nowrap; }
+  .tag.y { background:var(--cat-2); color:#fff; }
+  .tag.n { background:var(--accent); color:#fff; }
+
+  .sample { background:var(--surface-raise); border:1px solid var(--line); border-left:3px solid var(--cat-3);
+            border-radius:8px; padding:13px 15px; margin-top:14px; }
+  .sample .cap { font-size:.74rem; color:var(--ink-muted); margin-bottom:8px; }
+  .sample .scroll { overflow-x:auto; }
+  .sample pre { margin:0; font-family:"Cascadia Mono","Consolas",ui-monospace,monospace;
+                font-size:.74rem; line-height:1.7; color:var(--ink-secondary); white-space:pre; }
+
+  .callout { border-radius:10px; padding:16px 18px; margin-top:18px; border:1px solid var(--line); background:var(--surface); }
+  .callout.warn { background:var(--accent-tint); border-color:var(--accent); }
+  .callout .ct { font-weight:700; color:var(--ink); margin-bottom:6px; font-family:"Bahnschrift",sans-serif; }
+  .callout p:last-child { margin-bottom:0; }
+  .callout ul { margin:8px 0 0; padding-left:20px; }
+  .callout li { color:var(--ink-secondary); font-size:.92rem; margin-bottom:5px; }
+
+  .srcgrid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
+  @media (max-width:680px){ .srcgrid{ grid-template-columns:1fr; } }
+  .srccard { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:15px 17px; }
+  .srccard .st { font-family:"Bahnschrift",sans-serif; font-weight:700; font-size:.98rem; color:var(--ink); }
+  .srccard .sm { font-size:.78rem; color:var(--ink-muted); margin-top:2px; }
+  .srccard .sd { font-size:.88rem; color:var(--ink-secondary); margin-top:9px; }
+
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin-top:12px; font-size:.9rem; }
+  .kv dt { color:var(--ink-muted); font-size:.82rem; white-space:nowrap; }
+  .kv dd { margin:0; color:var(--ink-secondary); }
+
+  .hchart { display:flex; flex-direction:column; gap:9px; margin-top:16px; }
+  .hbar-row { display:grid; grid-template-columns:minmax(90px,150px) 1fr auto; align-items:center; gap:10px; }
+  .hbar-label { font-size:.86rem; color:var(--ink-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hbar-track { background:var(--surface); border:1px solid var(--line); border-radius:5px; height:20px; overflow:hidden; }
+  .hbar-fill { height:100%; border-radius:4px; }
+  .hbar-value { font-size:.83rem; font-weight:700; min-width:60px; text-align:right; font-variant-numeric:tabular-nums; }
+
+  .takeaways { margin-top:48px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px 24px; }
+  .takeaways h2 { font-size:1.15rem; font-weight:700; margin-bottom:14px; }
+  .takeaways ol { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:11px; }
+  .takeaways li { color:var(--ink-secondary); font-size:.95rem; }
+  .takeaways li b { color:var(--ink); }
+  .caveat { margin-top:20px; font-size:.82rem; color:var(--ink-muted); border-top:1px dashed var(--line); padding-top:14px; line-height:1.6; }
+
+  footer { margin-top:34px; padding-top:18px; border-top:1px solid var(--line); font-size:.78rem; color:var(--ink-muted); line-height:1.7; }
+</style>
+
+<div class="page">
+
+  <div class="hero">
+    <h1>ตลาดโดรนไทย: ข้อมูลเปิดของรัฐบอกอะไรได้ และบอกอะไรไม่ได้</h1>
+    <p class="sub">
+      ประเทศไทยเปิดเผยข้อมูลที่เกี่ยวกับโดรนไว้หลายชุด — ทะเบียนเครื่อง สถิติการค้า และการจัดซื้อภาครัฐ
+      เอกสารนี้สรุปว่า<b>แต่ละชุดวัดอะไรได้จริง</b> พร้อมตัวอย่างข้อมูลของจริง
+      และชี้จุดที่ทำให้การประเมิน &ldquo;ขนาดตลาด&rdquo; จากข้อมูลเหล่านี้ผิดพลาดได้ง่ายกว่าที่คิด
+    </p>
+    <p class="byline">เรียบเรียงจากข้อมูลเปิดของ สำนักงาน กสทช. · กรมศุลกากร · ระบบจัดซื้อจัดจ้างภาครัฐ · เผยแพร่ 3 สิงหาคม 2569</p>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-tile"><div class="v tabnum">205,287</div><div class="l">โดรนที่จดทะเบียนสะสมกับ กสทช.</div></div>
+    <div class="stat-tile"><div class="v tabnum">6,804 ล.</div><div class="l">มูลค่านำเข้าโดรนปี 2568 (บาท)</div></div>
+    <div class="stat-tile hero-tile"><div class="v tabnum">70%</div><div class="l">ของยอดนำเข้านั้น <b>แยกไม่ออก</b>ว่าขายในไทยหรือแค่ผ่าน</div></div>
+    <div class="stat-tile"><div class="v tabnum">0</div><div class="l">แหล่งข้อมูลที่มองเห็นการซื้อขายภาคเอกชน</div></div>
+  </div>
+
+  <section>
+    <div class="section-head"><span class="num">สรุป</span><h2>คำถามไหนตอบได้ คำถามไหนตอบไม่ได้</h2></div>
+    <p class="section-note">
+      ข้อมูลเปิดที่มีอยู่ตอบคำถามได้ชัดเจนหลายข้อ แต่มีสองข้อที่ตอบไม่ได้เลย
+      และทั้งสองข้อดันเป็นคำถามที่คนถามบ่อยที่สุดเวลาพูดถึง &ldquo;ตลาด&rdquo;
+    </p>
+    <div class="dt-wrap">
+      <table class="dt">
+        <thead><tr><th>คำถาม</th><th style="width:120px">ตอบได้ไหม</th><th style="width:190px">ใช้ข้อมูลชุดไหน</th></tr></thead>
+        <tbody>
+          <tr><td>ในไทยมีโดรนกี่ลำ ยี่ห้ออะไร อยู่จังหวัดไหน</td><td><span class="tag y">ได้</span></td><td>ทะเบียน กสทช.</td></tr>
+          <tr><td>ของนำเข้ามาจากประเทศไหน มูลค่าเท่าไร</td><td><span class="tag y">ได้</span></td><td>สถิติศุลกากร</td></tr>
+          <tr><td>หน่วยงานรัฐซื้อโดรนอะไร ราคาเท่าไร ใครเป็นผู้ขาย</td><td><span class="tag y">ได้</span></td><td>จัดซื้อจัดจ้างภาครัฐ</td></tr>
+          <tr><td>คู่แข่งแต่ละรายมีรายได้เท่าไร</td><td><span class="tag n">ต้องเปิดดูทีละราย</span></td><td>งบการเงินนิติบุคคล</td></tr>
+          <tr class="broken"><td><b>ตลาดในประเทศโตขึ้นหรือไม่</b></td><td><span class="tag n">ไม่ได้</span></td><td>—</td></tr>
+          <tr class="broken"><td><b>ภาคเอกชนซื้อ-ขายโดรนกันปีละเท่าไร</b></td><td><span class="tag n">ไม่ได้</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <div class="ct">อ่านตารางนี้อย่างไร</div>
+      <p style="font-size:.93rem;color:var(--ink-secondary)">
+        ข้อมูลเปิดของรัฐถูกเก็บขึ้นมาเพื่อ<b>งานกำกับดูแลและงานภาษี</b> ไม่ได้ถูกออกแบบมาเพื่อวัดขนาดตลาด
+        สิ่งที่ได้จึงเป็นภาพจากมุมของหน่วยงาน เช่น &ldquo;ใครมาขึ้นทะเบียนบ้าง&rdquo; หรือ &ldquo;อะไรผ่านด่านบ้าง&rdquo;
+        ซึ่งใกล้เคียงกับตลาด แต่ไม่ใช่ตลาด
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="num">01</span><h2>ทะเบียนโดรน กสทช. — นับ &ldquo;จำนวนเครื่อง&rdquo;</h2></div>
+    <p class="section-note">
+      โดรนที่ใช้คลื่นวิทยุต้องขึ้นทะเบียนตามกฎหมาย ข้อมูลชุดนี้คือรายการทั้งหมดนั้น
+      <b>หนึ่งบรรทัด = โดรนหนึ่งลำ</b>
+    </p>
+
+    <div class="sample">
+      <div class="cap">ตัวอย่างข้อมูลจริง (จากทั้งหมด 205,287 บรรทัด)</div>
+      <div class="scroll"><pre>วันที่อนุมัติ   จังหวัด        วัตถุประสงค์การใช้งาน                   ยี่ห้อ   รุ่น
+16 ต.ค. 2560   จ.เชียงใหม่    เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง...  DJI     PHANTOM 4 ADVANCED
+25 ต.ค. 2560   จ.เชียงใหม่    เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง...  DJI     PHANTOM 3 ADVANCED
+12 ต.ค. 2560   จ.กาญจนบุรี    เพื่อการเล่นเป็นงานอดิเรก ความบันเทิง...  DJI     SPARK</pre></div>
+    </div>
+
+    <h3 class="sub-h">ได้อะไร</h3>
+    <dl class="kv">
+      <dt>จำนวนสะสม</dt><dd>205,287 ลำ · 482 ยี่ห้อ · ครบทั้ง 77 จังหวัด</dd>
+      <dt>ส่วนแบ่งยี่ห้อ</dt><dd><b>DJI 88.2%</b> (181,058 ลำ) — อันดับสองห่างมาก อยู่ที่ 1.2%</dd>
+      <dt>การกระจายตัว</dt><dd>กรุงเทพฯ 25.8% · ภูเก็ต 7.6% · ปทุมธานี 5.7%</dd>
+      <dt>แนวโน้ม</dt><dd>จดทะเบียนใหม่โตต่อเนื่อง จาก 6,389 ลำ (2560) เป็น 43,129 ลำ (2568)</dd>
+    </dl>
+
+    <h3 class="sub-h">ข้อจำกัดที่ต้องรู้</h3>
+    <div class="callout warn">
+      <ul>
+        <li><b>ไม่มีราคา</b> — ข้อมูลชุดนี้บอกจำนวนเครื่องเท่านั้น เอามาคิดเป็นเงินไม่ได้</li>
+        <li><b>ไม่มีน้ำหนักเครื่อง</b> — มีแต่ชื่อรุ่น ทำให้เชื่อมกับข้อมูลศุลกากร (ซึ่งแบ่งตามน้ำหนัก) ไม่ได้</li>
+        <li><b>ช่องวัตถุประสงค์เชื่อไม่ได้</b> — ผู้จดทะเบียนกรอกตามสะดวก และเลือกได้หลายข้อพร้อมกัน
+            ตัวเลขที่ได้จึงทับซ้อนกัน (ระบุว่าใช้เล่น/งานอดิเรก 76.2% · ถ่ายภาพ 41.6% · เกษตร 15.3%)
+            บริษัทที่ทำงานสำรวจเชิงพาณิชย์จำนวนหนึ่งก็จดว่า &ldquo;เพื่อการถ่ายภาพ&rdquo;</li>
+        <li><b>ชื่อยี่ห้อสะกดไม่เป็นมาตรฐาน</b> — ยี่ห้อเดียวกันสะกดได้หลายแบบ ต้องรวมก่อนนับ</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="num">02</span><h2>สถิติศุลกากร — นับ &ldquo;เงิน&rdquo;</h2></div>
+    <p class="section-note">
+      ของทุกชิ้นที่เข้า-ออกประเทศต้องสำแดงต่อศุลกากร ข้อมูลชุดนี้คือยอดรวมของการสำแดงเหล่านั้น
+      <b>หนึ่งบรรทัด = สินค้าประเภทหนึ่ง ในเดือนหนึ่ง</b>
+    </p>
+
+    <div class="sample">
+      <div class="cap">ตัวอย่างข้อมูลจริง — ฝั่งนำเข้า</div>
+      <div class="scroll"><pre>ปี     เดือน  รหัสสินค้า  คำอธิบาย                                        จำนวน   มูลค่า (บาท)
+2565   1      88062200    น้ำหนักวิ่งขึ้นมากกว่า 250 ก. แต่ไม่เกิน 7 กก.       3        145,219
+2565   1      88069400    น้ำหนักวิ่งขึ้นมากกว่า 25 กก. แต่ไม่เกิน 150 กก.    25     12,806,351
+2565   2      88062200    น้ำหนักวิ่งขึ้นมากกว่า 250 ก. แต่ไม่เกิน 7 กก.     110      6,552,019</pre></div>
+    </div>
+
+    <h3 class="sub-h">รหัสสินค้า 8 หลักอ่านได้ทีละตำแหน่ง</h3>
+    <p class="section-note" style="margin-bottom:10px">
+      นี่คือจุดแข็งที่สุดของแหล่งนี้ — มันแยกโดรนออกเป็นกลุ่มย่อยได้ ไม่ใช่ก้อนเดียว
+    </p>
+    <div class="sample">
+      <div class="scroll"><pre>88 06   2   2   00
+│  │    │   │   └── รหัสย่อยระดับสถิติ
+│  │    │   └────── ชั้นน้ำหนัก : 1 = ไม่เกิน 250 ก.   2 = 250 ก.–7 กก.
+│  │    │                        3 = 7–25 กก.         4 = 25–150 กก.
+│  │    └────────── ประเภท     : 2 = บังคับด้วยรีโมตอย่างเดียว
+│  │                             9 = บินตามแผนที่วางไว้ได้เอง  ← กลุ่มโดรนสำรวจ
+│  └─────────────── 8806 = อากาศยานไร้คนขับ
+└────────────────── 88   = อากาศยาน</pre></div>
+    </div>
+    <p class="section-note">
+      แปลว่า <b>88062200</b> คือโดรนบังคับรีโมต น้ำหนัก 250 กรัม–7 กิโลกรัม
+      ซึ่งเป็นกลุ่มโดรนถ่ายภาพทั่วไปที่มีการซื้อขายมากที่สุด
+      ส่วนกลุ่มที่ขึ้นต้นด้วย <b>8806.9x</b> คือกลุ่มที่บินตามแผนได้เอง — กลุ่มที่ใช้ในงานสำรวจและทำแผนที่
+    </p>
+
+    <h3 class="sub-h">ได้อะไร</h3>
+    <dl class="kv">
+      <dt>ความละเอียด</dt><dd>แยกได้ถึงชั้นน้ำหนักและประเภทการบังคับ ครอบคลุมปี 2560 เป็นต้นมา</dd>
+      <dt>ประเทศคู่ค้า</dt><dd>ครบทุกประเทศ ทั้งต้นทางนำเข้าและปลายทางส่งออก</dd>
+      <dt>ปี 2568</dt><dd>นำเข้า <b>6,804 ล้านบาท</b> · ส่งออก <b>4,973 ล้านบาท</b></dd>
+      <dt>แหล่งที่มา</dt><dd>ของที่เข้ามาส่วนใหญ่มาจาก<b>จีน</b> · ของที่ออกไปส่วนใหญ่ไป<b>รัสเซีย</b></dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="num">03</span><h2>จุดที่ทำให้ประเมินมูลค่าตลาดไม่ได้</h2></div>
+    <p class="section-note">
+      ถ้าอยากรู้ว่า &ldquo;ขายในไทยเท่าไร&rdquo; วิธีที่ดูตรงไปตรงมาที่สุดคือเอา<b>ยอดนำเข้าลบยอดส่งออก</b>
+      วิธีนี้ใช้ไม่ได้ ด้วยเหตุผลสองชั้นที่ซ้อนกันอยู่
+    </p>
+
+    <h3 class="sub-h">ชั้นที่หนึ่ง — ของจำนวนมากแค่ &ldquo;ผ่าน&rdquo; ประเทศไทย</h3>
+    <p class="section-note">
+      ปี 2568 ของเข้ามา 6,804 ล้านบาท แต่ออกไปอีก 4,973 ล้านบาท โดยปลายทางหลักคือรัสเซีย
+      ยอดนำเข้าจึงไม่ใช่ขนาดตลาดในประเทศ — เทียบได้กับโกดังพักสินค้าที่มีของเข้า 100 ลัง
+      แต่ 70 ลังรอรถมารับไปส่งต่อ
+    </p>
+
+    <h3 class="sub-h">ชั้นที่สอง — เงินสองก้อนนี้บันทึกคนละมาตรฐาน</h3>
+    <div class="callout warn">
+      <div class="ct">ขาเข้ารวมค่าขนส่ง ขาออกไม่รวม</div>
+      <p style="font-size:.93rem;color:var(--ink-secondary)">
+        มูลค่านำเข้าบันทึกแบบ <b>CIF</b> คือราคาสินค้า <b>บวก</b> ค่าขนส่งและค่าประกันจนถึงไทย
+        ส่วนมูลค่าส่งออกบันทึกแบบ <b>FOB</b> คือราคาสินค้าเฉย ๆ <b>ไม่รวม</b> ค่าขนส่ง
+        การนำสองตัวเลขนี้มาลบกันจึงได้ส่วนต่างที่มีค่าขนส่งปนอยู่เสมอ ประมาณ 2–5% ของมูลค่า
+      </p>
+      <p style="font-size:.93rem;color:var(--ink-secondary);margin-top:8px">
+        เทียบกับการซื้อของออนไลน์ราคา 100 บาท ค่าส่ง 10 บาท จ่ายจริง 110 บาท
+        แล้วส่งต่อให้เพื่อนในราคา 100 บาท — จะบอกว่า &ldquo;ได้กำไร 10 บาท&rdquo; ไม่ได้
+        เพราะ 10 บาทนั้นคือค่าส่งที่จ่ายไปแล้ว
+      </p>
+    </div>
+
+    <h3 class="sub-h">ดูของจริง: รหัสสินค้าเดียว ติดตาม 4 ปี</h3>
+    <p class="section-note" style="margin-bottom:6px">
+      รหัส <b>88062200</b> (โดรน 250 กรัม–7 กิโลกรัม) เป็นกลุ่มที่มีการซื้อขายมากที่สุด
+      ปีแรกเป็นตัวอย่างของการวัดที่สะอาด — แล้วดูว่ามันพังลงอย่างไร
+    </p>
+    <div class="dt-wrap">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>ปี</th>
+            <th class="n">เข้า<br>(ชิ้น)</th>
+            <th class="n">ออก<br>(ชิ้น)</th>
+            <th class="n">มูลค่าเข้า<br>CIF · รวมค่าขนส่ง</th>
+            <th class="n">มูลค่าออก<br>FOB · ไม่รวมค่าขนส่ง</th>
+            <th class="n">ส่วนต่าง<br>มูลค่า</th>
+            <th>อ่านได้ว่า</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clean">
+            <td><b>2565</b></td><td class="n">2,631</td><td class="n">0</td>
+            <td class="n">121.0 ล.</td><td class="n">0</td>
+            <td class="n ok">+121.0 ล.</td>
+            <td>ไม่มีของออกเลย <b>อยู่ในไทยทั้งหมด</b></td>
+          </tr>
+          <tr class="broken">
+            <td><b>2566</b></td><td class="n">18,343</td><td class="n">16,160</td>
+            <td class="n">1,413.0 ล.</td><td class="n">1,382.2 ล.</td>
+            <td class="n">+30.8 ล.</td>
+            <td>ส่วนต่างแค่ <b>2.2%</b> ของขาเข้า — จมอยู่ในค่าขนส่ง</td>
+          </tr>
+          <tr class="broken">
+            <td><b>2567</b></td><td class="n">23,930</td><td class="n">21,186</td>
+            <td class="n">1,042.5 ล.</td><td class="n">1,138.9 ล.</td>
+            <td class="n neg">−96.4 ล.</td>
+            <td><b>ติดลบ</b> ทั้งที่ของเข้ามากกว่าออก 2,744 ชิ้น</td>
+          </tr>
+          <tr class="broken">
+            <td><b>2568</b></td><td class="n">25,505</td><td class="n">23,491</td>
+            <td class="n">2,949.8 ล.</td><td class="n">2,920.3 ล.</td>
+            <td class="n">+29.5 ล.</td>
+            <td>ส่วนต่างแค่ <b>1.0%</b> ของขาเข้า</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct">บรรทัดปี 2567 คือหลักฐานที่ปฏิเสธไม่ได้</div>
+      <p style="font-size:.93rem;color:var(--ink-secondary)">
+        ถ้าใช้สูตร &ldquo;นำเข้าลบส่งออก&rdquo; ปีนั้นจะได้ผลลัพธ์ว่า
+        <b>ตลาดในประเทศติดลบ 96 ล้านบาท</b> ซึ่งเป็นไปไม่ได้ในความเป็นจริง
+        ทั้งที่นับเป็นจำนวนชิ้นแล้วมีของเหลืออยู่ในไทย 2,744 ชิ้น
+        นี่คือสิ่งที่เกิดขึ้นเมื่อนำตัวเลขสองชุดที่บันทึกคนละมาตรฐานมาหักลบกัน
+      </p>
+    </div>
+
+    <h3 class="sub-h">วิธีรับมือ และราคาที่ต้องจ่าย</h3>
+    <p class="section-note">
+      ทางออกคือตั้ง<b>เกณฑ์คัดกรอง</b>ว่ารหัสสินค้าไหนเชื่อได้ โดยจะนับเป็นอุปสงค์ในประเทศได้ต่อเมื่อผ่านครบ 3 ข้อ:
+      ส่วนต่างมูลค่าต้องเป็นบวก · ส่วนต่างจำนวนชิ้นต้องเป็นบวก · และส่วนต่างต้องเกิน 10% ของขาเข้า
+      เพื่อไม่ให้ค่าขนส่งถูกอ่านเป็นยอดขาย รหัสที่ไม่ผ่านให้ระบุว่า <b>&ldquo;วัดไม่ได้&rdquo;</b> ไม่ใส่ตัวเลข
+    </p>
+    <p class="section-note">
+      ปัญหาคือสัดส่วนที่ &ldquo;วัดไม่ได้&rdquo; ใหญ่มาก และไม่เท่ากันในแต่ละปี
+    </p>
+
+    <div class="dt-wrap">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>ปี</th><th class="n">นำเข้ารวม</th><th class="n">ส่งออกรวม</th>
+            <th class="n">ยืนยันได้ว่า<br>อยู่ในไทย</th><th class="n">แยกไม่ออก</th>
+            <th class="n">รหัสที่เชื่อได้</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clean"><td><b>2565</b></td><td class="n">1,388</td><td class="n">34</td><td class="n"><b>1,354</b></td><td class="n">0 <span style="color:var(--ink-muted)">(0%)</span></td><td class="n">10 จาก 10</td></tr>
+          <tr><td><b>2566</b></td><td class="n">2,577</td><td class="n">1,452</td><td class="n"><b>1,101</b></td><td class="n">1,419 <span style="color:var(--ink-muted)">(55%)</span></td><td class="n">9 จาก 11</td></tr>
+          <tr><td><b>2567</b></td><td class="n">3,132</td><td class="n">1,331</td><td class="n"><b>1,897</b></td><td class="n">1,044 <span style="color:var(--ink-muted)">(33%)</span></td><td class="n">9 จาก 11</td></tr>
+          <tr class="broken"><td><b>2568</b></td><td class="n">6,804</td><td class="n">4,973</td><td class="n"><b>1,677</b></td><td class="n neg">4,763 (70%)</td><td class="n">7 จาก 11</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-note" style="margin-top:10px;font-size:.86rem;color:var(--ink-muted)">หน่วย: ล้านบาท</p>
+
+    <div class="callout warn">
+      <div class="ct">ข้อควรระวังสำคัญที่สุดของเอกสารนี้</div>
+      <p style="font-size:.93rem;color:var(--ink-secondary)">
+        <b>ห้ามนำคอลัมน์ &ldquo;ยืนยันได้ว่าอยู่ในไทย&rdquo; มาเทียบข้ามปีแล้วสรุปว่าตลาดโตหรือนิ่ง</b>
+        เพราะแต่ละปีรวมมาจากรหัสสินค้าคนละชุด — ปี 2565 นับได้ครบ 10 รหัส แต่ปี 2568 นับได้เพียง 7 รหัส
+        และรหัสที่หายไปคือกลุ่มที่มีมูลค่าสูงที่สุด
+      </p>
+      <p style="font-size:.93rem;color:var(--ink-secondary);margin-top:8px">
+        เทียบได้กับการชั่งน้ำหนักนักเรียนทั้งห้อง ปีแรกเครื่องชั่งใช้ได้ทุกตัว ปีที่สี่เครื่องเสียไปหลายตัว
+        ชั่งได้ไม่ครบทุกคน แล้วนำผลรวมสองปีมาเทียบกันว่า &ldquo;เด็กไม่โตขึ้น&rdquo; — สรุปแบบนั้นไม่ได้
+      </p>
+      <p style="font-size:.93rem;color:var(--ink-secondary);margin-top:8px">
+        <b>สิ่งที่พูดได้:</b> ปี 2568 ยืนยันได้ว่ามีมูลค่าอยู่ในไทย<b>อย่างน้อย 1,677 ล้านบาท</b>
+        จากยอดนำเข้า 6,804 ล้านบาท ส่วนที่เหลือแยกไม่ออกว่าขายในประเทศหรือผ่านออกไป<br>
+        <b>สิ่งที่พูดไม่ได้:</b> ตลาดในประเทศโตขึ้นหรือหดตัว
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="num">04</span><h2>จัดซื้อจัดจ้างภาครัฐ — แหล่งเดียวที่เห็นราคาจริงกับผู้ขาย</h2></div>
+    <p class="section-note">
+      หน่วยงานรัฐต้องประกาศการจัดซื้อ ข้อมูลชุดนี้จึงมี<b>ราคาที่ตกลงกันจริง ชื่อผู้ชนะ และจังหวัด อยู่ในบรรทัดเดียวกัน</b>
+      ซึ่งไม่มีแหล่งอื่นให้ได้ ครอบคลุมปีงบประมาณ 2558–2568 รวม 5,398 โครงการ
+    </p>
+
+    <div class="sample">
+      <div class="cap">ตัวอย่างข้อมูลจริง — หนึ่งโครงการ</div>
+      <div class="scroll"><pre>ปีงบประมาณ        2558
+ชื่อโครงการ       จ้างปรับปรุงเครื่องบินตรวจการณ์ระยะใกล้โดยไม่ใช้นักบิน (Mini UAV)
+หน่วยงาน          กองอำนวยการรักษาความมั่นคงภายใน
+งบประมาณ          12,000,000 บาท
+ราคาที่ตกลง       12,000,000 บาท
+จังหวัด           กรุงเทพมหานคร
+ผู้ชนะ            บริษัท เอ็ม-แลนดาร์ช จำกัด</pre></div>
+    </div>
+
+    <h3 class="sub-h">แบ่งได้ 4 หมวด</h3>
+    <div class="hchart">
+      <div class="hbar-row"><div class="hbar-label">โดรน <span style="color:var(--ink-muted)">4,266 โครงการ</span></div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:100%;background:var(--cat-3)"></div></div><div class="hbar-value">11,386 ล.</div></div>
+      <div class="hbar-row"><div class="hbar-label">ต่อต้านโดรน <span style="color:var(--ink-muted)">63</span></div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:17.98%;background:var(--cat-1)"></div></div><div class="hbar-value">2,048 ล.</div></div>
+      <div class="hbar-row"><div class="hbar-label">สำรวจทางอากาศ <span style="color:var(--ink-muted)">997</span></div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:14.02%;background:var(--cat-2)"></div></div><div class="hbar-value">1,596 ล.</div></div>
+      <div class="hbar-row"><div class="hbar-label">อุปกรณ์ทดสอบการบิน <span style="color:var(--ink-muted)">58</span></div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:1.88%;background:var(--cat-4)"></div></div><div class="hbar-value">214 ล.</div></div>
+    </div>
+
+    <h3 class="sub-h">กับดักที่ต้องระวังก่อนอ้างตัวเลขนี้</h3>
+    <div class="callout warn">
+      <div class="ct">ดีลฝั่งความมั่นคงไม่กี่ดีลลากค่าเฉลี่ยไปทั้งหมด</div>
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>กลุ่มผู้ซื้อ</th><th class="n">จำนวนโครงการ</th><th class="n">มูลค่ารวม</th><th class="n">มูลค่ากลางต่อโครงการ</th></tr></thead>
+          <tbody>
+            <tr><td>ทหาร / ความมั่นคง</td><td class="n">425 <span style="color:var(--ink-muted)">(10%)</span></td><td class="n"><b>9,590 ล.</b> <span style="color:var(--ink-muted)">(84%)</span></td><td class="n">499,000</td></tr>
+            <tr><td>พลเรือน</td><td class="n">3,841 <span style="color:var(--ink-muted)">(90%)</span></td><td class="n">1,796 ล. <span style="color:var(--ink-muted)">(16%)</span></td><td class="n">48,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.93rem;color:var(--ink-secondary);margin-top:12px">
+        ฝั่งความมั่นคงคิดเป็น <b>84% ของมูลค่า แต่เพียง 10% ของจำนวนโครงการ</b>
+        โดยดีลเดียวของกองทัพเรือมีมูลค่า 4,005 ล้านบาท
+        การพูดถึง &ldquo;ขนาดตลาดจัดซื้อภาครัฐ&rdquo; โดยไม่แยกสองกลุ่มนี้ออกจากกัน
+        จะให้ภาพที่คลาดเคลื่อนอย่างมากสำหรับผู้ขายที่ไม่ได้อยู่ในสายงานความมั่นคง
+      </p>
+    </div>
+
+    <div class="callout">
+      <div class="ct">ข้อจำกัดอื่นของแหล่งนี้</div>
+      <ul>
+        <li><b>ค้นด้วยคำในชื่อโครงการ</b> — งานที่ตั้งชื่อกว้าง ๆ โดยไม่เอ่ยว่าใช้โดรนจะหลุดออกไป
+            ตัวเลขทุกตัวจึงเป็นค่า <b>&ldquo;อย่างน้อย&rdquo;</b> ไม่ใช่ยอดครบถ้วน</li>
+        <li><b>บางโครงการปนงานอื่น</b> — เช่น งานก่อสร้างโรงเก็บอากาศยาน ซึ่งไม่ใช่มูลค่าตัวโดรน
+            ต้องคัดออกด้วยการอ่านทีละรายการ</li>
+        <li><b>เลขทะเบียนนิติบุคคลบางปีเสียหาย</b> — ถูกแปลงเป็นรูปแบบเลขวิทยาศาสตร์ตอนจัดทำไฟล์
+            ทำให้เชื่อมกับฐานข้อมูลงบการเงินได้ไม่ครบทุกปี</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="num">05</span><h2>แหล่งที่ดูเหมือนยืนยันกันได้ แต่ไม่ใช่</h2></div>
+    <p class="section-note">
+      มูลค่าการค้าโดรนของไทยหาได้จากอย่างน้อยสามที่ — กรมศุลกากร กระทรวงพาณิชย์ และฐานข้อมูลการค้าระหว่างประเทศขององค์การสหประชาชาติ
+      ตัวเลขตรงกันทุกบาท ซึ่งดูเหมือนเป็นการยืนยันข้ามแหล่งที่หนักแน่น
+    </p>
+    <div class="callout warn">
+      <div class="ct">แต่มันคือข้อมูลก้อนเดียวกัน</div>
+      <p style="font-size:.93rem;color:var(--ink-secondary)">
+        กระทรวงพาณิชย์และองค์การสหประชาชาติ <b>รับตัวเลขไปจากกรมศุลกากรอีกทอดหนึ่ง</b>
+        การนำมาอ้างว่า &ldquo;สามแหล่งให้ตัวเลขตรงกัน&rdquo; จึงเทียบได้กับการถามคนคนเดียวสามรอบ
+        แล้วบอกว่ามีพยานสามปาก
+      </p>
+      <p style="font-size:.93rem;color:var(--ink-secondary);margin-top:8px">
+        คู่ข้อมูลที่ยืนยันกันได้จริงมีคู่เดียว คือ <b>ทะเบียน กสทช. (นับจำนวนเครื่อง)</b> กับ
+        <b>สถิติศุลกากร (นับมูลค่า)</b> เพราะเก็บคนละวิธี โดยคนละหน่วยงาน เพื่อคนละวัตถุประสงค์
+      </p>
+    </div>
+    <p class="section-note" style="margin-top:16px">
+      ส่วนงบการเงินรายบริษัท ซึ่งจะบอกขนาดของผู้เล่นแต่ละราย เปิดเผยอยู่จริง
+      แต่ระบบมีการป้องกันการดึงข้อมูลอัตโนมัติ จึงต้องเปิดดูทีละรายด้วยมือ
+      ทำให้ครอบคลุมได้เฉพาะบริษัทที่เจาะจงสนใจ ไม่สามารถกวาดทั้งอุตสาหกรรมได้
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="num">06</span><h2>ช่องว่างที่ใหญ่ที่สุด: ไม่มีใครเห็นตลาดเอกชน</h2></div>
+    <p class="section-note">
+      รวมทุกแหล่งเข้าด้วยกันแล้ว ยังมีส่วนหนึ่งของตลาดที่ไม่มีข้อมูลเปิดชุดใดมองเห็น
+      นั่นคือ<b>การซื้อขายระหว่างเอกชนกับเอกชน</b>
+    </p>
+    <div class="srcgrid">
+      <div class="srccard">
+        <div class="st">สิ่งที่มองเห็น</div>
+        <div class="sm">มีข้อมูลรองรับ</div>
+        <div class="sd">
+          จำนวนเครื่องที่จดทะเบียน · มูลค่าที่ผ่านด่านศุลกากร · การจัดซื้อของหน่วยงานรัฐพร้อมชื่อผู้ขาย
+        </div>
+      </div>
+      <div class="srccard" style="border-color:var(--accent)">
+        <div class="st" style="color:var(--accent)">สิ่งที่มองไม่เห็น</div>
+        <div class="sm">ไม่มีแหล่งใดครอบคลุม</div>
+        <div class="sd">
+          ผู้รับเหมาก่อสร้างจ้างบินสำรวจ · เหมืองแร่จ้างทำแผนที่ · บริษัทพลังงานตรวจสอบโครงสร้าง ·
+          ราคาขายปลีกและส่วนลดหน้าร้าน · การให้บริการรายเดือนหรือรายโครงการ
+        </div>
+      </div>
+    </div>
+    <div class="callout">
+      <p style="font-size:.93rem;color:var(--ink-secondary);margin:0">
+        ผลที่ตามมาคือ ตัวเลขทั้งหมดในเอกสารนี้ควรอ่านเป็น <b>&ldquo;ขอบล่างของสิ่งที่พิสูจน์ได้&rdquo;</b>
+        ไม่ใช่ขนาดตลาดที่แท้จริง และการประเมินมูลค่าตลาดรวมจากข้อมูลเปิดเพียงอย่างเดียว
+        จำเป็นต้องใช้สมมติฐานเพิ่ม ซึ่งต้องระบุให้ชัดว่าเป็นสมมติฐาน
+      </p>
+    </div>
+  </section>
+
+  <div class="takeaways">
+    <h2>สรุปสำหรับการนำไปใช้</h2>
+    <ol>
+      <li><b>ยอดนำเข้าไม่ใช่ขนาดตลาด</b> — ปี 2568 นำเข้า 6,804 ล้านบาท แต่ส่งออกต่อ 4,973 ล้านบาท
+          การอ้างยอดนำเข้าเป็นขนาดตลาดจะเกินความจริงหลายเท่า</li>
+      <li><b>อย่านำมูลค่านำเข้าลบมูลค่าส่งออกตรง ๆ</b> — ทั้งสองตัวเลขบันทึกคนละมาตรฐาน (CIF กับ FOB)
+          มีปีที่สูตรนี้ให้ผลลัพธ์เป็นค่าติดลบ ซึ่งเป็นไปไม่ได้</li>
+      <li><b>ตัวเลขที่ยืนยันได้คือขอบล่าง</b> — ปี 2568 ยืนยันได้ว่ามีมูลค่าอยู่ในไทยอย่างน้อย
+          1,677 ล้านบาท ควรอ้างพร้อมระบุเสมอว่าอีก 4,763 ล้านบาทแยกไม่ออก</li>
+      <li><b>ข้อมูลชุดนี้ตอบไม่ได้ว่าตลาดโตหรือไม่</b> — เพราะสัดส่วนที่วัดไม่ได้แกว่งจาก 0% ถึง 70%
+          ระหว่างปี ตัวเลขที่ดูเหมือนทรงตัวจึงอาจเกิดจากวิธีวัด ไม่ใช่จากตลาด</li>
+      <li><b>ฝั่งจำนวนเครื่องยังโตชัดเจน</b> — การจดทะเบียนใหม่เพิ่มขึ้นต่อเนื่องทุกปี
+          หากต้องการชี้วัดการเติบโต ตัวเลขจำนวนเครื่องเชื่อถือได้มากกว่าตัวเลขมูลค่า</li>
+      <li><b>แยกฝั่งความมั่นคงออกก่อนเสมอ</b> เมื่อพูดถึงตลาดจัดซื้อภาครัฐ
+          เพราะกินมูลค่า 84% จากเพียง 10% ของจำนวนโครงการ</li>
+    </ol>
+    <p class="caveat">
+      <b>ที่มาและขอบเขต:</b> ตัวเลขทั้งหมดคำนวณจากข้อมูลเปิดที่หน่วยงานเผยแพร่โดยตรง
+      สถิติการค้าครอบคลุมปีปฏิทิน 2565–2568 (พิกัดศุลกากร 8806 อากาศยานไร้คนขับ)
+      ทะเบียนโดรนเป็นข้อมูลสะสมถึงกลางปี 2569 การจัดซื้อภาครัฐครอบคลุมปีงบประมาณ 2558–2568
+      · ข้อมูลปี 2569 ยังไม่ครบปีจึงไม่นำมาแสดง
+      · ตัวเลขจัดซื้อภาครัฐคัดจากคำที่ปรากฏในชื่อโครงการ จึงเป็นค่าอย่างน้อย
+      · การจำแนกว่ารหัสสินค้าใด &ldquo;วัดได้&rdquo; หรือ &ldquo;วัดไม่ได้&rdquo; ใช้เกณฑ์เชิงปริมาณที่ระบุไว้ในหัวข้อ 03
+      และให้ผลเหมือนเดิมทุกครั้งที่คำนวณซ้ำ
+    </p>
+  </div>
+
+  <footer>
+    แหล่งข้อมูล:
+    สำนักงาน กสทช. — ทะเบียนเครื่องวิทยุคมนาคมสำหรับอากาศยานซึ่งไม่มีนักบิน ·
+    กรมศุลกากร — สถิติการนำเข้าและส่งออกรายพิกัดศุลกากร ·
+    ระบบการจัดซื้อจัดจ้างภาครัฐ — ข้อมูลสัญญาและโครงการจัดซื้อ ·
+    กระทรวงพาณิชย์ และ UN Comtrade — สถิติการค้าระหว่างประเทศ (ต้นทางเดียวกับกรมศุลกากร)
+  </footer>
+
+</div>
