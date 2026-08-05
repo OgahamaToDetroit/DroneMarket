@@ -7,6 +7,10 @@ secrets.*
 data/raw/*.xlsx
 data/raw/*.json
 
+# ยกเว้นงบการเงิน DBD — **ดึงใหม่อัตโนมัติไม่ได้** ติด WAF ต้องเปิดเบราว์เซอร์คัดมาเอง
+# ถ้าปล่อยให้ ignore ไว้ ics_company_profile.py จะพังทันทีที่ clone ใหม่โดยไม่มีทางกู้
+!data/raw/dbd_*.json
+
 # ===== ตั้งค่าเฉพาะเครื่อง =====
 .claude/settings.local.json
 
