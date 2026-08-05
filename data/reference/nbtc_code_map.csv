@@ -1,0 +1,41 @@
+brand,catalog_model,resolved_brand,resolved_model,evidence,source_url,confidence
+DJI,L1P,,MAVIC 2 PRO,FCC ID SS3-L1P1805 ระบุชื่อผลิตภัณฑ์ว่า Mavic 2 Pro,https://fccid.io/SS3-L1P1805,สูง
+DJI,L1Z,,MAVIC 2 ZOOM,FCC ID SS3-L1Z1805 ระบุชื่อผลิตภัณฑ์ว่า Mavic 2 Zoom,https://fccid.io/SS3-L1Z1805,สูง
+DJI,U11X,,MAVIC AIR,FCC ID SS3-U11X1710 ระบุชื่อผลิตภัณฑ์ว่า MAVIC AIR,https://fccid.io/SS3-U11X1710,สูง
+DJI,M1P,,MAVIC PRO,FCC ID SS3-M1P1607 ระบุชื่อผลิตภัณฑ์ว่า Mavic Pro,https://fccid.io/SS3-M1P1607,สูง
+DJI,M1X,,MAVIC PRO PLATINUM,ประกาศขายทอดตลาดของรัฐสหรัฐฯ ระบุ "DJI Mavic Pro Platinum Model: M1X",https://www.govdeals.com/en/asset/135/2647,กลาง
+DJI,L2A,,MAVIC 3,รายงานเอกสาร FCC ของ Mavic 3 ระบุ L2A เป็นรุ่นมาตรฐาน (L2P = Cine),https://dronedj.com/2021/10/18/dji-mavic-3-cine/,กลาง
+DJI,L2P,,MAVIC 3 CINE,FCC ID SS3-L2P2104 ครอบคลุม DJI Mavic 3 Cine / Mavic 3,https://fccid.io/SS3-L2P2104,สูง
+DJI,L2C,,MAVIC 3 CLASSIC,ฐานข้อมูลโดรน EASA รายการ pr-46-l2c,https://www.easa.europa.eu/en/domains/drones-air-mobility/drones-eu-operations/pr-46-l2c,สูง
+DJI,L2S,,MAVIC 3 PRO,ฐานข้อมูลโดรน EASA รายการ pr-90-l2s,https://www.easa.europa.eu/en/domains/drones-air-mobility/drones-eu-operations/pr-90-l2s,สูง
+DJI,L3B,,MAVIC 4 PRO,ฐานข้อมูลโดรน EASA รายการ pr-346-l3b ระบุ DJI Mavic 4 Pro ระดับ C2,https://www.easa.europa.eu/en/domains/drones-air-mobility/drones-eu-operations/pr-346-l3b,สูง
+DJI,L3A,,MAVIC 4 PRO,เอกสาร FCC ระบุ L3A กับ L3B เป็นเครื่องเดียวกันทางไฟฟ้า ต่างกันแค่ชื่อทางการตลาด,https://dronedj.com/2024/12/06/dji-mavic-4-pro-fcc/,กลาง
+DJI,FD1W4K,,FPV,คู่มือผู้ใช้ DJI FPV Combo ระบุรุ่น FD1W4K · FCC ID SS3-FD1W4K2006,https://manuals.plus/dji/fpv-combo-fd1w4k-quadcopterdrone-with-camera-manual,สูง
+DJI,QF2W4K,,AVATA,FCC ID SS3-QF2W4K22 ระบุชื่อผลิตภัณฑ์ว่า DJI Avata,https://fccid.io/SS3-QF2W4K22,สูง
+DJI,DGP14D,,LITO X1,ข้อความในทะเบียน กสทช. เองเขียนว่า "DJI LITO X1 FLY MORE COMBO PLUS [DGP14D (AIRCRAFT)]",https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+DJI,AIR2S,,AIR 2S,รูปเขียนที่ไม่มีช่องว่างของรุ่นเดียวกัน,-,สูง
+DJI,MAVIC MINI 3 PRO,,MINI 3 PRO,รูปเขียนที่เติมคำว่า MAVIC เกินมาของรุ่นเดียวกัน,-,สูง
+DJI,MINI SE FLY,,MINI SE,ข้อความถูกตัดกลางคำว่า FLY MORE COMBO,-,สูง
+DJI,M4T,,MATRICE 4T,ตัวย่อของ Matrice 4T,-,กลาง
+DJI,PHANTOM 4 PROFESSIONAL PLUS,,PHANTOM 4 PRO,รูปเขียนเต็มของ Phantom 4 Pro รุ่นชุด Plus,-,สูง
+AG,AGRAS T20P,DJI,AGRAS T20P,ช่องยี่ห้อกรอก AG ย่อจาก Agras — ทุกรูปเขียนรุ่นของยี่ห้อนี้เป็นชื่อรุ่น Agras ล้วน · ปีที่จดตรงกับปีเปิดตัวของ DJI · จังหวัดเด่นชุดเดียวกับ DJI (นครสวรรค์ กำแพงเพชร พิจิตร) · ใช้คลื่น 24.05-24.25 GHz ซึ่งเป็นย่านเรดาร์ของแพลตฟอร์ม Agras,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+AG,AGRAS T40,DJI,AGRAS T40,เหตุผลเดียวกับ AG | AGRAS T20P,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+AG,AGRAS T30,DJI,AGRAS T30,เหตุผลเดียวกับ AG | AGRAS T20P,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+AG,AGRAS T10,DJI,AGRAS T10,เหตุผลเดียวกับ AG | AGRAS T20P,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+AG,AG T10,DJI,AGRAS T10,รูปเขียน "AG T10" ของรุ่นเดียวกับ AG | AGRAS T10,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+AG,AGRAS T20,DJI,AGRAS T20,เหตุผลเดียวกับ AG | AGRAS T20P,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+AG,T16,DJI,AGRAS T16,ข้อความดิบคือ "T16/20" ซึ่งกำกวมระหว่าง T16 กับ T20 — เลือก T16 ตามกติกาใช้ราคาต่ำสุดที่มีหลักฐาน ⚠️ และราคาของ T16 เองก็เป็นการอนุมานจาก T10 อยู่แล้ว จึงเป็นการอนุมานซ้อนอนุมาน,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,ต่ำ
+AGRAS,T16TH,DJI,AGRAS T16,ช่องยี่ห้อเขียนว่า AGRAS ตรง ๆ และชื่อรุ่นขึ้นต้นด้วย T16 (TH น่าจะหมายถึงรุ่นขายในไทย) ⚠️ ราคาของ T16 เป็นการอนุมานจาก T10,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,ต่ำ
+MG,MG-1,DJI,AGRAS MG-1,ช่องยี่ห้อกรอก MG ซึ่งเป็นชื่อสายผลิตภัณฑ์ของ DJI ไม่ใช่ชื่อแบรนด์ · ชื่อรุ่น MG-1 เป็นชื่อผลิตภัณฑ์ของ DJI · ปีที่จด 2019-2021 ตรงกับช่วงที่ MG-1 ขายในไทย · ทะเบียนของ DJI เองก็มี AGRAS MG-1S/MG-1P อยู่แล้ว,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+DJI,MG-1,,AGRAS MG-1,ชื่อย่อของ AGRAS MG-1,-,สูง
+DJI,MG-1P,,AGRAS MG-1P,ชื่อย่อของ AGRAS MG-1P,-,สูง
+DJI,3WWDSZ-10016,,AGRAS MG-1P,ข้อความในทะเบียนเองเขียนว่า "MG-1P (3WWDSZ-10016)" และ "3WWDSZ-10016/MG-1P(TH)" — ชุดข้อมูลถอดรหัสตัวเอง,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+DJI,3WWDSZ-10016/MG-1P,,AGRAS MG-1P,รูปเขียนที่มีทั้งรหัสและชื่อรุ่นในช่องเดียวกัน,-,สูง
+DJI,MG-1P (3WWDSZ-10016),,AGRAS MG-1P,รูปเขียนที่มีทั้งรหัสและชื่อรุ่นในช่องเดียวกัน,-,สูง
+DJI,3WWDSZ-10016 / MG-1P,,AGRAS MG-1P,รูปเขียนที่มีทั้งรหัสและชื่อรุ่นในช่องเดียวกัน,-,สูง
+DJI,3W-DJI-8-10-015,,AGRAS MG-1S,ข้อความในทะเบียนเองเขียนว่า "3W-DJI-8-10-015(AGRAS MG-1S)",https://datacatalog.nbtc.go.th/dataset/dataset_11_94,สูง
+DJI,3W-DJI-8-10-015 (MG-1S),,AGRAS MG-1S,รูปเขียนที่มีทั้งรหัสและชื่อรุ่นในช่องเดียวกัน,-,สูง
+DJI,3W-DJI -8-10-015 (MG-1S),,AGRAS MG-1S,รูปเขียนเดียวกันที่มีช่องว่างเกิน,-,สูง
+DJI,DJT20,,AGRAS T20,ช่องยี่ห้อเดิมกรอกว่า "DGI AGRAS" ซึ่งเป็น DJI Agras สะกดสลับตัวอักษร · ปีที่จดพีคปี 2021 ตรงกับช่วงที่ T20 ขายในไทย · DJI ไม่มีผลิตภัณฑ์ชื่ออื่นที่ใช้รหัส DJT20,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,กลาง
+DJI,DJT30,,AGRAS T30,เหตุผลเดียวกับ DJT20 · ปีที่จดพีคปี 2022 ตรงกับช่วงที่ T30 ขายในไทย,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,กลาง
+DJI,DJT10,,AGRAS T10,เหตุผลเดียวกับ DJT20 · ปีที่จดพีคปี 2022,https://datacatalog.nbtc.go.th/dataset/dataset_11_94,กลาง
