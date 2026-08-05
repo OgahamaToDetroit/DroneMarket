@@ -1,0 +1,314 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "ขนาดตลาดโดรนไทยปี 2025",
+    "description": "ประมาณการแบบช่วงจากข้อมูลศุลกากร ทะเบียน กสทช. e-GP และรายงานวิจัยตลาด",
+    "generatedAt": "2026-08-03T12:00:00Z",
+    "cards": [
+      {
+        "id": "base_market_card",
+        "description": "ค่ากลางของตลาดแบบกว้าง รวมตัวเครื่อง อุปกรณ์ ซอฟต์แวร์ และบริการ",
+        "dataset": "headline_metrics",
+        "sourceId": "headline_model",
+        "metrics": [
+          { "label": "ประมาณการฐาน", "field": "base_market_bn", "format": "number", "unit": "พันล้านบาท" },
+          { "label": "ช่วงที่เหมาะใช้", "field": "decision_range", "format": "text" }
+        ]
+      },
+      {
+        "id": "platform_market_card",
+        "description": "ตัวเครื่องหรือแพลตฟอร์ม ณ ราคาตลาดปลายทาง ไม่รวมบริการและซอฟต์แวร์",
+        "dataset": "headline_metrics",
+        "sourceId": "headline_model",
+        "metrics": [
+          { "label": "ตลาดตัวเครื่อง", "field": "platform_mid_bn", "format": "number", "unit": "พันล้านบาท" },
+          { "label": "ช่วงประมาณการ", "field": "platform_range", "format": "text" }
+        ]
+      },
+      {
+        "id": "imarc_card",
+        "description": "ประมาณการ IMARC แปลงด้วยอัตรา 33.33 บาทต่อดอลลาร์",
+        "dataset": "headline_metrics",
+        "sourceId": "imarc",
+        "metrics": [
+          { "label": "IMARC", "field": "imarc_bn", "format": "number", "unit": "พันล้านบาท" },
+          { "label": "ต้นฉบับ", "field": "imarc_usd", "format": "text" }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "scenario_components_chart",
+        "title": "องค์ประกอบประมาณการตลาดตามสถานการณ์",
+        "subtitle": "ปี 2025 หน่วยพันล้านบาท; ความไม่แน่นอนหลักมาจากอุปกรณ์/ซอฟต์แวร์และบริการเอกชน",
+        "type": "bar",
+        "dataset": "scenario_components",
+        "sourceId": "model_analysis",
+        "valueFormat": "number",
+        "unit": "พันล้านบาท",
+        "options": { "grouping": "stacked" },
+        "encodings": {
+          "x": { "field": "scenario", "type": "nominal", "label": "สถานการณ์" },
+          "y": { "field": "value_bn", "type": "quantitative", "label": "พันล้านบาท" },
+          "color": { "field": "component", "type": "nominal", "label": "องค์ประกอบ" },
+          "tooltip": [
+            { "field": "value_bn", "type": "quantitative", "label": "มูลค่า", "format": "number" },
+            { "field": "assumption", "type": "nominal", "label": "สมมติฐาน" }
+          ]
+        }
+      },
+      {
+        "id": "benchmark_cluster_chart",
+        "title": "ประมาณการตลาดจากแบบจำลองและบริษัทวิจัย",
+        "subtitle": "ปี 2025 หน่วยพันล้านบาท; ไม่รวม Grand View Research ซึ่งเป็น outlier ที่ 24.6 พันล้านบาท",
+        "type": "bar",
+        "dataset": "benchmark_cluster",
+        "sourceId": "benchmark_compilation",
+        "valueFormat": "number",
+        "unit": "พันล้านบาท",
+        "encodings": {
+          "x": { "field": "source", "type": "nominal", "label": "แหล่ง/วิธี" },
+          "y": { "field": "value_bn", "type": "quantitative", "label": "พันล้านบาท" },
+          "tooltip": [
+            { "field": "scope", "type": "nominal", "label": "ขอบเขต" },
+            { "field": "usd_m", "type": "quantitative", "label": "ล้านดอลลาร์", "format": "number" }
+          ]
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "local_evidence_table",
+        "title": "หลักฐานตรงจากประเทศไทย",
+        "subtitle": "ตัวเลขปี 2025 ที่ใช้สร้างขอบล่างและตรวจความสมเหตุสมผล",
+        "dataset": "local_evidence",
+        "sourceId": "local_evidence_compilation",
+        "columns": [
+          { "field": "metric", "label": "ตัวชี้วัด", "type": "text" },
+          { "field": "value", "label": "ค่า", "type": "text" },
+          { "field": "interpretation", "label": "ใช้ตีความอย่างไร", "type": "text" }
+        ]
+      },
+      {
+        "id": "research_benchmarks_table",
+        "title": "ช่วงประมาณการจากรายงานวิจัย",
+        "subtitle": "ตัวเลขถูกแปลงที่ 33.33 บาทต่อดอลลาร์; นิยามตลาดต่างกันจึงไม่ควรเฉลี่ยตรง ๆ",
+        "dataset": "research_benchmarks",
+        "sourceId": "benchmark_compilation",
+        "defaultSort": { "field": "value_bn", "direction": "asc" },
+        "columns": [
+          { "field": "source", "label": "แหล่ง", "type": "text" },
+          { "field": "year", "label": "ปี", "type": "text" },
+          { "field": "usd_m", "label": "ล้านดอลลาร์", "format": "number" },
+          { "field": "value_bn", "label": "พันล้านบาท", "format": "number" },
+          { "field": "assessment", "label": "การใช้ในโมเดล", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "headline_model",
+        "label": "ค่ากลางและช่วงประมาณการจากแบบจำลอง",
+        "path": "reports/2026-08-03_market-sizing-2025/model.csv",
+        "query": {
+          "sql": "WITH scenarios AS (SELECT * FROM read_csv_auto('reports/2026-08-03_market-sizing-2025/model.csv', header = true)) SELECT 6.0 AS base_market_bn, '5.0–7.5 พันล้านบาท' AS decision_range, 2.5 AS platform_mid_bn, '2.2–2.8 พันล้านบาท' AS platform_range FROM scenarios LIMIT 1",
+          "description": "อ่านสถานการณ์จาก model.csv และแสดงช่วงตัดสินใจที่สังเคราะห์จากแบบจำลองไทยกับกลุ่มรายงานวิจัย",
+          "tables_used": ["reports/2026-08-03_market-sizing-2025/model.csv"],
+          "metric_definitions": ["base_market_bn = ค่ากลางใช้งานที่ปัดจากค่าถ่วงน้ำหนัก 6.06 พันล้านบาท", "platform_mid_bn = ค่ากลางช่วงตลาดตัวเครื่อง 2.2–2.8 พันล้านบาท"]
+        }
+      },
+      {
+        "id": "model_analysis",
+        "label": "แบบจำลองตลาดปี 2025",
+        "path": "reports/2026-08-03_market-sizing-2025/model.csv",
+        "query": {
+          "sql": "SELECT scenario, platform_end_market_bn, addons_software_bn, total_services_bn, total_market_bn FROM read_csv_auto('reports/2026-08-03_market-sizing-2025/model.csv', header = true)",
+          "description": "องค์ประกอบตลาดในสถานการณ์ต่ำ ฐาน และสูง",
+          "tables_used": ["reports/2026-08-03_market-sizing-2025/model.csv"],
+          "metric_definitions": ["total_market_bn = platform_end_market_bn + addons_software_bn + total_services_bn"]
+        }
+      },
+      { "id": "customs", "label": "กรมศุลกากร HS 8806", "path": "data/processed/customs_hs8806_balance.csv" },
+      { "id": "registrations", "label": "ทะเบียนเครื่องวิทยุคมนาคมโดรน", "path": "scripts/overview_out.txt" },
+      { "id": "egp", "label": "จัดซื้อจัดจ้างภาครัฐเกี่ยวกับโดรน", "path": "data/processed/egp_drone_projects.csv" },
+      {
+        "id": "imarc",
+        "label": "IMARC Thailand Drones Market",
+        "path": "https://www.imarcgroup.com/thailand-drones-market",
+        "query": {
+          "sql": "SELECT 212.9 AS imarc_usd_m, ROUND(212.9 * 33.33 / 1000, 3) AS imarc_bn",
+          "description": "แปลงประมาณการ IMARC ปี 2025 จากดอลลาร์เป็นบาทที่ 33.33 บาทต่อดอลลาร์",
+          "metric_definitions": ["imarc_bn = 212.9 × 33.33 ÷ 1,000"]
+        }
+      },
+      { "id": "nextmsc", "label": "Next Move Strategy Consulting Thailand Drone Market", "path": "https://www.nextmsc.com/report/thailand-drone-market-ad3988" },
+      { "id": "databridge", "label": "Data Bridge Thailand UAV Market", "path": "https://www.databridgemarketresearch.com/nucleus/thailand-unmanned-aerial-vehicle-market" },
+      { "id": "grandview", "label": "Grand View Research Thailand Drone Market", "path": "https://www.grandviewresearch.com/horizon/outlook/drone-market/thailand" },
+      {
+        "id": "local_evidence_compilation",
+        "label": "ชุดหลักฐานไทยที่ใช้สร้างขอบล่าง",
+        "path": "reports/2026-08-03_market-sizing-2025/source-notes.md",
+        "query": {
+          "sql": "SELECT * FROM (VALUES (1, 'ทะเบียนใหม่ กสทช.', '43,129 ลำ'), (2, 'ยอดนำเข้า HS 8806', '6.804 พันล้านบาท'), (3, 'อุปสงค์ที่ผ่านเกณฑ์', '1.677 พันล้านบาท'), (4, 'ขอบล่างปรับประมาณ', '1.830 พันล้านบาท'), (5, 'e-GP หมวดโดรน', '871 ล้านบาท'), (6, 'บริการรัฐที่ระบุได้', '255 ล้านบาท')) AS t(order_no, metric, value)",
+          "description": "รวมตัวชี้วัดไทยจากทะเบียน ศุลกากร และ e-GP เพื่อสร้างขอบล่างและตรวจสอบความสมเหตุสมผล",
+          "tables_used": ["scripts/overview_out.txt", "data/processed/customs_hs8806_balance.csv", "data/processed/egp_drone_projects.csv"]
+        }
+      },
+      {
+        "id": "benchmark_compilation",
+        "label": "ตารางเทียบรายงานวิจัย",
+        "path": "reports/2026-08-03_market-sizing-2025/source-notes.md",
+        "query": {
+          "sql": "SELECT * FROM (VALUES ('IMARC', '2025', 212.9, 7.097), ('Data Bridge', '2025 implied', 225.3, 7.509), ('Next Move', '2025', 261.9, 8.730), ('Grand View', '2025', 737.7, 24.590)) AS t(source, year, usd_m, value_bn)",
+          "description": "เปรียบเทียบประมาณการตลาดจากบริษัทวิจัย โดยแปลงที่ 33.33 บาทต่อดอลลาร์",
+          "metric_definitions": ["value_bn = usd_m × 33.33 ÷ 1,000"]
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# ขนาดตลาดโดรนไทยปี 2025"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n- **ตลาดแบบกว้างน่าจะอยู่ราว 5.0–7.5 พันล้านบาท** โดยค่ากลางที่เหมาะใช้วางแผนอยู่ประมาณ **6 พันล้านบาท** หรือราว **180 ล้านดอลลาร์**\n- **ตัวเลข 1.7–1.8 พันล้านบาทในโปรเจกต์เป็นเพียงขอบล่างของตัวเครื่องนำเข้า** ไม่ใช่ตลาดทั้งหมด เมื่อเพิ่มราคาช่องทางขาย เซนเซอร์ อุปกรณ์เสริม ซอฟต์แวร์ การติดตั้ง และบริการ ขนาดตลาดจะสูงขึ้นอย่างมีนัยสำคัญ\n- **ประมาณการ IMARC ที่ 7.1 พันล้านบาทอยู่ในช่วงที่เป็นไปได้ แต่ค่อนไปทางสูง** ส่วน Next Move ที่ 8.7 พันล้านบาทเป็นกรณีเชิงรุก และ Grand View ที่ 24.6 พันล้านบาทสูงเกินหลักฐานไทยจนควรถือเป็น outlier\n- **ทิศทางยังเป็นขาขึ้น แต่ไม่ควรคาดว่าโตเรียบทุกปี** การจดทะเบียนใหม่เพิ่ม 14.9% ในปี 2025 ขณะที่ยอดจัดซื้อรัฐลด 14.3% เพราะดีลระบบใหญ่เกิดเป็นก้อน"
+      },
+      { "id": "headline_metrics_block", "type": "metric-strip", "cardIds": ["base_market_card", "platform_market_card", "imarc_card"] },
+      {
+        "id": "sizing_answer",
+        "type": "markdown",
+        "body": "## คำตอบขึ้นอยู่กับว่านับแค่ตัวเครื่องหรือทั้งระบบนิเวศ\n\n**ถ้านับเฉพาะอากาศยานหรือแพลตฟอร์มที่ขายในประเทศไทย ตลาดน่าจะอยู่ราว 2.2–2.8 พันล้านบาท** หลังปรับขอบล่าง CIF 1.83 พันล้านบาทเป็นราคาตลาดปลายทาง\n\n**ถ้านับแบบเดียวกับรายงานวิจัย ซึ่งรวม payload เซนเซอร์ อุปกรณ์เสริม ซอฟต์แวร์ การบูรณาการระบบ และบริการ ตลาดจะขยับขึ้นเป็นราว 5.0–7.5 พันล้านบาท** ค่ากลางประมาณ 6 พันล้านบาทจึงเหมาะกับการวางแผนมากกว่าการใช้เลข 1.8 หรือ 7.1 พันล้านบาทแบบจุดเดียว"
+      },
+      { "id": "scenario_components_block", "type": "chart", "chartId": "scenario_components_chart" },
+      {
+        "id": "scenario_interpretation",
+        "type": "markdown",
+        "body": "**กราฟแสดงว่าตัวเครื่องไม่ใช่ตัวแปรที่ทำให้ช่วงกว้างที่สุด** เพราะฐานตัวเครื่องถูกตรึงด้วยข้อมูลศุลกากรแล้ว ความไม่แน่นอนหลักอยู่ที่มูลค่าเซนเซอร์/ซอฟต์แวร์ซึ่งมักอยู่คนละพิกัดสินค้า และรายได้บริการเอกชนที่ไม่มีฐานข้อมูลเปิดครอบคลุม ดังนั้นการเก็บรายได้จริงของผู้ให้บริการและตัวแทนจำหน่าย 10–15 รายจะลดช่วงประมาณการได้มากที่สุด"
+      },
+      {
+        "id": "direct_evidence",
+        "type": "markdown",
+        "body": "## หลักฐานไทยชี้ว่าตลาดตัวเครื่องมีฐานราว 2–3 พันล้านบาท\n\nทะเบียนใหม่ปี 2025 มี **43,129 ลำ** ใกล้กับประมาณการ Next Move ที่ 45.24 พันลำมาก เป็น cross-check ฝั่งปริมาณที่ดี หากตลาดตัวเครื่องอยู่ที่ 2.2–2.8 พันล้านบาท จะเท่ากับรายได้เฉลี่ยประมาณ 51,000–64,000 บาทต่อเครื่อง ซึ่งสมเหตุสมผลสำหรับตลาดที่มีทั้งโดรนผู้บริโภค เกษตร และระบบอุตสาหกรรม\n\nยอดนำเข้า 6.804 พันล้านบาทไม่ควรถูกใช้เป็นตลาด เพราะ 70% อยู่ในพิกัดที่แยกการขายในไทยออกจากสินค้าผ่านไม่ได้ ขณะที่ e-GP ปี 2025 แสดงให้เห็นว่าเพียงภาครัฐก็มีสัญญาโดรน 871 ล้านบาทและบริการที่ระบุได้อย่างน้อยราว 255 ล้านบาท แต่ยอดฮาร์ดแวร์รัฐต้องไม่ถูกบวกซ้ำกับของนำเข้า"
+      },
+      { "id": "local_evidence_block", "type": "table", "tableId": "local_evidence_table" },
+      {
+        "id": "research_cluster",
+        "type": "markdown",
+        "body": "## รายงานเอกชนส่วนใหญ่พาตลาดไปที่ 7–9 พันล้านบาท\n\nIMARC ให้ 212.9 ล้านดอลลาร์ ขณะที่ Data Bridge ให้ 197.43 ล้านดอลลาร์ในปี 2024 และ CAGR 14.1% ซึ่งเทียบเป็นปี 2025 ได้ประมาณ 225 ล้านดอลลาร์ ส่วน Next Move ให้ 261.9 ล้านดอลลาร์ รายงานทั้งสามจึงก่อตัวเป็นกลุ่มประมาณ 7.1–8.7 พันล้านบาท\n\nตัวเลขเหล่านี้สูงกว่าขอบล่างศุลกากรเพราะนิยามครอบคลุมระบบทางทหาร ซอฟต์แวร์ payload เซนเซอร์ และบริการ แต่ไม่ควรรับทั้งหมดโดยไม่ปรับ เพราะวิธีประเมินฉบับเต็มอยู่หลัง paywall และบางรายให้ตัวเลขต่างกันหลายเท่า"
+      },
+      { "id": "benchmark_cluster_block", "type": "chart", "chartId": "benchmark_cluster_chart" },
+      {
+        "id": "benchmark_interpretation",
+        "type": "markdown",
+        "body": "**ค่ากลาง 6 พันล้านบาทอยู่ระหว่างหลักฐานตรงกับกลุ่มรายงานวิจัย** และทำให้ IMARC เป็นกรณีค่อนสูงแต่ยังเป็นไปได้ ไม่ใช่ตัวเลขที่ขัดกับโปรเจกต์ ส่วน Grand View ที่ 737.7 ล้านดอลลาร์หรือประมาณ 24.6 พันล้านบาทถูกกันออกจากกราฟ เพราะสูงกว่าทั้งข้อมูลไทยและรายงานอื่นมากจนต้องเห็น methodology ก่อนจึงจะใช้ได้"
+      },
+      { "id": "research_benchmarks_block", "type": "table", "tableId": "research_benchmarks_table" },
+      {
+        "id": "recommended_next_steps",
+        "type": "markdown",
+        "body": "## สิ่งที่ควรทำต่อเพื่อบีบช่วงให้แคบลง\n\n1. เก็บรายได้ปี 2025 ของผู้นำเข้า ตัวแทนจำหน่าย และผู้ให้บริการหลัก 10–15 รายจาก DBD แล้วตัดรายได้ที่ไม่เกี่ยวกับโดรนออก\n2. แยกพิกัดของ payload กล้อง LiDAR แบตเตอรี่ และ ground station ที่อยู่นอก HS 8806 เพื่อวัดส่วนอุปกรณ์ประกอบโดยตรง\n3. แยกตลาดเป็น consumer/agriculture, commercial survey/inspection และ defense เพราะราคาและวงจรซื้อแตกต่างกันมาก\n4. สำหรับการวางแผนของ ICS ให้ใช้ตลาด civil/commercial ที่ไม่รวมกลาโหมราว 3–5 พันล้านบาทเป็นฐานเบื้องต้น แทนตลาดรวม 6 พันล้านบาท"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## คำถามที่ยังเปลี่ยนคำตอบได้\n\n- รายได้บริการสำรวจ เหมือง พลังงาน และก่อสร้างของเอกชนในปี 2025 มีเท่าไร\n- รายงานแต่ละฉบับรับรู้รายได้ทางทหารในปีส่งมอบ ปีเซ็นสัญญา หรือเฉลี่ยตามอายุโครงการ\n- ซอฟต์แวร์และบริการ subscription ถูกนับรวมกับราคาฮาร์ดแวร์หรือแยกต่างหาก\n- ดีลภาครัฐที่เป็นความลับหรือซื้อโดยตรงนอก e-GP มีนัยสำคัญเพียงใด"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## ข้อจำกัดและสมมติฐาน\n\nประมาณการนี้มีระดับความมั่นใจ **ปานกลางและควรแชร์พร้อมข้อจำกัด** ตัวเลข 5.0–7.5 พันล้านบาทเป็นการประเมินรายได้/การใช้จ่ายในประเทศไทยปี 2025 ไม่ใช่ยอดขายที่หน่วยงานรัฐรับรอง สมมติฐานที่มีผลมากที่สุดคือสัดส่วน payload/ซอฟต์แวร์ต่อราคาตัวเครื่องและขนาดบริการเอกชน ตลาดกลาโหมมีดีลก้อนใหญ่ทำให้ตัวเลขรายปีผันผวน และรายงานวิจัยมีนิยามไม่เหมือนกัน จึงไม่ควรนำมาเฉลี่ยโดยตรง\n\nสำหรับ IMARC หน้าเผยแพร่สาธารณะระบุองค์ประกอบเป็น **hardware, software และ accessories** และแยกอุตสาหกรรมปลายทางหลายกลุ่ม แต่ไม่ได้ระบุบริการเป็นองค์ประกอบโดยตรง จึงไม่ควรเขียนยืนยันว่า USD 212.9 ล้านรวมรายได้บริการทั้งหมด แม้เนื้อหาจะกล่าวถึงผู้ให้บริการโดรนก็ตาม"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-03T12:00:00Z",
+    "status": "ready",
+    "datasets": {
+      "headline_metrics": [
+        {
+          "base_market_bn": 6.0,
+          "decision_range": "5.0–7.5 พันล้านบาท",
+          "platform_mid_bn": 2.5,
+          "platform_range": "2.2–2.8 พันล้านบาท",
+          "imarc_bn": 7.1,
+          "imarc_usd": "USD 212.9M"
+        }
+      ],
+      "scenario_components": [
+        { "scenario": "ต่ำ", "component": "ตัวเครื่อง", "value_bn": 2.196, "assumption": "CIF × 1.20" },
+        { "scenario": "ต่ำ", "component": "อุปกรณ์/ซอฟต์แวร์", "value_bn": 0.769, "assumption": "35% ของตัวเครื่อง" },
+        { "scenario": "ต่ำ", "component": "บริการ", "value_bn": 0.638, "assumption": "บริการเอกชน 1.5× ภาครัฐ" },
+        { "scenario": "ฐาน", "component": "ตัวเครื่อง", "value_bn": 2.471, "assumption": "CIF × 1.35" },
+        { "scenario": "ฐาน", "component": "อุปกรณ์/ซอฟต์แวร์", "value_bn": 1.606, "assumption": "65% ของตัวเครื่อง" },
+        { "scenario": "ฐาน", "component": "บริการ", "value_bn": 1.020, "assumption": "บริการเอกชน 3× ภาครัฐ" },
+        { "scenario": "สูง", "component": "ตัวเครื่อง", "value_bn": 2.745, "assumption": "CIF × 1.50" },
+        { "scenario": "สูง", "component": "อุปกรณ์/ซอฟต์แวร์", "value_bn": 2.745, "assumption": "100% ของตัวเครื่อง" },
+        { "scenario": "สูง", "component": "บริการ", "value_bn": 1.530, "assumption": "บริการเอกชน 5× ภาครัฐ" }
+      ],
+      "benchmark_cluster": [
+        { "source": "แบบจำลองฐาน", "value_bn": 5.097, "usd_m": 152.9, "scope": "ข้อมูลไทยแบบ bottom-up" },
+        { "source": "IMARC", "value_bn": 7.097, "usd_m": 212.9, "scope": "hardware, software, accessories" },
+        { "source": "Data Bridge", "value_bn": 7.509, "usd_m": 225.3, "scope": "2025 implied from 2024 value and CAGR" },
+        { "source": "Next Move", "value_bn": 8.730, "usd_m": 261.9, "scope": "hardware, software, services; includes military platforms" }
+      ],
+      "local_evidence": [
+        { "order": 1, "metric": "ทะเบียนใหม่ กสทช.", "value": "43,129 ลำ", "interpretation": "ปริมาณการใช้งานใหม่ปี 2025; เพิ่ม 14.9% จากปี 2024" },
+        { "order": 2, "metric": "ยอดนำเข้า HS 8806", "value": "6.804 พันล้านบาท", "interpretation": "เป็นยอดของเข้า ไม่ใช่ตลาด; 70% แยกตลาดไทยออกจากของผ่านไม่ได้" },
+        { "order": 3, "metric": "อุปสงค์ที่ผ่านเกณฑ์", "value": "1.677 พันล้านบาท", "interpretation": "ขอบล่างที่วัดได้โดยตรง" },
+        { "order": 4, "metric": "ขอบล่างปรับประมาณ", "value": "1.830 พันล้านบาท", "interpretation": "ฐานตัวเครื่องที่ใช้ในแบบจำลอง" },
+        { "order": 5, "metric": "e-GP หมวดโดรน", "value": "871 ล้านบาท", "interpretation": "ยอดสัญญาภาครัฐปีงบ 2025; ฮาร์ดแวร์อาจซ้ำกับของนำเข้า" },
+        { "order": 6, "metric": "บริการรัฐที่ระบุได้", "value": "255 ล้านบาท", "interpretation": "ขอบล่างของบริการโดรนและสำรวจทางอากาศ" }
+      ],
+      "research_benchmarks": [
+        { "source": "IMARC", "year": "2025", "usd_m": 212.9, "value_bn": 7.097, "assessment": "อยู่ในช่วงบนที่เป็นไปได้" },
+        { "source": "Data Bridge", "year": "2025 implied", "usd_m": 225.3, "value_bn": 7.509, "assessment": "ใช้เป็น cross-check; กลาโหมมีสัดส่วนสูง" },
+        { "source": "Next Move", "year": "2025", "usd_m": 261.9, "value_bn": 8.730, "assessment": "กรณีเชิงรุก; volume สอดคล้องทะเบียน" },
+        { "source": "Grand View", "year": "2025", "usd_m": 737.7, "value_bn": 24.590, "assessment": "outlier; ไม่ใช้กำหนดช่วง" }
+      ]
+    },
+    "accessIssues": []
+  },
+  "sources": [
+    {
+      "id": "model_analysis",
+      "query": {
+        "engine": "local-files",
+        "language": "formula",
+        "description": "Scenario model combining the customs adjusted platform floor with explicit assumptions for channel value, payloads/software, and services.",
+        "tables_used": [
+          "data/processed/customs_hs8806_balance.csv",
+          "data/processed/egp_drone_projects.csv",
+          "scripts/overview_out.txt",
+          "reports/2026-08-03_market-sizing-2025/model.csv"
+        ],
+        "filters": ["Thailand", "calendar year 2025 or FY2025 where stated", "exclude counter-drone", "exclude identifiable re-exports"]
+      }
+    },
+    {
+      "id": "imarc",
+      "query": {
+        "engine": "web",
+        "language": "document",
+        "url": "https://www.imarcgroup.com/thailand-drones-market",
+        "description": "IMARC Thailand drones market overview and segmentation.",
+        "executed_at": "2026-08-03T12:00:00Z"
+      }
+    },
+    {
+      "id": "benchmark_compilation",
+      "query": {
+        "engine": "web-and-local",
+        "language": "document",
+        "description": "Compiled published market estimates from IMARC, Data Bridge, Next Move Strategy Consulting, and Grand View Research, converted at THB 33.33 per USD.",
+        "tables_used": ["reports/2026-08-03_market-sizing-2025/source-notes.md"],
+        "executed_at": "2026-08-03T12:00:00Z"
+      }
+    }
+  ]
+}

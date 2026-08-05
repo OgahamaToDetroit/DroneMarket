@@ -1,0 +1,4 @@
+scenario,platform_cif_floor_bn,channel_factor,platform_end_market_bn,addons_software_ratio,addons_software_bn,public_services_floor_bn,private_services_multiple,total_services_bn,total_market_bn,total_market_usd_m
+Low,1.830,1.20,2.1960,0.35,0.7686,0.255057,1.5,0.637643,3.602243,108.1
+Base,1.830,1.35,2.4705,0.65,1.605825,0.255057,3.0,1.020228,5.096553,152.9
+High,1.830,1.50,2.7450,1.00,2.7450,0.255057,5.0,1.530342,7.020342,210.6
