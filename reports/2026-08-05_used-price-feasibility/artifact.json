@@ -1,0 +1,245 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "ใช้ราคามือสองเติมช่องว่างราคาได้แค่ไหน",
+    "description": "ประเมินความเหมาะสมของราคามือสองสำหรับรุ่นโดรนที่ยังไม่มีราคาใน pipeline กสทช.",
+    "generatedAt": "2026-08-05T12:00:00+07:00",
+    "charts": [
+      {
+        "id": "coverage_steps_chart",
+        "title": "Coverage หลังแต่ละลำดับงาน",
+        "subtitle": "สัดส่วนจากทะเบียน 205,287 ลำ; ขั้นมือสองเป็นศักยภาพของ pilot 3 รุ่น",
+        "type": "bar",
+        "dataset": "coverage_steps",
+        "sourceId": "coverage_analysis",
+        "valueFormat": "number",
+        "unit": "%",
+        "encodings": {
+          "x": { "field": "stage", "type": "nominal", "label": "ลำดับงาน" },
+          "y": { "field": "coverage_pct", "type": "quantitative", "label": "Coverage (%)" },
+          "tooltip": [
+            { "field": "priced_units", "type": "quantitative", "label": "ลำที่มีราคา", "format": "number" },
+            { "field": "remaining_units", "type": "quantitative", "label": "ลำที่ยังเหลือ", "format": "number" },
+            { "field": "basis", "type": "nominal", "label": "ฐาน" }
+          ]
+        },
+        "options": {
+          "palette": {
+            "kind": "single-root",
+            "root": "blue"
+          }
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "route_summary_table",
+        "title": "ลำดับวิธีเติมราคา",
+        "subtitle": "แบ่ง 38,310 ลำที่ยังไม่มีราคาเป็นก้อนงานที่ไม่ซ้ำกัน",
+        "dataset": "route_summary",
+        "sourceId": "source_notes",
+        "defaultSort": { "field": "priority", "direction": "asc" },
+        "columns": [
+          { "field": "priority", "label": "ลำดับ", "format": "number" },
+          { "field": "route", "label": "วิธี", "type": "text" },
+          { "field": "units", "label": "ลำ", "format": "number" },
+          { "field": "share_unpriced_pct", "label": "% ของส่วนที่ขาด", "format": "number", "unit": "%" },
+          { "field": "confidence", "label": "ความมั่นใจ", "type": "text" },
+          { "field": "decision", "label": "ข้อเสนอ", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "unpriced_models",
+        "label": "รุ่นที่ยังไม่มีราคา",
+        "path": "data/processed/nbtc_pricing/unpriced_models.csv"
+      },
+      {
+        "id": "model_prices",
+        "label": "ราคาอ้างอิงรายรุ่น",
+        "path": "data/reference/nbtc_model_prices.csv"
+      },
+      {
+        "id": "pipeline_output",
+        "label": "ผลรันประมาณมูลค่าล่าสุด",
+        "path": "scripts/nbtc_pricing/03_estimate_market_value_out.txt"
+      },
+      {
+        "id": "prior_report",
+        "label": "รายงานประเมินมูลค่าเดิม",
+        "path": "reports/2026-08-04_nbtc-unit-value/README.md"
+      },
+      {
+        "id": "coverage_analysis",
+        "label": "การคำนวณ coverage และ candidate routes",
+        "path": "reports/2026-08-05_used-price-feasibility/source-notes.md",
+        "query": {
+          "sql": "SELECT * FROM (VALUES ('ปัจจุบัน', 166977, 81.34, 38310), ('+แก้ชื่อ', 168106, 81.89, 37181), ('+ราคาป้าย', 175846, 85.66, 29441), ('+มือสองทดลอง', 177647, 86.54, 27640)) AS t(stage, priced_units, coverage_pct, remaining_units)",
+          "description": "คำนวณ coverage จากทะเบียนทั้งหมด 205,287 ลำ โดยเพิ่ม candidate ที่ไม่ซ้ำกันตามลำดับ",
+          "tables_used": [
+            "data/processed/nbtc_pricing/unpriced_models.csv",
+            "data/reference/nbtc_model_prices.csv",
+            "data/processed/nbtc_pricing/model_catalog.csv"
+          ],
+          "metric_definitions": [
+            "coverage_pct = priced_units / 205287 × 100",
+            "alias candidates = 1,129 ลำที่ชื่อ normalize แล้วตรงกับราคาเดิมภายในยี่ห้อเดียวกัน",
+            "current-retail candidates = AIR 3S, MAVIC 3 CLASSIC, AVATA, AVATA 360, MAVIC 4 PRO รวม 7,740 ลำ",
+            "used-price pilot = PHANTOM 3 PRO, PHANTOM 3 ADV, MAVIC PRO PLATINUM รวม 1,801 ลำ"
+          ]
+        }
+      },
+      {
+        "id": "source_notes",
+        "label": "บันทึกแหล่งข้อมูลและกติกาการทดลอง",
+        "path": "reports/2026-08-05_used-price-feasibility/source-notes.md",
+        "query": {
+          "sql": "SELECT * FROM (VALUES (1, 'แก้ alias/ชุดขายให้จับราคาเดิม', 1129, 2.95, 'สูงหลัง review', 'ทำก่อน ไม่ต้องหาราคาใหม่'), (2, 'ราคาป้ายไทยของรุ่นปัจจุบัน 5 รุ่น', 7740, 20.20, 'สูง–กลาง', 'ใช้ราคาป้าย ไม่ใช้มือสอง'), (3, 'pilot ราคามือสองรุ่นเก่า 3 รุ่น', 1801, 4.70, 'กลาง–ต่ำจนกว่าจะเก็บหลายรายการ', 'เก็บเป็นช่วงและ sensitivity'), (4, 'รุ่นเฉพาะงาน/เกษตร/หางยาวที่เหลือ', 27640, 72.15, 'แตกต่างตามแหล่ง', 'แยก queue ตามชนิดหลักฐาน')) AS t(priority, route, units, share_unpriced_pct, confidence, decision)",
+          "description": "แบ่ง 38,310 ลำที่ยังไม่มีราคาเป็นก้อนงานที่ไม่ซ้ำกันตามลำดับการตัดสินใจ",
+          "tables_used": [
+            "data/processed/nbtc_pricing/unpriced_models.csv",
+            "data/reference/nbtc_model_prices.csv",
+            "reports/2026-08-05_used-price-feasibility/source-notes.md"
+          ],
+          "metric_definitions": [
+            "share_unpriced_pct = units / 38310 × 100"
+          ]
+        }
+      },
+      {
+        "id": "air3s_retail",
+        "label": "JIB — DJI Air 3S",
+        "path": "https://www.jib.co.th/web/product/readProduct/71287/951/DRONE--%E0%B9%82%E0%B8%94%E0%B8%A3%E0%B8%99--DJI-AIR-3S--DJI-RC-N3-"
+      },
+      {
+        "id": "mavic4_retail",
+        "label": "DJI Store Thailand — Mavic 4 Pro",
+        "path": "https://djistore-thailand.com/products/dji-mavic-4-pro"
+      },
+      {
+        "id": "phantom3_used",
+        "label": "Priceza — Phantom 3 Professional มือสอง",
+        "path": "https://www.priceza.com/s/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2/dji-phantom-3-professional"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# ใช้ราคามือสองเติมช่องว่างราคาได้แค่ไหน"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n- **ใช้ได้ แต่ควรเป็นแหล่งสำรองสำหรับรุ่นเลิกขาย ไม่ใช่ฐานราคาเดียวกับราคาป้ายใหม่** เพราะราคามือสองสะท้อนสภาพ แบตเตอรี่ ชุดขาย และอายุของเครื่อง ขณะที่ headline ปัจจุบันนิยามเป็นราคาขายปลีกในไทย\n- **มีงานที่ให้ผลเร็วกว่าราคามือสองอย่างน้อย 8,869 ลำ**: แก้ชื่อ/ชุดขายให้จับคู่ราคาเดิมได้ 1,129 ลำ และเติมราคาป้ายไทยของรุ่นปัจจุบัน 5 รุ่นอีก 7,740 ลำ ทำให้ coverage ขยับจาก 81.34% เป็น 85.66%\n- **ราคามือสองเหมาะกับ pilot 3 รุ่นเก่ารวม 1,801 ลำ** ได้แก่ Phantom 3 Pro, Phantom 3 Advanced และ Mavic Pro Platinum แต่ต้องใช้หลายประกาศและ normalize bundle ก่อน ไม่ควรใช้ประกาศเดียวเป็นราคากลาง\n- **ก่อนเพิ่มราคาใหม่ควรแก้ความไม่สอดคล้องของรายงานเดิม**: headline 165,459/39,828 ลำค้างจากรอบก่อน ขณะที่ output และตารางล่าสุดเป็น 166,977/38,310 ลำ"
+      },
+      {
+        "id": "coverage_finding",
+        "type": "markdown",
+        "body": "## งานสองก้อนแรกดัน coverage ได้มากกว่าการไล่ตลาดมือสอง\n\n**ลำดับที่คุ้มที่สุดคือแก้ entity matching แล้วเติมราคาป้ายของรุ่นปัจจุบัน** ไม่ใช่เริ่มจากการ scrape ประกาศมือสองทั้งตลาด รุ่น AIR 3S, Mavic 3 Classic, Avata, Avata 360 และ Mavic 4 Pro มีหลักฐานราคาปลีกไทยหาได้อยู่แล้ว และรวมกันมากกว่าหนึ่งในห้าของช่องว่างปัจจุบัน\n\nกราฟอ่านเป็น coverage สะสม: ขั้นสุดท้ายเป็นเพียงเพดานเชิงศักยภาพหาก pilot มือสองผ่านเกณฑ์หลักฐาน ยังไม่ใช่ราคาที่อนุมัติให้รวมใน headline"
+      },
+      {
+        "id": "coverage_steps_block",
+        "type": "chart",
+        "chartId": "coverage_steps_chart"
+      },
+      {
+        "id": "coverage_interpretation",
+        "type": "markdown",
+        "body": "**ผลตอบแทนของการใช้ราคามือสองรอบแรกมีขนาดเล็กกว่างานทำความสะอาดชื่อและราคาป้าย** pilot 3 รุ่นเพิ่ม coverage ได้สูงสุดราว 0.88 จุดเปอร์เซ็นต์ จาก 85.66% เป็น 86.54% แต่มีความเสี่ยงเชิงวิธีมากกว่า จึงควรทำหลังสองขั้นแรกและเก็บเป็น sensitivity ก่อน"
+      },
+      {
+        "id": "route_finding",
+        "type": "markdown",
+        "body": "## รุ่นที่ไม่มีราคาต้องใช้คนละวิธี ไม่ควรถูกส่งเข้า queue เดียวกัน\n\n**คำว่าไม่มีราคาในไฟล์ปัจจุบันรวมทั้งชื่อสะกดไม่ตรง รุ่นปัจจุบัน รุ่นเลิกขาย ระบบอุตสาหกรรม โดรนเกษตร และรหัสที่ยังไม่ยืนยัน** การบังคับให้ทุกกลุ่มใช้ราคามือสองจะทำให้ฐานราคาเสียความหมาย โดยเฉพาะ eHang/Damoda/Cross Stars ซึ่งเป็นระบบเฉพาะงาน และโดรนเกษตรที่มูลค่าแบตเตอรี่/อุปกรณ์พร้อมบินสูงมาก"
+      },
+      {
+        "id": "route_summary_block",
+        "type": "table",
+        "tableId": "route_summary_table"
+      },
+      {
+        "id": "used_market_evidence",
+        "type": "markdown",
+        "body": "## ตลาดมือสองมีข้อมูลจริง แต่ผลค้นหาปนของที่เทียบกันไม่ได้\n\n**ตัวอย่างไทยยืนยันว่าหาราคาได้** เช่น Phantom 3 Professional ครบชุด 16,500 บาทพร้อมรายละเอียดจำนวนแบตเตอรี่ และ Kaidee มีประกาศชุด Avata 2 มือสอง แต่หน้าค้นหาเดียวกันมักปนอะไหล่ แบตเตอรี่ ตัวลำเปล่า และอุปกรณ์เสริม การเก็บด้วย keyword อย่างเดียวจึงสร้างค่าต่ำผิดได้ง่าย\n\n**ราคาต่างประเทศช่วยยืนยันสภาพคล่องของตลาดรอง แต่ไม่ควรแปลงเงินบาทตรง ๆ** ตัวอย่าง Phantom 3 Advanced มีประกาศจำนวนมากในตลาดยุโรป ทว่าสภาพสินค้า ภาษี กำลังซื้อ และชุดอุปกรณ์ต่างจากไทย"
+      },
+      {
+        "id": "protocol",
+        "type": "markdown",
+        "body": "## กติกาเล็ก ๆ ที่ทำให้ราคามือสองใช้ได้จริง\n\n1. กำหนดหน่วยมาตรฐานเป็น **ตัวเครื่อง + รีโมต + แบตเตอรี่ใช้งานได้ 1 ก้อน**\n2. เก็บอย่างน้อย **3 ประกาศต่อรุ่นจากอย่างน้อย 2 แหล่ง**; ถ้าได้ 5–10 รายการจะเหมาะกว่า\n3. ตัดอะไหล่ เครื่องเสีย ประกาศรับซื้อ ราคาเงินดาวน์ และประกาศซ้ำ\n4. เก็บสภาพ จำนวน/รอบแบตเตอรี่ ชุดขาย วันที่ประกาศ และสถานะประกาศทุกแถว\n5. ใช้ **median และ IQR** เป็นค่ากลาง/ช่วง และติดป้ายว่าเป็น asking price ไม่ใช่ราคาปิดการขาย\n6. เก็บผลในตาราง observation แยกจาก `nbtc_model_prices.csv`; หลังผ่าน QA ค่อยนำค่า median เข้า sensitivity ด้วย `basis_kind = มือสอง-มัธยฐาน`"
+      },
+      {
+        "id": "recommended_next_steps",
+        "type": "markdown",
+        "body": "## ลำดับทำงานที่แนะนำ\n\n1. แก้ alias/คำชุดขาย 47 รูปเขียนที่กระทบ 1,129 ลำ และ rerun pipeline\n2. เติมราคาป้ายไทยของ AIR 3S, Mavic 3 Classic, Avata, Avata 360 และ Mavic 4 Pro โดยบังคับนิยาม bundle เดียวกัน\n3. ทำ pilot ราคามือสองเฉพาะ Phantom 3 Pro, Phantom 3 Advanced และ Mavic Pro Platinum\n4. ถ้า dispersion หลัง normalize ยังไม่เกินประมาณ 25–30% และมีอย่างน้อย 3 ประกาศที่เทียบกันได้ต่อรุ่น ให้รายงานค่ามือสองเป็นช่วง/sensitivity; ถ้ากว้างกว่านั้นให้คงสถานะไม่มีราคา\n5. แยก queue โดรนเกษตรและระบบอุตสาหกรรมไปใช้ราคาป้ายผู้ผลิต ใบเสนอราคา e-GP หรือมูลค่านำเข้าต่อหน่วยแทน"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## คำถามที่ยังเปลี่ยนวิธีตีราคาได้\n\n- เป้าหมายสุดท้ายต้องการ **มูลค่าตอนซื้อใหม่**, **มูลค่าทดแทนปัจจุบัน** หรือ **มูลค่าขายต่อปัจจุบัน** กันแน่\n- จะยอมให้ฐานราคาหลักผสมราคาป้ายใหม่กับราคามือสองหรือเก็บเป็นสอง scenario แยกกัน\n- มีแหล่งที่เห็นสถานะขายสำเร็จหรือราคาปิดจริงหรือไม่; ถ้าไม่มีต้องยอมรับว่าใช้ asking price\n- สำหรับโดรนเกษตร จะ normalize มูลค่าแบตเตอรี่ เครื่องชาร์จ ถังหว่าน และบริการหลังการขายอย่างไร"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## ข้อจำกัดและสมมติฐาน\n\nข้อสรุปนี้อยู่ระดับ **พร้อมใช้วางแผน แต่ต้องแชร์พร้อมข้อจำกัด** เพราะยังไม่ได้เก็บประกาศมือสองเป็นชุดข้อมูลเต็ม การทดสอบเว็บเป็นตัวอย่างความพร้อมของแหล่ง ไม่ใช่ราคา median ที่อนุมัติแล้ว ราคาที่แสดงในตลาดมือสองเป็นราคาขอขายและอาจไม่ใช่ราคาที่ปิดจริง ชุดขายและสภาพแบตเตอรี่ทำให้ราคาแกว่งมาก และรายการออนไลน์อาจหายหรือเปลี่ยนได้\n\nตารางราคาเดิมกำหนด `asof` ทุกแถวเป็น 2026-08-04 แม้หลักฐานบางรายการเป็นราคาจากคนละช่วงเวลา จึงควรแยก `captured_at` ออกจาก `price_effective_date` ก่อนเพิ่มข้อมูลมือสอง เพื่อไม่ให้วันที่เก็บข้อมูลถูกตีความเป็นวันที่ราคามีผล"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-05T12:00:00+07:00",
+    "status": "ready",
+    "datasets": {
+      "coverage_steps": [
+        { "stage": "ปัจจุบัน", "priced_units": 166977, "coverage_pct": 81.34, "remaining_units": 38310, "basis": "output ล่าสุด" },
+        { "stage": "+แก้ชื่อ", "priced_units": 168106, "coverage_pct": 81.89, "remaining_units": 37181, "basis": "alias candidate 1,129 ลำ" },
+        { "stage": "+ราคาป้าย", "priced_units": 175846, "coverage_pct": 85.66, "remaining_units": 29441, "basis": "รุ่นปัจจุบัน 5 รุ่น รวม 7,740 ลำ" },
+        { "stage": "+มือสองทดลอง", "priced_units": 177647, "coverage_pct": 86.54, "remaining_units": 27640, "basis": "pilot รุ่นเก่า 3 รุ่น รวม 1,801 ลำ" }
+      ],
+      "route_summary": [
+        { "priority": 1, "route": "แก้ alias/ชุดขายให้จับราคาเดิม", "units": 1129, "share_unpriced_pct": 2.95, "confidence": "สูงหลัง review", "decision": "ทำก่อน ไม่ต้องหาราคาใหม่" },
+        { "priority": 2, "route": "ราคาป้ายไทยของรุ่นปัจจุบัน 5 รุ่น", "units": 7740, "share_unpriced_pct": 20.20, "confidence": "สูง–กลาง", "decision": "ใช้ราคาป้าย ไม่ใช้มือสอง" },
+        { "priority": 3, "route": "pilot ราคามือสองรุ่นเก่า 3 รุ่น", "units": 1801, "share_unpriced_pct": 4.70, "confidence": "กลาง–ต่ำจนกว่าจะเก็บหลายรายการ", "decision": "เก็บเป็นช่วงและ sensitivity" },
+        { "priority": 4, "route": "รุ่นเฉพาะงาน/เกษตร/หางยาวที่เหลือ", "units": 27640, "share_unpriced_pct": 72.15, "confidence": "แตกต่างตามแหล่ง", "decision": "แยก queue ตามชนิดหลักฐาน" }
+      ]
+    },
+    "accessIssues": []
+  },
+  "sources": [
+    {
+      "id": "coverage_analysis",
+      "query": {
+        "engine": "local-files",
+        "language": "sql",
+        "description": "Coverage and non-overlapping pricing routes derived from the current unpriced model output, price reference, and model catalog.",
+        "tables_used": [
+          "data/processed/nbtc_pricing/unpriced_models.csv",
+          "data/reference/nbtc_model_prices.csv",
+          "data/processed/nbtc_pricing/model_catalog.csv"
+        ],
+        "filters": [
+          "Thailand NBTC registrations through 2026-06-30",
+          "alias candidates restricted to same-brand normalized model matches",
+          "used-price pilot restricted to Phantom 3 Pro, Phantom 3 Advanced, and Mavic Pro Platinum"
+        ],
+        "executed_at": "2026-08-05T12:00:00+07:00"
+      }
+    },
+    {
+      "id": "source_notes",
+      "query": {
+        "engine": "local-and-web",
+        "language": "sql",
+        "sql": "SELECT * FROM (VALUES (1, 'แก้ alias/ชุดขายให้จับราคาเดิม', 1129, 2.95), (2, 'ราคาป้ายไทยของรุ่นปัจจุบัน 5 รุ่น', 7740, 20.20), (3, 'pilot ราคามือสองรุ่นเก่า 3 รุ่น', 1801, 4.70), (4, 'รุ่นเฉพาะงาน/เกษตร/หางยาวที่เหลือ', 27640, 72.15)) AS t(priority, route, units, share_unpriced_pct)",
+        "description": "Project-wide source scan, web evidence sample, calculations, inclusion rules, and report QA notes.",
+        "tables_used": [
+          "reports/2026-08-05_used-price-feasibility/source-notes.md"
+        ],
+        "executed_at": "2026-08-05T12:00:00+07:00"
+      }
+    }
+  ]
+}
