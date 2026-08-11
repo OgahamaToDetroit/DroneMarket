@@ -1,0 +1,450 @@
+{
+  "generatedAt": "2026-08-10T04:12:07.750Z",
+  "sourceSnapshot": {
+    "registrationRows": 205287,
+    "processedYears": [
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026
+    ],
+    "fullYearsUsedInTrend": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ]
+  },
+  "headline": {
+    "year2025": {
+      "registrations": 43129,
+      "pricedUnits": 32804,
+      "unpricedUnits": 10325,
+      "coverage": 0.7606019151846786,
+      "measuredValue": 1972726269,
+      "coverageAdjustedValue": 2593638314.098921,
+      "coverageAdjustmentGap": 620912045.0989208,
+      "rawGrowthVs2024": 0.04996005444052609,
+      "adjustedGrowthVs2024": 0.18237223253817558
+    },
+    "cumulative": {
+      "pricedUnits": 168728,
+      "unpricedUnits": 36559,
+      "measuredValue": 8732018078,
+      "agricultureUnits": 23318,
+      "agricultureValue": 5423565600,
+      "agricultureUnitShare": 0.13819875776397517,
+      "agricultureValueShare": 0.6211125024654353,
+      "softBasisUnits": 44577,
+      "softBasisUnitShare": 0.2641944431274003,
+      "softBasisValue": 1365695533,
+      "softBasisValueShare": 0.15640090535781412,
+      "classificationBoundaryPricedModels": [],
+      "unpricedModels": 1979,
+      "lowVolumeUnpricedModels": 1724,
+      "lowVolumeModelShare": 0.8711470439615968,
+      "lowVolumeUnpricedUnits": 2984,
+      "lowVolumeCoveragePointImpact": 0.014535747514455372
+    },
+    "customsCrossCheck": {
+      "importBasisLow": 1474935528.224299,
+      "importBasisHigh": 1676063100.2548852,
+      "customsFloor": 1676766511,
+      "customsTotal": 6804347867,
+      "lowVsFloorGap": -0.1203691637754215,
+      "highVsFloorGap": -0.0004195042902516155
+    },
+    "capAdjustments": [
+      {
+        "brand": "DJI",
+        "model": "MINI 3 PRO",
+        "from": 30990,
+        "to": 21850
+      },
+      {
+        "brand": "DJI",
+        "model": "MINI 2 SE",
+        "from": 12300,
+        "to": 9990
+      },
+      {
+        "brand": "DJI",
+        "model": "MAVIC AIR",
+        "from": 30000,
+        "to": 25900
+      },
+      {
+        "brand": "DJI",
+        "model": "AIR 2S",
+        "from": 36300,
+        "to": 34990
+      }
+    ],
+    "priceTable": {
+      "rows": 52,
+      "earliestAsOf": "2026-08-04",
+      "latestAsOf": "2026-08-05",
+      "confidenceCounts": {
+        "กลาง": 30,
+        "ต่ำ": 10,
+        "สูง": 12
+      },
+      "confidenceTotals": {
+        "กลาง": {
+          "units": 101213,
+          "value": 4728008215
+        },
+        "ต่ำ": {
+          "units": 13322,
+          "value": 1058657293
+        },
+        "สูง": {
+          "units": 54193,
+          "value": 2945352570
+        }
+      },
+      "lowConfidenceModels": [
+        {
+          "brand": "DJI",
+          "model": "AGRAS T100",
+          "units": 819,
+          "value": 278050500
+        },
+        {
+          "brand": "DJI",
+          "model": "MAVIC 2 PRO",
+          "units": 2889,
+          "value": 163228500
+        },
+        {
+          "brand": "DJI",
+          "model": "AIR 3",
+          "units": 4350,
+          "value": 152206500
+        },
+        {
+          "brand": "NAC DRONE",
+          "model": "EASY3",
+          "units": 764,
+          "value": 143555600
+        },
+        {
+          "brand": "DJI",
+          "model": "PHANTOM 4 PRO",
+          "units": 1337,
+          "value": 103215063
+        },
+        {
+          "brand": "DJI",
+          "model": "AGRAS T16",
+          "units": 521,
+          "value": 79713000
+        },
+        {
+          "brand": "DJI",
+          "model": "MAVIC 2 ZOOM",
+          "units": 910,
+          "value": 50960000
+        },
+        {
+          "brand": "DJI",
+          "model": "PHANTOM 4",
+          "units": 726,
+          "value": 44794200
+        },
+        {
+          "brand": "KASET GEN-Y",
+          "model": "GCS-9+",
+          "units": 387,
+          "value": 29025000
+        },
+        {
+          "brand": "DJI",
+          "model": "PHANTOM 3 STANDARD",
+          "units": 619,
+          "value": 13908930
+        }
+      ],
+      "basisTotals": {
+        "ป้ายร้าน-ชุดคอมโบ": {
+          "units": 847,
+          "value": 27019300
+        },
+        "ป้ายร้าน-ชุดพร้อมบิน": {
+          "units": 18072,
+          "value": 4467877100
+        },
+        "ป้ายร้าน-ตัวเครื่อง": {
+          "units": 1445,
+          "value": 324600000
+        },
+        "ป้ายร้าน-ตัวเปล่า": {
+          "units": 103787,
+          "value": 2546826145
+        },
+        "สัญญาภาครัฐ": {
+          "units": 6481,
+          "value": 376106693
+        },
+        "อนุมาน": {
+          "units": 38096,
+          "value": 989588840
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "code-map-keys-unique",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "duplicateRowsBeyondFirst": 0
+      }
+    },
+    {
+      "id": "price-keys-unique",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "duplicateRowsBeyondFirst": 0
+      }
+    },
+    {
+      "id": "tier-keys-unique",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "duplicateRowsBeyondFirst": 0
+      }
+    },
+    {
+      "id": "registration-total-is-stable",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "longTotal": 205287,
+        "catalogTotal": 205287
+      }
+    },
+    {
+      "id": "registration-units-valid",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "invalidRows": 0
+      }
+    },
+    {
+      "id": "registration-years-valid",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "invalidRows": 0
+      }
+    },
+    {
+      "id": "price-ranges-valid",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "invalidRows": 0
+      }
+    },
+    {
+      "id": "price-provenance-complete",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "missingRows": 0
+      }
+    },
+    {
+      "id": "year-output-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "discrepancies": []
+      }
+    },
+    {
+      "id": "model-output-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "discrepancies": [],
+        "recomputedRows": 52,
+        "reportedRows": 52
+      }
+    },
+    {
+      "id": "unpriced-output-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "discrepancies": [],
+        "recomputedRows": 1979,
+        "reportedRows": 1979,
+        "pricedUnits": 168728,
+        "unpricedUnits": 36559
+      }
+    },
+    {
+      "id": "unpriced-long-tail-claim-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "unpricedModels": 1979,
+        "lowVolumeModels": 1724,
+        "lowVolumeModelShare": 0.8711470439615968,
+        "lowVolumeUnpricedUnits": 2984,
+        "lowVolumeCoveragePointImpact": 0.014535747514455372
+      }
+    },
+    {
+      "id": "unpriced-brackets-cover-all-unpriced-units",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "bracketUnits": 36559,
+        "recomputedUnpricedUnits": 36559
+      }
+    },
+    {
+      "id": "import-basis-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "expectedImportLow": 1474935528.224299,
+        "expectedImportHigh": 1676063100.2548852,
+        "customsTotal2025": 6804347867,
+        "customsFloor2025": 1676766511
+      }
+    },
+    {
+      "id": "agriculture-composition-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "agricultureUnits": 23318,
+        "agricultureValue": 5423565600
+      }
+    },
+    {
+      "id": "top-ten-agras-claim",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "topTenAgras": 8,
+        "topTen": [
+          "DJI AGRAS T20P",
+          "DJI AGRAS T40",
+          "DJI AGRAS T50",
+          "DJI AGRAS T25",
+          "DJI AGRAS T30",
+          "DJI MINI 4 PRO",
+          "DJI AGRAS T70P",
+          "DJI MINI 3 PRO",
+          "DJI AGRAS T100",
+          "DJI AGRAS T20"
+        ]
+      }
+    },
+    {
+      "id": "artifact-summary-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "discrepancies": []
+      }
+    },
+    {
+      "id": "artifact-trend-series-complete",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "rows": 16,
+        "seriesCounts": {
+          "มูลค่าที่วัดได้": 8,
+          "ค่าปรับ coverage": 8
+        }
+      }
+    },
+    {
+      "id": "artifact-composition-sums-to-one",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "rows": 4
+      }
+    },
+    {
+      "id": "artifact-unpriced-summary-reconciles",
+      "ok": true,
+      "severity": "high",
+      "evidence": {
+        "artifactUnpricedSummary": {
+          "unpriced_models": 1979,
+          "low_volume_models": 1724,
+          "low_volume_model_share": 0.8711470439615968,
+          "low_volume_units": 2984,
+          "registration_units": 205287,
+          "coverage_point_impact": 0.014535747514455372
+        }
+      }
+    },
+    {
+      "id": "html-has-two-static-charts",
+      "ok": true,
+      "severity": "medium",
+      "evidence": {
+        "count": 2
+      }
+    },
+    {
+      "id": "html-has-no-mojibake",
+      "ok": true,
+      "severity": "medium",
+      "evidence": {}
+    },
+    {
+      "id": "reader-facing-copy-has-no-process-labels",
+      "ok": true,
+      "severity": "medium",
+      "evidence": {}
+    },
+    {
+      "id": "reader-facing-price-basis-is-explicit",
+      "ok": true,
+      "severity": "medium",
+      "evidence": {
+        "priceBasisKinds": [
+          "ป้ายร้าน-ชุดคอมโบ",
+          "ป้ายร้าน-ชุดพร้อมบิน",
+          "ป้ายร้าน-ตัวเครื่อง",
+          "ป้ายร้าน-ตัวเปล่า",
+          "สัญญาภาครัฐ",
+          "อนุมาน"
+        ]
+      }
+    },
+    {
+      "id": "print-hides-technical-source-inventory",
+      "ok": true,
+      "severity": "medium",
+      "evidence": {}
+    }
+  ],
+  "result": "passed",
+  "failedChecks": []
+}

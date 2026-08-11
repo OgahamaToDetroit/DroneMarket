@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-08-09T23:33:38.767Z",
+  "workbook": "data/raw/drone_data.xlsx",
+  "worksheetDimension": "A1:I205288",
+  "headers": [
+    "ApprovedDate",
+    "ProvinceName",
+    "PurposeOfUseAircraft",
+    "Brand",
+    "Model",
+    "FrequencyTransmission"
+  ],
+  "dataRows": 205287,
+  "missingByField": {
+    "ApprovedDate": 0,
+    "ProvinceName": 216,
+    "PurposeOfUseAircraft": 6087,
+    "Brand": 0,
+    "Model": 6,
+    "FrequencyTransmission": 4691
+  },
+  "invalidDateRows": 0,
+  "yearCounts": {
+    "2017": 6389,
+    "2018": 5792,
+    "2019": 7131,
+    "2020": 17091,
+    "2021": 19366,
+    "2022": 22476,
+    "2023": 25537,
+    "2024": 37546,
+    "2025": 43129,
+    "2026": 20830
+  },
+  "identicalRowSignatureGroups": 19469,
+  "identicalRowsBeyondFirst": 50557,
+  "duplicateInterpretation": "Rows match on the six available fields only. With no serial or registration id, they cannot be confirmed as duplicate aircraft."
+}
