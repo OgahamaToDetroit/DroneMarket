@@ -154,7 +154,7 @@ python scripts/egp_drone_procurement.py --years 2568 --max-mb 60   # ทดส�
 |---|---|---|
 | `nbtc_pricing/01_build_model_catalog.py` | แกะ `Brand`/`Model` ให้รุ่นเดียวกันเป็นก้อนเดียวกัน — ถอดรหัสโรงงานด้วยแถวที่เขียนทั้งรหัสและชื่อรุ่นไว้ในช่องเดียวกัน | `data/processed/nbtc_pricing/model_catalog.csv` · `code_dictionary.csv` |
 | `nbtc_pricing/02_egp_price_evidence.py` | ขุดราคาต่อลำที่ **จ่ายจริง** ออกจากสัญญา e-GP มาเป็นตัวตรวจราคา | `data/processed/nbtc_pricing/egp_price_evidence.csv` |
-| `nbtc_pricing/03_estimate_market_value.py` | จำนวนลำ × ราคาต่อลำ → มูลค่าตลาดรายปี 2 ฐาน + ตัวตรวจ 2 ตัว | `data/processed/nbtc_pricing/market_value_by_year.csv` · `market_value_by_model.csv` |
+| `nbtc_pricing/03_estimate_market_value.py` | จำนวนลำ × ราคาต่อลำ → มูลค่าตลาดรายปี 2 ฐาน + ตัวตรวจ 2 ตัว · เชื่อมราคาเข้ากับแคตตาล็อกให้เสร็จ เพื่อให้ไฟล์รายรุ่นอ่านจบได้โดยไม่ต้องเปิดตารางราคาควบ | `data/processed/nbtc_pricing/market_value_by_year.csv` · `market_value_by_model.csv` (มีคอลัมน์ราคาที่ใช้/ราคาที่เก็บมา/แหล่ง) · `unpriced_models.csv` (มีคอลัมน์ `reason`) |
 
 ```bash
 python scripts/nbtc_pricing/01_build_model_catalog.py     # ต้องมี data/raw/drone_data.xlsx

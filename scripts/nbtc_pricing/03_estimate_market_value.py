@@ -100,6 +100,9 @@ n_rebrand = int(long[[(b, m) in REBRAND for b, m in zip(long["brand"], long["mod
 rebrand_from = sorted({b for b, _ in REBRAND})
 
 for d in (long, cat):
+    # ต้องจำไว้ตรงนี้ว่าแถวไหนถูก code map ถอดให้ เพราะบรรทัดล่างจะเขียนทับช่อง brand
+    # หลังจากนั้นจะเช็ค (brand, model) กับ amap ไม่ได้อีก — คู่กุญแจเปลี่ยนไปแล้ว
+    d["_moved"] = [(b, m) in amap for b, m in zip(d["brand"], d["model"])]
     pairs = [amap.get((b, m), (b, m)) for b, m in zip(d["brand"], d["model"])]
     d["brand"] = [x[0] for x in pairs]
     d["model_final"] = [x[1] for x in pairs]
@@ -130,6 +133,10 @@ prices = prices.rename(columns={"model": "model_final"}).merge(
 # ⚠️ ต้องอ่านราคาจาก "ภาพก่อนแก้" ไม่ใช่จากตารางที่กำลังถูกแก้อยู่
 # ไม่งั้นการแก้แถวหนึ่งจะไหลไปกดอีกแถว และผลลัพธ์จะขึ้นกับลำดับแถวใน CSV
 base_price = prices["price_thb"].copy()
+# เก็บ "ราคาที่เก็บมาก่อนถูกกด" ไว้ทุกแถว เพื่อให้ไฟล์ผลลัพธ์บอกได้ว่าแถวไหนถูกแก้
+# ถ้าไม่เก็บ คนที่เปิด nbtc_model_prices.csv จะเห็นเลขที่รายงาน**ไม่ได้ใช้** (เช่น MINI 3 PRO)
+prices["price_thb_collected"] = base_price
+prices["capped_from"] = ""
 caps = []
 for i, row in prices.iterrows():
     if pd.isna(row.get("tier")):
@@ -141,15 +148,17 @@ for i, row in prices.iterrows():
     # เพราะถ้าใช้สูงสุด รุ่นเก่าจะยังแพงกว่ารุ่นถัดไปได้อยู่ = ยังผกผันอยู่ แค่น้อยลง
     ceiling = base_price[newer_idx].min()
     if base_price[i] > ceiling:
+        src_model = prices.loc[base_price[newer_idx].idxmin(), "model_final"]
         caps.append(
             {
                 "model": row["model_final"], "เดิม": base_price[i], "เพดาน": ceiling,
-                "เพดานมาจาก": prices.loc[base_price[newer_idx].idxmin(), "model_final"],
+                "เพดานมาจาก": src_model,
             }
         )
         prices.at[i, "price_thb"] = ceiling
         prices.at[i, "price_lo_thb"] = min(row["price_lo_thb"], ceiling)
         prices.at[i, "basis_kind"] = "อนุมาน"
+        prices.at[i, "capped_from"] = src_model
 
 p("----- กติกากันราคาผกผัน -----")
 p("  กติกา: ราคาของรุ่นหนึ่ง ต้องไม่เกินราคาของรุ่น**ใดก็ตาม**ที่ใหม่กว่าในสายผลิตภัณฑ์เดียวกัน")
@@ -592,26 +601,88 @@ p("  📌 ความหมายต่อการประเมินตล�
 p()
 
 # --------------------------------------------------------------- 10) เซฟผลลัพธ์
+# 🚨 กติกาของไฟล์ผลลัพธ์สองไฟล์ล่างนี้: **ต้องอ่านรู้เรื่องโดยไม่ต้องเปิดไฟล์อื่นควบ**
+# ที่มา: เดิมไฟล์ทั้งสองมีแค่ยี่ห้อ/รุ่น/จำนวนลำ/มูลค่า คนที่จะตรวจว่า "ราคานี้มาจากไหน"
+# ต้องเปิด nbtc_model_prices.csv + nbtc_model_tiers.csv + nbtc_code_map.csv มาไล่เทียบเอง
+# ซึ่งไม่มีใครทำจริง → เป็นช่องให้ตัวเลขที่ไม่มีที่มาหลุดเข้ารายงานได้ (เคสเดียวกับ 0.04%)
 OUTDIR.mkdir(parents=True, exist_ok=True)
 save(by_year, OUTDIR / "market_value_by_year.csv")
 save(up, OUTDIR / "unpriced_brackets.csv")
 save(zone, OUTDIR / "import_basis_check.csv")
-save(
+
+# --- ก) รุ่นที่ตั้งราคาได้: แนบราคาที่ใช้ + ราคาที่เก็บมา + แหล่ง มาไว้ในแถวเดียวกัน
+# price_thb          = ราคาที่สคริปต์**ใช้คูณจริง**
+# price_thb_collected= ราคาที่เก็บมาจากแหล่ง ก่อนกติกากันราคาผกผันทำงาน
+# capped_from        = ถ้าไม่ว่าง แปลว่าราคาถูกกดลงมาเพราะรุ่นนี้แพงกว่ารุ่นที่ใหม่กว่าชื่อนี้
+PROV = [
+    "price_thb", "price_thb_collected", "capped_from", "basis_kind",
+    "source", "source_url", "asof", "confidence",
+    "price_lo_thb", "price_hi_thb", "spread_reason", "note",
+]
+by_model = (
     df[df.has_price]
     .groupby(["brand", "model_final", "class"])[["units", "val", "val_lo", "val_hi"]]
     .sum()
     .sort_values("val", ascending=False)
-    .reset_index(),
-    OUTDIR / "market_value_by_model.csv",
+    .reset_index()
+    .merge(prices[["brand", "model_final", *PROV]], on=["brand", "model_final"], how="left")
 )
-save(
+assert by_model["price_thb"].notna().all(), "มีรุ่นที่ตั้งราคาได้แต่ต่อคอลัมน์ที่มาไม่ติด"
+# ไฟล์นี้วางจำนวนลำกับราคาไว้ข้างกัน คนอ่านจะเอามาคูณเองแน่ ๆ — ต้องคูณแล้วตรงกับ val
+# ถ้าวันหนึ่งมีการปรับราคารายปี/รายแถว ตัวตรวจนี้จะดังทันที ไม่ปล่อยให้ไฟล์ขัดกันเองเงียบ ๆ
+assert np.allclose(by_model["val"], by_model["units"] * by_model["price_thb"]), \
+    "units × price_thb ไม่เท่ากับ val — ไฟล์ตรวจย้อนหลังจะขัดกันเอง"
+by_model = by_model[["brand", "model_final", "class", "units", "val", "val_lo", "val_hi", *PROV]]
+save(by_model, OUTDIR / "market_value_by_model.csv")
+
+# --- ข) รุ่นที่ยังตีราคาไม่ได้: ต้องบอกด้วยว่า "ไม่ได้เพราะอะไร"
+# สองสาเหตุนี้แก้คนละทาง ถ้าไม่แยก 1,979 แถวก็เป็นแค่กำแพง ไม่ใช่รายการที่ทำงานต่อได้
+#   ก. รู้ว่าเป็นรุ่นอะไรอยู่แล้ว แต่ยังไม่มีหลักฐานราคา  → ไปหาราคา
+#   ข. ยังไม่รู้ว่าเป็นรุ่นอะไร (ช่องรุ่นเป็นรหัส/ว่าง)   → ต้องถอดรหัสก่อน หาราคาไม่ได้
+#
+# ⚠️ resolved_via เป็นคำตัดสินของสคริปต์ 01 ซึ่ง **ตาราง code map ทำมือมาถอดทับทีหลังได้**
+# มี 7 รหัสที่สคริปต์ 01 ถอดไม่ได้แต่ code map ถอดให้ (เช่น QF2W4K → AVATA)
+# ถ้าอ่าน resolved_via ตรง ๆ แถวพวกนี้จะติดป้ายว่า "ไม่รู้ว่าเป็นรุ่นอะไร" ทั้งที่รู้แล้ว
+# กติกา: รุ่นหนึ่ง "รู้แล้ว" ถ้ามีรูปเขียนใดรูปหนึ่งที่ถอดออกมาเป็นชื่อจริงได้ (จากสคริปต์หรือ code map)
+UNKNOWN_VIA = {"รหัสที่ถอดไม่ได้", "ว่าง"}
+cat["_named"] = ~cat["resolved_via"].isin(UNKNOWN_VIA) | cat["_moved"]
+via = (
+    cat.sort_values(["_named", "units"], ascending=[False, False])
+    .drop_duplicates(subset=["brand", "model_final"])  # เอาทั้งแถว ไม่ใช่ทีละคอลัมน์
+    [["brand", "model_final", "resolved_via", "sample_raw"]]
+)
+known = cat.groupby(["brand", "model_final"], as_index=False)["_named"].any()
+unp = (
     df[~df.has_price]
     .groupby(["brand", "model_final", "class", "group"])["units"]
     .sum()
     .sort_values(ascending=False)
-    .reset_index(),
-    OUTDIR / "unpriced_models.csv",
+    .reset_index()
+    .merge(via, on=["brand", "model_final"], how="left")
+    .merge(known, on=["brand", "model_final"], how="left")
 )
+unp["reason"] = np.where(
+    unp["_named"].fillna(True),
+    "รู้รุ่นแล้ว แต่ยังไม่มีหลักฐานราคา",
+    np.where(
+        unp["resolved_via"] == "ว่าง",
+        "ยังไม่รู้ว่าเป็นรุ่นอะไร — ช่องรุ่นว่าง",
+        "ยังไม่รู้ว่าเป็นรุ่นอะไร — ช่องรุ่นเป็นรหัสที่ยังถอดไม่ได้",
+    ),
+)
+unp = unp[["brand", "model_final", "class", "group", "units", "reason",
+           "resolved_via", "sample_raw"]]
+save(unp, OUTDIR / "unpriced_models.csv")
+
+p("----- ไฟล์รายรุ่น: อ่านจบได้ในไฟล์เดียว -----")
+n_capped = int((by_model["capped_from"].fillna("") != "").sum())
+u_capped = int(by_model.loc[by_model["capped_from"].fillna("") != "", "units"].sum())
+p(f"  market_value_by_model.csv — {len(by_model)} รุ่น มีคอลัมน์ราคาที่ใช้ ราคาที่เก็บมา แหล่ง URL วันที่")
+p(f"    ในนั้น {n_capped} รุ่น ({u_capped:,} ลำ) ราคาถูกกติกากันราคาผกผันกดลง — ดูคอลัมน์ capped_from")
+p(f"  unpriced_models.csv — {len(unp)} รุ่น แยกสาเหตุแล้ว:")
+for r, g in unp.groupby("reason")["units"].agg(["size", "sum"]).sort_values("sum", ascending=False).iterrows():
+    p(f"    {int(g['size']):>5,} รุ่น {int(g['sum']):>7,} ลำ  {r}")
+p()
 
 p("=" * 80)
 p("ข้อจำกัดที่ต้องเขียนกำกับทุกครั้งที่อ้างตัวเลขชุดนี้")
