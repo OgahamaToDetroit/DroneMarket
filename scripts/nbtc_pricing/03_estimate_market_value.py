@@ -172,6 +172,40 @@ else:
     p("  ไม่มีรุ่นไหนเข้าเงื่อนไข")
 p()
 
+# ------------------- 2.6) ตัวตรวจโดรนเกษตร: ถังใหญ่ขึ้น ราคาต้องไม่ลด (รายงานอย่างเดียว)
+# กติกากันราคาผกผันด้านบนใช้กับโดรนถ่ายภาพ ซึ่งเรียงด้วย "เจเนอเรชัน" — ใช้กับโดรนเกษตรไม่ได้
+# เพราะราคาโดรนพ่นยาผูกกับ **ขนาดถัง** ไม่ใช่ปีที่ออก
+#
+# 🚨 ไม่แก้อัตโนมัติ เพราะราคาต่างร้านจริง ๆ ก็มี การไปกดเองจะกลบข้อมูลจริง
+# หน้าที่ของตัวตรวจนี้คือ "ส่งเสียง" ว่ามีแถวที่ฐานราคาอาจปนกันอยู่ ก่อนที่มันจะถูกรวมเข้าไปในยอด
+_p = prices.copy()
+_p["L"] = _p["note"].astype(str).str.extract(r"ถัง\s*([\d.]+)\s*ลิตร").astype(float)
+agri_rows = _p[_p["L"].notna() & _p["basis_kind"].str.startswith("ป้ายร้าน", na=False)]
+
+p("----- ตัวตรวจ: โดรนเกษตรถังใหญ่ขึ้น ราคาต้องไม่ลด (ในฐานราคาเดียวกัน) -----")
+size_flags = []
+for basis, g in agri_rows.groupby("basis_kind"):
+    g = g.sort_values("L")
+    for i in range(len(g)):
+        for j in range(i + 1, len(g)):
+            a, b = g.iloc[i], g.iloc[j]
+            if b["L"] > a["L"] and b["price_thb"] < a["price_thb"]:
+                size_flags.append(
+                    {"basis": basis, "small": a["model_final"], "sL": a["L"], "sp": a["price_thb"],
+                     "big": b["model_final"], "bL": b["L"], "bp": b["price_thb"]}
+                )
+p(f"  ฐานราคาที่ตรวจ: {', '.join(sorted(agri_rows['basis_kind'].unique()))}")
+p(f"  รุ่นที่มีความจุถังกำกับไว้: {len(agri_rows)} รุ่น")
+if size_flags:
+    p(f"  🚨 พบ {len(size_flags)} คู่ที่ถังใหญ่กว่าแต่ราคาถูกกว่า:")
+    for f in size_flags:
+        p(f"     [{f['basis']}] {f['big']} ถัง {f['bL']:.0f} ล. = {f['bp']:,.0f} ฿  "
+          f"ถูกกว่า  {f['small']} ถัง {f['sL']:.0f} ล. = {f['sp']:,.0f} ฿")
+    p("  → อาจเป็นฐานราคาที่ยังปนกันอยู่ หรือราคาต่างร้านจริง ๆ — ต้องเปิดหน้าต้นทางดูก่อนสรุป")
+else:
+    p("  ✅ ไม่พบคู่ที่ผิดทิศ")
+p()
+
 # ------------------------------------------------------------- 3) ต่อราคาเข้าไป
 df = long.merge(prices, on=["brand", "model_final"], how="left").merge(
     cls[["brand", "model_final", "class", "agri_share"]], on=["brand", "model_final"], how="left"
