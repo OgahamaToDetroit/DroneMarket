@@ -12,7 +12,13 @@ data/raw/*.json
 !data/raw/dbd_*.json
 
 # ===== ตั้งค่าเฉพาะเครื่อง =====
+# .claude/settings.json เก็บใน git (allowlist ที่ใช้ร่วมกันได้) ส่วน local.json เป็นของแต่ละเครื่อง
 .claude/settings.local.json
+
+# ตั้งค่า IDE — เป็นของแต่ละคน ไม่เกี่ยวกับผลงาน
+# .idea/workspace.xml เก็บตำแหน่งหน้าต่างและไฟล์ที่เปิดค้างไว้ด้วย
+.idea/
+.vscode/
 
 # ===== Python =====
 __pycache__/
