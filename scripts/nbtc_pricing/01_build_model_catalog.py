@@ -221,6 +221,9 @@ def canon_name(frag):
 records = []
 # ⚠️ ต้อง fillna ก่อน astype — บน pandas รุ่นนี้ astype(str) ปล่อย NaN เป็น float ทิ้งไว้
 purposes = df["PurposeOfUseAircraft"].fillna("").astype(str).tolist()
+# วันที่กับจังหวัด ใช้ตรวจจับ "ฝูง" ในหัวข้อ 2.9 — เก็บตอนนี้เพราะ parsed เรียงตาม df แถวต่อแถว
+approved_dates = df["ApprovedDate"].astype(str).tolist()
+provinces = df["ProvinceName"].fillna("(ไม่ระบุ)").astype(str).tolist()
 for i, (raw_model, brand, year) in enumerate(zip(df["Model"], df["brand"], df["year"])):
     s = re.sub(r"\s+", " ", str(raw_model).strip().upper())
     frags = split_fragments(strip_noise(s))
@@ -249,6 +252,8 @@ for i, (raw_model, brand, year) in enumerate(zip(df["Model"], df["brand"], df["y
             "year": year,
             # ใช้จำแนกกลุ่มรุ่นทีหลัง — โดรนเกษตรราคาคนละชั้นกับโดรนถ่ายภาพสิบเท่า
             "is_agri": "เกษตร" in purposes[i],
+            "approved_date": approved_dates[i],
+            "province": provinces[i],
         }
     )
 
@@ -404,6 +409,66 @@ cat = cat.merge(year_piv.reset_index(), on=["brand", "model"])
 cat = cat.sort_values("units", ascending=False).reset_index(drop=True)
 cat.insert(0, "rank", range(1, len(cat) + 1))
 cat["cum_share"] = (cat["units"].cumsum() / N_RAW).round(4)
+
+# --------------------- 2.9) ตรวจจับ "ฝูง" — ชุดที่ถูกจดพร้อมกันทีละมาก ๆ
+# ทำไมต้องมี: ราคาต่อลำที่เก็บมาเป็น "ราคาขายปลีก" ซึ่งใช้ได้กับของที่คนซื้อทีละเครื่อง
+# แต่ทะเบียนมีบางแบรนด์ที่ถูกจดทีละหลายร้อยลำในวันเดียว จังหวัดเดียว รุ่นเดียว
+# ซึ่งเป็นฝูงที่นิติบุคคลรายเดียวนำเข้ามาทั้งชุด ไม่ใช่ของที่ขายทีละเครื่อง
+#
+# 🚨 ที่นี่ตั้งชื่อกลุ่มตาม **สิ่งที่วัดได้** คือ "จดเป็นฝูง" ไม่ใช่ "โดรนแสดงแสง"
+# เพราะมีหลักฐานระดับสินค้าแค่แบรนด์เดียว (DAMODA — สเปกระบุ LED RGBW + swarm control)
+# ที่เหลือรู้แค่ว่ารูปแบบการจดเหมือนกัน ซึ่งยังไม่พอจะสรุปว่าเป็นสินค้าประเภทเดียวกัน
+FLEET_MIN = 100          # ลำขั้นต่ำใน (ยี่ห้อ, รุ่น, วันที่, จังหวัด) เดียวกันจึงนับเป็นชุด
+FLEET_BRAND_SHARE = 0.9  # ถ้าเกินสัดส่วนนี้ของทั้งแบรนด์ ถือว่าทั้งแบรนด์ไม่ใช่ของขายปลีก
+
+burst = (parsed.groupby(["brand", "model", "approved_date", "province"])
+         .size().reset_index(name="n"))
+burst = burst[burst["n"] >= FLEET_MIN].copy()
+
+# แยกสองสาเหตุที่ทำให้จดพร้อมกันทีละมาก ๆ ออกจากกัน:
+#   รุ่นเดียวล้วนในวันนั้น  = ฝูงของนิติบุคคลรายเดียว
+#   หลายรุ่นในวันเดียวกัน   = ตัวแทนจำหน่ายจดสินค้าทั้งล็อต — ราคาขายปลีกยังใช้ได้ตามปกติ
+n_models = burst.groupby(["brand", "approved_date", "province"])["model"].transform("nunique")
+burst["kind"] = ["ล็อตตัวแทนจำหน่าย" if k > 1 else "ฝูงรุ่นเดียว" for k in n_models]
+fleet = burst[burst["kind"] == "ฝูงรุ่นเดียว"]
+
+brand_tot = parsed.groupby("brand").size()
+fleet_by_brand = fleet.groupby("brand")["n"].sum()
+fleet_share = (fleet_by_brand / brand_tot.reindex(fleet_by_brand.index)).fillna(0)
+FLEET_BRANDS = sorted(fleet_share[fleet_share >= FLEET_BRAND_SHARE].index)
+
+p("----- ตรวจจับชุดที่จดพร้อมกันทีละมาก ๆ -----")
+p(f"  เกณฑ์: ≥ {FLEET_MIN} ลำ ใน (ยี่ห้อ, รุ่น, วันที่, จังหวัด) เดียวกัน")
+p(f"  พบ {len(burst)} ชุด รวม {burst['n'].sum():,} ลำ ({burst['n'].sum()/N_RAW:.1%} ของทะเบียน)")
+for k, g in burst.groupby("kind"):
+    p(f"    {k}: {len(g)} ชุด {g['n'].sum():,} ลำ")
+p()
+# ⚠️ เกณฑ์ 100 เป็นค่าที่ตั้งเอง — พิมพ์ตารางความไวไว้ให้เห็นว่าผลขึ้นกับค่านี้แค่ไหน
+p("  ความไวต่อเกณฑ์ (ถ้าเปลี่ยนเลข 100 เป็นค่าอื่น):")
+_all = parsed.groupby(["brand", "model", "approved_date", "province"]).size()
+for t in (25, 50, 100, 200, 300, 500):
+    s = _all[_all >= t]
+    p(f"    ≥{t:>4} ลำ : {len(s):>4} ชุด {s.sum():>7,} ลำ ({s.sum()/N_RAW:>5.1%})")
+p()
+p(f"  ยี่ห้อที่จดเป็นฝูงเกิน {FLEET_BRAND_SHARE:.0%} ของทั้งแบรนด์ "
+  f"— ถือว่าไม่ใช่สินค้าขายปลีก:")
+for b in FLEET_BRANDS:
+    p(f"    {b:<14} {int(fleet_by_brand[b]):>6,} / {int(brand_tot[b]):>6,} ลำ "
+      f"({fleet_share[b]:.0%})")
+p(f"  รวม {int(brand_tot[FLEET_BRANDS].sum()):,} ลำ")
+p()
+p("  ยี่ห้อที่มีล็อตใหญ่แต่ไม่ถึงเกณฑ์ — ยังถือเป็นของขายปลีก ราคาปกติใช้ได้:")
+for b in sorted(fleet_share[fleet_share < FLEET_BRAND_SHARE].index):
+    p(f"    {b:<14} {int(fleet_by_brand[b]):>6,} / {int(brand_tot[b]):>6,} ลำ "
+      f"({fleet_share[b]:.0%})")
+p()
+p("  🚨 กลุ่มนี้ตั้งชื่อตามรูปแบบการจด ไม่ใช่ตามชนิดสินค้า — มีหลักฐานระดับสินค้า")
+p("     แค่ DAMODA (สเปกระบุไฟ LED RGBW และ swarm control) ที่เหลือรู้แค่ว่าจดเหมือนกัน")
+p()
+
+parsed["is_fleet_brand"] = parsed["brand"].isin(FLEET_BRANDS)
+# ติดธงลงแคตตาล็อกให้ขั้นที่ 3 อ่านได้ — จะได้ไม่ต้องเปิดไฟล์ดิบซ้ำ
+cat["is_fleet_brand"] = cat["brand"].isin(FLEET_BRANDS)
 
 p("----- แคตตาล็อกรุ่นหลังรวมแล้ว -----")
 p(f"  brand-model ก่อนรวม (ข้อความดิบ) : {df.groupby(['brand', df['Model'].astype(str).str.strip().str.upper()]).ngroups:,} คู่")
