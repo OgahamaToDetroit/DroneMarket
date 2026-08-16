@@ -25,6 +25,8 @@ DJI,NEO 2,NEO,2,เจเนอเรชัน,
 DJI,AVATA,FPV-CINEWHOOP,1,เจเนอเรชัน,
 DJI,AVATA 2,FPV-CINEWHOOP,2,เจเนอเรชัน,
 DJI,AVATA 360,FPV-360,1,เจเนอเรชัน,แยกจากสาย Avata ปกติเพราะเป็นสินค้าคนละประเภท (กล้อง 360 องศา) และตั้งราคาคนละชั้น — เหตุผลเดียวกับที่แยก MINI-BUDGET ออกจาก MINI-STD
+FIMI,MINI 3,FIMI-MINI,3,เจเนอเรชัน,สายโดรนเล็กของ FIMI (Xiaomi ecosystem) — ชื่อทางการไม่มี X8 นำหน้า
+AUTEL ROBOTICS,EVO LITE ENTERPRISE 6K,AUTEL-LITE-ENT,1,เจเนอเรชัน,สายงานองค์กร ราคาคนละชั้นกับสาย EVO ทั่วไป
 HOVERAIR,X1,HOVERAIR-X1,1,เจเนอเรชัน,สายโดรนเซลฟี่ของ Zero Zero Robotics
 HOVERAIR,X1 PRO,HOVERAIR-X1,2,เจเนอเรชัน,สเปกสูงกว่า X1 — ยังไม่มีราคา
 HOVERAIR,X1 PRO MAX,HOVERAIR-X1,3,เจเนอเรชัน,สเปกสูงสุดของสาย — ยังไม่มีราคาแยกจากสาย Avata ปกติเพราะเป็นสินค้าคนละประเภท (กล้อง 360 องศา) และตั้งราคาคนละชั้น — เหตุผลเดียวกับที่แยก MINI-BUDGET ออกจาก MINI-STD
