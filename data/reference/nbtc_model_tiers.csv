@@ -17,12 +17,14 @@ DJI,MAVIC PRO,FLAGSHIP,1,เจเนอเรชัน,
 DJI,MAVIC 2 PRO,FLAGSHIP,2,เจเนอเรชัน,
 DJI,MAVIC 2 ZOOM,FLAGSHIP,2,เจเนอเรชัน,
 DJI,MAVIC 3,FLAGSHIP,3,เจเนอเรชัน,
+DJI,MAVIC 3 CLASSIC,FLAGSHIP,3,เจเนอเรชัน,รุ่นตัดกล้องเทเลออกของ Mavic 3 — ตั้ง gen เท่ากับ MAVIC 3 เพราะเป็นรุ่นเดียวกันคนละสเปก ไม่ใช่เจเนอเรชันถัดไป
 DJI,MAVIC 3 PRO,FLAGSHIP,4,เจเนอเรชัน,
 DJI,MAVIC 4 PRO,FLAGSHIP,5,เจเนอเรชัน,
 DJI,NEO,NEO,1,เจเนอเรชัน,
 DJI,NEO 2,NEO,2,เจเนอเรชัน,
 DJI,AVATA,FPV-CINEWHOOP,1,เจเนอเรชัน,
 DJI,AVATA 2,FPV-CINEWHOOP,2,เจเนอเรชัน,
+DJI,AVATA 360,FPV-360,1,เจเนอเรชัน,แยกจากสาย Avata ปกติเพราะเป็นสินค้าคนละประเภท (กล้อง 360 องศา) และตั้งราคาคนละชั้น — เหตุผลเดียวกับที่แยก MINI-BUDGET ออกจาก MINI-STD
 DJI,AGRAS MG-1,AGRAS-MG,1,ความจุ,สายเก่า — DJI ไม่ออกรุ่น MG ใหม่อีกเลยหลัง MG-1P สายที่ขายอยู่ปัจจุบันคือ T ทั้งหมด
 DJI,AGRAS MG-1S,AGRAS-MG,1,ความจุ,สายเก่า
 DJI,AGRAS MG-1P,AGRAS-MG,1,ความจุ,สายเก่า
