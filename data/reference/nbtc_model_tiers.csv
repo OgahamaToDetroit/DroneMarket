@@ -1,25 +1,40 @@
-brand,model,tier,gen,note
-DJI,MINI 3 PRO,MINI-PRO,3,
-DJI,MINI 4 PRO,MINI-PRO,4,
-DJI,MINI 5 PRO,MINI-PRO,5,
-DJI,MAVIC MINI,MINI-STD,1,สายหลัก
-DJI,MINI 2,MINI-STD,2,สายหลัก
-DJI,MINI 3,MINI-STD,3,สายหลัก
-DJI,MINI SE,MINI-BUDGET,1,สายประหยัด — แยกจากสายหลักเพราะตั้งราคาคนละชั้น
-DJI,MINI 2 SE,MINI-BUDGET,2,สายประหยัด
-DJI,MINI 4K,MINI-BUDGET,3,สายประหยัด
-DJI,MAVIC AIR,AIR,1,
-DJI,MAVIC AIR 2,AIR,2,
-DJI,AIR 2S,AIR,3,
-DJI,AIR 3,AIR,4,
-DJI,AIR 3S,AIR,5,
-DJI,MAVIC PRO,FLAGSHIP,1,
-DJI,MAVIC 2 PRO,FLAGSHIP,2,
-DJI,MAVIC 2 ZOOM,FLAGSHIP,2,
-DJI,MAVIC 3,FLAGSHIP,3,
-DJI,MAVIC 3 PRO,FLAGSHIP,4,
-DJI,MAVIC 4 PRO,FLAGSHIP,5,
-DJI,NEO,NEO,1,
-DJI,NEO 2,NEO,2,
-DJI,AVATA,FPV-CINEWHOOP,1,
-DJI,AVATA 2,FPV-CINEWHOOP,2,
+brand,model,tier,gen,price_rule,note
+DJI,MINI 3 PRO,MINI-PRO,3,เจเนอเรชัน,
+DJI,MINI 4 PRO,MINI-PRO,4,เจเนอเรชัน,
+DJI,MINI 5 PRO,MINI-PRO,5,เจเนอเรชัน,
+DJI,MAVIC MINI,MINI-STD,1,เจเนอเรชัน,สายหลัก
+DJI,MINI 2,MINI-STD,2,เจเนอเรชัน,สายหลัก
+DJI,MINI 3,MINI-STD,3,เจเนอเรชัน,สายหลัก
+DJI,MINI SE,MINI-BUDGET,1,เจเนอเรชัน,สายประหยัด — แยกจากสายหลักเพราะตั้งราคาคนละชั้น
+DJI,MINI 2 SE,MINI-BUDGET,2,เจเนอเรชัน,สายประหยัด
+DJI,MINI 4K,MINI-BUDGET,3,เจเนอเรชัน,สายประหยัด
+DJI,MAVIC AIR,AIR,1,เจเนอเรชัน,
+DJI,MAVIC AIR 2,AIR,2,เจเนอเรชัน,
+DJI,AIR 2S,AIR,3,เจเนอเรชัน,
+DJI,AIR 3,AIR,4,เจเนอเรชัน,
+DJI,AIR 3S,AIR,5,เจเนอเรชัน,
+DJI,MAVIC PRO,FLAGSHIP,1,เจเนอเรชัน,
+DJI,MAVIC 2 PRO,FLAGSHIP,2,เจเนอเรชัน,
+DJI,MAVIC 2 ZOOM,FLAGSHIP,2,เจเนอเรชัน,
+DJI,MAVIC 3,FLAGSHIP,3,เจเนอเรชัน,
+DJI,MAVIC 3 PRO,FLAGSHIP,4,เจเนอเรชัน,
+DJI,MAVIC 4 PRO,FLAGSHIP,5,เจเนอเรชัน,
+DJI,NEO,NEO,1,เจเนอเรชัน,
+DJI,NEO 2,NEO,2,เจเนอเรชัน,
+DJI,AVATA,FPV-CINEWHOOP,1,เจเนอเรชัน,
+DJI,AVATA 2,FPV-CINEWHOOP,2,เจเนอเรชัน,
+DJI,AGRAS MG-1,AGRAS-MG,1,ความจุ,สายเก่า — DJI ไม่ออกรุ่น MG ใหม่อีกเลยหลัง MG-1P สายที่ขายอยู่ปัจจุบันคือ T ทั้งหมด
+DJI,AGRAS MG-1S,AGRAS-MG,1,ความจุ,สายเก่า
+DJI,AGRAS MG-1P,AGRAS-MG,1,ความจุ,สายเก่า
+DJI,AGRAS T10,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T16,AGRAS-T,2,ความจุ,สายปัจจุบัน — 🚨 ราคาในตารางเป็นค่าที่อนุมานจาก T10 ไม่ใช่ป้ายร้าน ห้ามให้แถวนี้เข้า fit ไม่ว่ากรณีใด
+DJI,AGRAS T20,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T20P,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T25,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T25P,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T30,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T40,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T50,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T70P,AGRAS-T,2,ความจุ,สายปัจจุบัน
+DJI,AGRAS T100,AGRAS-T,2,ความจุ,สายปัจจุบัน
+KASET GEN-Y,GCS-9,OTHER-AGRI,1,ความจุ,แบรนด์ไทย — ใช้เป็นจุดเทียบอัตราส่วนกับเส้นของ DJI ไม่ได้เข้า fit
