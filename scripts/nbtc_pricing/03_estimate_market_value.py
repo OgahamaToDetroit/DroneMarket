@@ -243,8 +243,23 @@ df = long.merge(prices, on=["brand", "model_final"], how="left").merge(
 df["class"] = df["class"].fillna("ทั่วไป")
 df["has_price"] = df["price_thb"].notna()
 # ธง "จดเป็นฝูง" มาจากขั้นที่ 1 — เป็นระดับยี่ห้อ ไม่ใช่ระดับรุ่น
-FLEET_BRANDS = set(cat.loc[cat.get("is_fleet_brand", False) == True, "brand"].unique())
+# ⚠️ ขั้นที่ 3 รันได้โดยไม่ต้องรันขั้นที่ 1 ใหม่ (ผลของขั้น 1 อยู่ใน git แล้ว)
+# ถ้า model_catalog.csv เป็นไฟล์เก่าที่ยังไม่มีคอลัมน์นี้ กลุ่มฝูงจะหายไปเงียบ ๆ
+# แล้วลำพวกนั้นจะกลับไปถูกตีราคาด้วยช่วงราคาโดรนผู้บริโภคโดยไม่มีอะไรเตือน → ต้องพิมพ์บอกเสมอ
+if "is_fleet_brand" in cat.columns:
+    FLEET_BRANDS = set(cat.loc[cat["is_fleet_brand"].astype(bool), "brand"].unique())
+else:
+    FLEET_BRANDS = set()
 df["is_fleet_brand"] = df["brand"].isin(FLEET_BRANDS)
+_nf = int(df.loc[df["is_fleet_brand"], "units"].sum())
+if FLEET_BRANDS:
+    p(f"ยี่ห้อที่จดเป็นฝูง (จากขั้นที่ 1): {len(FLEET_BRANDS)} ยี่ห้อ {_nf:,} ลำ "
+      f"— {', '.join(sorted(FLEET_BRANDS))}")
+else:
+    p("🚨 ไม่พบคอลัมน์ is_fleet_brand ใน model_catalog.csv — กลุ่ม 'จดเป็นฝูง' จะไม่ถูกแยกออก")
+    p("   ให้รัน 01_build_model_catalog.py ใหม่ก่อน ไม่งั้นลำกลุ่มนั้นจะถูกตีราคา")
+    p("   ด้วยช่วงราคาโดรนผู้บริโภคซึ่งสูงเกินจริง")
+p()
 
 priced_units = int(df.loc[df.has_price, "units"].sum())
 p(f"ลำที่ตั้งราคาได้       : {priced_units:,} ({priced_units / N_TOTAL:.1%})")
