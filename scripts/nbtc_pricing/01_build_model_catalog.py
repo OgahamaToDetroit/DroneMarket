@@ -102,6 +102,11 @@ BRAND_ALIAS = {
     "NAC-DRONE": "NAC DRONE",
     "HOVER AIR": "HOVERAIR",
     "HOVER-AIR": "HOVERAIR",
+    "HOVER": "HOVERAIR",
+    "HOVERAIR X1": "HOVERAIR",      # กรอกชื่อรุ่นต่อท้ายยี่ห้อ
+    "HOVER AIR X1": "HOVERAIR",
+    # ⚠️ ห้ามรวม "HOVER CAMERA" / "HOVER CAMERA PASSPORT" เข้ามาด้วย
+    # เป็นสินค้าคนละรุ่น (Hover Camera Passport ปี 2016) ไม่ใช่สาย HoverAir X1
     "DGI": "DJI",          # สะกดสลับตัวอักษร
     "DGI AGRAS": "DJI",
     "DJI AGRAS": "DJI",

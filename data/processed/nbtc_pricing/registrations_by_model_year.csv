@@ -2744,28 +2744,24 @@ HORRUS-DRONE,3.2,2025,False,ชื่อในช่องเอง,2
 HORRUS-DRONE,OASIS 1.0,2024,False,ชื่อในช่องเอง,3
 HORRUS-DRONE,OASIS 1.0,2025,False,ชื่อในช่องเอง,1
 HOSHI,007 PRO,2017,False,ชื่อในช่องเอง,1
-HOVER,AIR X1,2023,False,ชื่อในช่องเอง,1
-HOVER,AIR X1,2024,False,ชื่อในช่องเอง,4
-HOVER,AIR X1,2025,False,ชื่อในช่องเอง,1
-HOVER,AIR X1 PRO,2024,False,ชื่อในช่องเอง,1
-HOVER,AIR X1 PRO,2025,False,ชื่อในช่องเอง,2
-HOVER,AIR X1 PROMAX,2026,False,ชื่อในช่องเอง,1
-HOVER,AIRX1,2024,False,ชื่อในช่องเอง,1
-HOVER,AIRX1,2025,False,ชื่อในช่องเอง,1
-HOVER,PASSPORT,2018,False,ชื่อในช่องเอง,1
-HOVER,PROMAX,2026,False,ชื่อในช่องเอง,1
-HOVER,"ROBOTICS, ZZ-H-1-001",2024,False,ชื่อในช่องเอง,1
-HOVER,X 1 PRO,2024,False,ชื่อในช่องเอง,1
-HOVER,X-AIR,2025,False,ชื่อในช่องเอง,1
-HOVER,X1,2023,False,ชื่อในช่องเอง,1
-HOVER,X1,2024,False,ชื่อในช่องเอง,3
-HOVER,ZZ-H-1-001,2024,False,ชื่อในช่องเอง,1
-HOVER AIR X1,ZZ-H-001,2024,False,ชื่อในช่องเอง,1
 HOVER CAMERA,X1,2024,False,ชื่อในช่องเอง,1
 HOVER CAMERA PASSPORT,(ไม่ระบุ),2017,False,ว่าง,1
+HOVERAIR,AIR X1,2023,False,ชื่อในช่องเอง,1
+HOVERAIR,AIR X1,2024,False,ชื่อในช่องเอง,4
+HOVERAIR,AIR X1,2025,False,ชื่อในช่องเอง,1
+HOVERAIR,AIR X1 PRO,2024,False,ชื่อในช่องเอง,1
+HOVERAIR,AIR X1 PRO,2025,False,ชื่อในช่องเอง,2
+HOVERAIR,AIR X1 PROMAX,2026,False,ชื่อในช่องเอง,1
+HOVERAIR,AIRX1,2024,False,ชื่อในช่องเอง,1
+HOVERAIR,AIRX1,2025,False,ชื่อในช่องเอง,1
+HOVERAIR,PASSPORT,2018,False,ชื่อในช่องเอง,1
 HOVERAIR,PRO MAX,2025,False,ชื่อในช่องเอง,1
-HOVERAIR,X1,2023,False,ชื่อในช่องเอง,1
-HOVERAIR,X1,2024,False,ชื่อในช่องเอง,4
+HOVERAIR,PROMAX,2026,False,ชื่อในช่องเอง,1
+HOVERAIR,"ROBOTICS, ZZ-H-1-001",2024,False,ชื่อในช่องเอง,1
+HOVERAIR,X 1 PRO,2024,False,ชื่อในช่องเอง,1
+HOVERAIR,X-AIR,2025,False,ชื่อในช่องเอง,1
+HOVERAIR,X1,2023,False,ชื่อในช่องเอง,2
+HOVERAIR,X1,2024,False,ชื่อในช่องเอง,7
 HOVERAIR,X1,2025,False,ชื่อในช่องเอง,18
 HOVERAIR,X1,2026,False,ชื่อในช่องเอง,3
 HOVERAIR,X1 PRO,2024,False,ชื่อในช่องเอง,1
@@ -2783,12 +2779,11 @@ HOVERAIR,X1 PRO MAX (MODEL ZZ-H-1-004),2025,False,ชื่อในช่อง
 HOVERAIR,X1 PRO MAX (MODEL ZZ-H-1-004),2026,False,ชื่อในช่องเอง,13
 HOVERAIR,X1 PROMAX,2025,False,ชื่อในช่องเอง,8
 HOVERAIR,X1 PROMAX,2026,False,ชื่อในช่องเอง,5
-HOVERAIR,ZZ-H-1-001,2024,False,ชื่อในช่องเอง,487
-HOVERAIR,ZZ-H-1-001,2025,False,ชื่อในช่องเอง,114
+HOVERAIR,ZZ-H-001,2024,False,ชื่อในช่องเอง,1
+HOVERAIR,ZZ-H-1-001,2024,False,ชื่อในช่องเอง,499
+HOVERAIR,ZZ-H-1-001,2025,False,ชื่อในช่องเอง,117
 HOVERAIR,ZZ-H-1-001,2026,False,ชื่อในช่องเอง,25
 HOVERAIR,ZZ-H-1-004,2024,False,ชื่อในช่องเอง,1
-HOVERAIR X1,ZZ-H-1-001,2024,False,ชื่อในช่องเอง,11
-HOVERAIR X1,ZZ-H-1-001,2025,False,ชื่อในช่องเอง,3
 HUBSAN,(ไม่ระบุ),2018,False,ว่าง,3
 HUBSAN,(ไม่ระบุ),2019,False,ว่าง,1
 HUBSAN,ACE 2,2024,False,ชื่อในช่องเอง,26
