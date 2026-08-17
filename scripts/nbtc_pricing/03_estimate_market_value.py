@@ -145,18 +145,43 @@ base_price = prices["price_thb"].copy()
 # ถ้าไม่เก็บ คนที่เปิด nbtc_model_prices.csv จะเห็นเลขที่รายงาน**ไม่ได้ใช้** (เช่น MINI 3 PRO)
 prices["price_thb_collected"] = base_price
 prices["capped_from"] = ""
-caps = []
+caps, cap_flags = [], []
 for i, row in prices.iterrows():
     if pd.isna(row.get("tier")) or row.get("price_rule") != GEN_RULE:
+        continue
+    # 🚨 รุ่นที่เลิกผลิตแล้ว ไม่เข้ากติกานี้
+    # ของเก่าที่เลิกทำแล้วเหลือน้อย ราคาไม่ลดตามรุ่นใหม่เป็นเรื่องปกติของตลาด
+    # (AGRAS MG-1 ปี 2558 ยังขาย 267,000 ขณะที่ T20P ปี 2566 ถัง 2 เท่าขาย 220,000)
+    # ราคาพวกนี้ถูกต้องในฐานะ "ราคาที่ร้านขายจริง" การกดลงคือการลบราคาจริงทิ้ง
+    if str(row.get("discontinued", "")).strip().lower() in ("yes", "y", "true", "1"):
         continue
     newer_idx = prices.index[(prices["tier"] == row["tier"]) & (prices["gen"] > row["gen"])]
     if not len(newer_idx):
         continue
+    # 🚨 ต้องเทียบเฉพาะรุ่นที่ฐานราคาเดียวกัน
+    # ฉบับแรกไม่เช็คเลย จึงเอาราคาชุดคอมโบไปเทียบกับตัวเปล่าแล้วสรุปว่า "แพงเกิน"
+    # ซึ่งจับได้ 3 ครั้งว่าต้นเหตุจริงคือฐานปนกัน ไม่ใช่ราคาผิด:
+    #   MAVIC 3 PRO 93,990 = Fly More Combo (ตัวเปล่า 73,990)
+    #   MINI 3 PRO  30,990 = ชุดรีโมตมีจอ DJI RC (ตัวเปล่า RC-N1 25,690)
+    #   MAVIC 2 PRO 56,500 = ราคาสัญญาภาครัฐ ไม่ใช่ป้ายร้าน
+    # → ถ้าฐานต่างกันให้ **ฟ้อง** ไม่ใช่กด เพราะการกดข้ามฐานคือเอาราคาชุดหนึ่งไปแทนอีกชุด
+    same_basis = newer_idx[prices.loc[newer_idx, "basis_kind"] == row["basis_kind"]]
+    diff_basis = newer_idx.difference(same_basis)
+    if len(diff_basis):
+        lower = diff_basis[base_price[diff_basis] < base_price[i]]
+        for j in lower:
+            cap_flags.append({
+                "model": row["model_final"], "ฐาน": row["basis_kind"], "ราคา": base_price[i],
+                "เทียบกับ": prices.loc[j, "model_final"],
+                "ฐานอีกฝั่ง": prices.loc[j, "basis_kind"], "ราคาอีกฝั่ง": base_price[j],
+            })
+    if not len(same_basis):
+        continue
     # เพดาน = ราคา "ต่ำสุด" ของรุ่นที่ใหม่กว่าทั้งหมดในสาย ไม่ใช่สูงสุด
     # เพราะถ้าใช้สูงสุด รุ่นเก่าจะยังแพงกว่ารุ่นถัดไปได้อยู่ = ยังผกผันอยู่ แค่น้อยลง
-    ceiling = base_price[newer_idx].min()
+    ceiling = base_price[same_basis].min()
     if base_price[i] > ceiling:
-        src_model = prices.loc[base_price[newer_idx].idxmin(), "model_final"]
+        src_model = prices.loc[base_price[same_basis].idxmin(), "model_final"]
         caps.append(
             {
                 "model": row["model_final"], "เดิม": base_price[i], "เพดาน": ceiling,
@@ -171,15 +196,25 @@ for i, row in prices.iterrows():
 p("----- กติกากันราคาผกผัน -----")
 p(f"  ใช้กับ: แถวที่ price_rule = '{GEN_RULE}' เท่านั้น "
   f"({(prices['price_rule'] == GEN_RULE).sum()} รุ่น) — โดรนเกษตรไม่เข้ากติกานี้")
-p("  กติกา: ราคาของรุ่นหนึ่ง ต้องไม่เกินราคาของรุ่น**ใดก็ตาม**ที่ใหม่กว่าในสายผลิตภัณฑ์เดียวกัน")
-p("  ทำไมต้องมี: ราคาที่เก็บมามาจากคนละแหล่งคนละชุดขาย จึงเกิดกรณีรุ่นเก่าแพงกว่ารุ่นใหม่")
-p("  ผลข้างเคียงที่ตั้งใจ: กดตัวเลขลง → ค่าที่ได้เอนไปทาง 'ขอบล่าง' ซึ่งตรงกับเจตนาของงานนี้")
+p("  กติกา: ราคาของรุ่นหนึ่ง ต้องไม่เกินราคาของรุ่นที่ใหม่กว่าในสายเดียวกัน **และฐานราคาเดียวกัน**")
+p("  ไม่ใช้กับ: รุ่นที่ติดธง discontinued (เลิกผลิตแล้ว ราคาไม่ลดตามรุ่นใหม่เป็นเรื่องปกติ)")
+n_disc = (prices.get("discontinued", pd.Series(dtype=str))
+          .astype(str).str.strip().str.lower().isin(["yes", "y", "true", "1"]).sum())
+p(f"    รุ่นที่ติดธงนี้: {n_disc} รุ่น")
 if caps:
     for c in caps:
         p(f"  {c['model']:<14} {c['เดิม']:>9,.0f} → {c['เพดาน']:>9,.0f} ฿  "
-          f"(เพดานจาก {c['เพดานมาจาก']} ซึ่งเป็นราคาป้าย)")
+          f"(เพดานจาก {c['เพดานมาจาก']} ฐานเดียวกัน)")
 else:
     p("  ไม่มีรุ่นไหนเข้าเงื่อนไข")
+if cap_flags:
+    p()
+    p(f"  ⚠️ {len(cap_flags)} คู่ที่รุ่นเก่าแพงกว่ารุ่นใหม่ **แต่คนละฐานราคา** — ฟ้องอย่างเดียว ไม่กด:")
+    for f in cap_flags:
+        p(f"     {f['model']} [{f['ฐาน']}] {f['ราคา']:,.0f} ฿  แพงกว่า  "
+          f"{f['เทียบกับ']} [{f['ฐานอีกฝั่ง']}] {f['ราคาอีกฝั่ง']:,.0f} ฿")
+    p("     → เทียบกันตรง ๆ ไม่ได้เพราะเป็นคนละชุดขาย ต้องไปหาราคาที่ฐานตรงกันมาแทน")
+    p("     ห้ามกดข้ามฐาน เพราะเท่ากับเอาราคาชุดหนึ่งไปแทนที่อีกชุด")
 p()
 
 # ------------------- 2.6) ตัวตรวจโดรนเกษตร: ถังใหญ่ขึ้น ราคาต้องไม่ลด (รายงานอย่างเดียว)
