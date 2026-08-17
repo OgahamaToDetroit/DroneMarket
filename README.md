@@ -155,15 +155,25 @@ python scripts/egp_drone_procurement.py --years 2568 --max-mb 60   # ทดส�
 | `nbtc_pricing/01_build_model_catalog.py` | แกะ `Brand`/`Model` ให้รุ่นเดียวกันเป็นก้อนเดียวกัน — ถอดรหัสโรงงานด้วยแถวที่เขียนทั้งรหัสและชื่อรุ่นไว้ในช่องเดียวกัน | `data/processed/nbtc_pricing/model_catalog.csv` · `code_dictionary.csv` |
 | `nbtc_pricing/02_egp_price_evidence.py` | ขุดราคาต่อลำที่ **จ่ายจริง** ออกจากสัญญา e-GP มาเป็นตัวตรวจราคา | `data/processed/nbtc_pricing/egp_price_evidence.csv` |
 | `nbtc_pricing/03_estimate_market_value.py` | จำนวนลำ × ราคาต่อลำ → มูลค่าตลาดรายปี 2 ฐาน + ตัวตรวจ 2 ตัว · เชื่อมราคาเข้ากับแคตตาล็อกให้เสร็จ เพื่อให้ไฟล์รายรุ่นอ่านจบได้โดยไม่ต้องเปิดตารางราคาควบ | `data/processed/nbtc_pricing/market_value_by_year.csv` · `market_value_by_model.csv` (มีคอลัมน์ราคาที่ใช้/ราคาที่เก็บมา/แหล่ง) · `unpriced_models.csv` (มีคอลัมน์ `reason`) |
+| `nbtc_pricing/04_sync_report.py` | **เขียนตารางลงเอกสารเอง** ระหว่าง marker `<!--TABLE_*-->` แล้ว **ตรวจตัวเลขที่ฝังในข้อความ** — แก้ปัญหาตัวเลขค้างคนละชนิดกัน | แก้ `reports/2026-08-04_nbtc-unit-value/README.md` · `DATA.md` ในที่เดิม · `04_sync_report_out.txt` |
 
 ```bash
 python scripts/nbtc_pricing/01_build_model_catalog.py     # ต้องมี data/raw/drone_data.xlsx
 python scripts/nbtc_pricing/02_egp_price_evidence.py      # ต้องมี egp_drone_projects.csv
 python scripts/nbtc_pricing/03_estimate_market_value.py   # อ่าน data/reference/ + ผลของขั้น 1-2
+python scripts/nbtc_pricing/04_sync_report.py             # เขียนตารางลงเอกสาร + ตรวจตัวเลขในข้อความ
 ```
 
 > **ขั้นที่ 3 รันได้เลยหลัง clone โดยไม่ต้องมีไฟล์ดิบ** เพราะผลของขั้นที่ 1 อยู่ใน git แล้ว
 > ขั้นที่ 1 ต้องใช้ `data/raw/drone_data.xlsx` ซึ่งดาวน์โหลดเองจากลิงก์ใน `SOURCES.md` §1
+
+> 🚨 **รันขั้นที่ 4 ทุกครั้งหลังขั้นที่ 3** — ไม่งั้นตัวเลขในเอกสารจะค้างอยู่ที่รอบก่อน
+> ขั้นนี้ **เขียนตารางลงเอกสารเอง** (ตารางที่ทุกช่องมาจากผลรัน จึงไม่มีทางค้าง)
+> แล้ว **ตรวจตัวเลขที่ฝังอยู่ในข้อความ** ซึ่ง generate ไม่ได้เพราะบริบทเป็นของคนเขียน
+> ออก `exit 1` ถ้ามีวลีไหนไม่ตรง
+>
+> ⚠️ ตรวจแค่ตัวเลข **ไม่ได้ตรวจว่าตีความถูกไหม** — ตัวเลขตรงทุกช่องไม่ได้แปลว่า
+> ข้อความรอบ ๆ พูดถูก ข้อความยังต้องอ่านเอง (ข้อจำกัดเดียวกับ `verify_customs_docs.py`)
 
 > **ราคามาจาก `data/reference/` ไม่ได้อยู่ในโค้ด** — จะแก้ราคาให้แก้ที่ CSV
 > ถ้าเจอราคาผกผัน (รุ่นใหม่ถูกกว่ารุ่นเก่าในสายเดียวกัน) ให้แก้ที่**กติกาในโค้ด**
